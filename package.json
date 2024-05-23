@@ -36,7 +36,8 @@
     "react-native-screens": "3.31.1",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.10",
-    "tamagui": "1.74.8"
+    "tamagui": "1.74.8",
+    "expo-apple-authentication": "~6.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
