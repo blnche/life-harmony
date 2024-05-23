@@ -1,15 +1,16 @@
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { Slot, SplashScreen, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
-import { TamaguiProvider } from 'tamagui';
+import { TamaguiProvider, Theme } from 'tamagui';
 
 import config from '../tamagui.config';
+import AuthProvider from '~/providers/AuthProvider';
 
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: '(home)',
 };
 
 export default function RootLayout() {
@@ -28,10 +29,17 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={config}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+      <Theme name='light'>
+        <AuthProvider>
+
+        <Slot />
+        {/* <Stack /> */}
+        {/* <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack> */}
+        </AuthProvider>
+      </Theme>
     </TamaguiProvider>
   );
 }
