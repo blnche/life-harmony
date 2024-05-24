@@ -2,8 +2,31 @@ import { Link, Tabs } from 'expo-router';
 
 import { HeaderButton } from '../../../components/HeaderButton';
 import { TabBarIcon } from '../../../components/TabBarIcon';
+import { useAuth } from '~/providers/AuthProvider';
+import { useEffect, useState } from 'react';
+import { Text } from 'react-native';
+import { supabase } from '~/utils/supabase';
 
 export default function TabLayout() {
+  
+  const { user } = useAuth()
+  const [userProfile, setUserProfile] = useState('')
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
+
+  const fetchProfile = async () => {
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user!.id)
+
+      if(error) console.error(error.message)
+        else{
+      setUserProfile(profiles[0])}
+  }
+
   return (
     // <Tabs 
     //   screenOptions={{
@@ -23,6 +46,9 @@ export default function TabLayout() {
             <Link href="/modal" asChild>
               <HeaderButton />
             </Link>
+          ),
+          headerLeft:  () => (
+            <Text>{userProfile?.username}</Text>
           ),
         }}
       />
