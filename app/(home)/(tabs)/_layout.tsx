@@ -1,31 +1,33 @@
 import { Link, Tabs } from 'expo-router';
-
 import { HeaderButton } from '../../../components/HeaderButton';
 import { TabBarIcon } from '../../../components/TabBarIcon';
 import { useAuth } from '~/providers/AuthProvider';
 import { useEffect, useState } from 'react';
 import { Text } from 'react-native';
 import { supabase } from '~/utils/supabase';
+import { Database } from '~/utils/supabase-types';
+
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function TabLayout() {
   
   const { user } = useAuth()
-  const [userProfile, setUserProfile] = useState('')
+  const [userProfile, setUserProfile] = useState<Profile>()
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select<Profile>('*')
+        .eq('id', user!.id)
+        .single()
+  
+        if(error) console.error(error.message)
+          else{
+        setUserProfile(profile)}
+    }
     fetchProfile()
   }, [])
-
-  const fetchProfile = async () => {
-    const { data: profiles, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user!.id)
-
-      if(error) console.error(error.message)
-        else{
-      setUserProfile(profiles[0])}
-  }
 
   return (
     // <Tabs 
@@ -48,7 +50,7 @@ export default function TabLayout() {
             </Link>
           ),
           headerLeft:  () => (
-            <Text>{userProfile?.username}</Text>
+            <Text>{userProfile && userProfile.username}</Text>
           ),
         }}
       />
