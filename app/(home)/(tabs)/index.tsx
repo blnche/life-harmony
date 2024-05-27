@@ -123,7 +123,7 @@ export default function MainTabScreen() {
                 <Button 
                   icon={Trash}
                   color={'red'}
-                  variant='outlined'
+                  chromeless
                   onPress={() => deleteTodo(todo.id)}
                 />
                 <Text>{todo.task}</Text>
