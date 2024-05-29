@@ -1,6 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "~/utils/supabase";
 import { Session, User } from "@supabase/supabase-js";
+import { Database } from "~/utils/supabase-types";
 
 type AuthContext = {
     session: Session | null
@@ -23,9 +24,11 @@ export default function AuthProvider({ children } : PropsWithChildren) {
         supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session)
         })
+
     },[])
+
     return (
-        <AuthContext.Provider value={{ session, user: session?.user }}>
+        <AuthContext.Provider value={{ session, user: session?.user! }}>
             {children}
         </AuthContext.Provider>
     )

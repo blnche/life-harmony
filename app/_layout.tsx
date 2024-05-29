@@ -5,6 +5,7 @@ import { TamaguiProvider, Theme } from 'tamagui';
 
 import config from '../tamagui.config';
 import AuthProvider from '~/providers/AuthProvider';
+import UserProfileProvider from '~/providers/UserProfileProvider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,13 +32,9 @@ export default function RootLayout() {
     <TamaguiProvider config={config}>
       <Theme name='light'>
         <AuthProvider>
-
-        <Slot />
-        {/* <Stack /> */}
-        {/* <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack> */}
+            <UserProfileProvider>
+              <Slot />
+            </UserProfileProvider>
         </AuthProvider>
       </Theme>
     </TamaguiProvider>

@@ -9,31 +9,23 @@ import { supabase } from '~/utils/supabase';
 import { Database } from '~/utils/supabase-types';
 import DateTimePicker from 'react-native-ui-datepicker'
 import {format} from 'date-fns'
+import { useUserProfile } from '~/providers/UserProfileProvider';
+import Task from '~/components/Task';
 
 type Todo = Database['public']['Tables']['todos']['Row']
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function MainTabScreen() {
 
   const { user } = useAuth()
-  const [userProfile, setUserProfile] = useState<Profile>()
+  const { userProfile } = useUserProfile()
 
   const [todos, setTodos] = useState<Todo[]>([])
   const [newTodo, setNewTodo] = useState<Todo>()
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [showTimePicker, setShowTimePicker] = useState(false)
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select<Profile>('*')
-        .eq('id', user!.id)
-        .single()
-  
-        if(error) console.error(error.message)
-          else{
-        setUserProfile(profile)}
-    }
-    fetchProfile()
 
     const fetchTodos = async () => {
       const { data: todos, error } = await supabase
@@ -42,7 +34,7 @@ export default function MainTabScreen() {
         .order('is_complete', { ascending: false })
         .returns<Todo[]>()
   
-        todos?.map((todo) => console.log(todo.do_date))
+        // todos?.map((todo) => console.log(todo.do_date))
       if (error) {
         console.log('error', error) 
       }
@@ -72,29 +64,30 @@ export default function MainTabScreen() {
 
           },//(the ! indicates that TypeScript should ignore potential null or undefined values for user)
         ])
-        .select<Todo>('*') // Ensures that the result should be a single object rather than an array of objects.
+        .select('*') // Ensures that the result should be a single object rather than an array of objects.
         .single()
 
-      console.log(todo)
+      // console.log(todo)
       if (error) {
         console.log(error)
       }
       else {
-        
         const pointsUpdated = todo.point_value * todo.difficulty_level
         const { data, error } = await supabase
         .from('todos')
         .update({ point_value : pointsUpdated})
         .eq('id', todo.id)
-        .select<Todo>('*')
+        .select('*')
         .single()
         
         if (error) {
           console.log(error)
         } else {
           todo.point_value = pointsUpdated
-          setTodos([todo!, ...todos]); 
-          setNewTodo<Todo>(null);
+          setTodos([todo!, ...todos])
+          setNewTodo<Todo>(null)
+          setShowDatePicker(!showDatePicker)
+
         }
       }
     }
@@ -102,24 +95,39 @@ export default function MainTabScreen() {
 
   const toggleTodoStatus = async (id: number, is_complete: boolean) => {
     // console.log(id, is_complete)
+    try {
 
-    const { data, error } = await supabase  
-      .from('todos')
-      .update({ is_complete: !is_complete})
-      .eq('id', id)
-      .select<Todo>('*')
-      .single()
+      const { data: updatedTodo, error: todoError } = await supabase  
+        .from('todos')
+        .update({ is_complete: !is_complete})
+        .eq('id', id)
+        .select('*')
+        .single()
+  
+      // console.log(updatedTodo.point_value)
+      if(todoError) {
+        console.log(todoError)
+      }
+      else {
+        setTodos(todos.map((todo) => (todo.id === id ? updatedTodo! : todo)))
+      }
 
-      console.log(data)
-    if(error) {
+      // const { data: profile, error: profileError } = await supabase
+      //   .from('profiles')
+      //   .update({ points: updatedTodo.point_value})
+      //   .eq('id', userProfile?.id)
+      //   .select<Profile>('*')
+      //   .single()
+
+      //   if(profileError) {
+      //     console.log(profileError)
+      //   } 
+      //   else {
+      //     console.log(profile)
+      //   }
+    } catch (error) {
       console.log(error)
     }
-    else {
-      setTodos(todos.map((todo) => (todo.id === id ? data! : todo)))
-    }
-
-
-    
   }
 
   const deleteTodo = async (id: number) => {
@@ -137,9 +145,9 @@ export default function MainTabScreen() {
   }
 
   const handleDate = ( receivedDate : object ) => {
-    console.log(receivedDate)
+    // console.log(receivedDate)
     const dateObject = new Date(receivedDate.date)
-    console.log(dateObject)
+    // console.log(dateObject)
     setNewTodo({...newTodo, do_date : dateObject.toISOString()})
   }
 
@@ -183,7 +191,7 @@ export default function MainTabScreen() {
     // console.log(formattedDate)
     return formattedDate
   }
-  
+
   return (
     <>
       <Stack.Screen options={{ title: 'Tasks' }} />
@@ -192,46 +200,49 @@ export default function MainTabScreen() {
         <View 
           alignItems='center'
         >
-          <H1>Today's Tasks {userProfile && userProfile.points}</H1>
+          {userProfile &&
+            <H1>Here's your points : {userProfile?.points}</H1>
+          }
           {todos && todos.map((todo, index) => {
-            return !todo.is_complete ? (
-              <YStack
-                key={todo.id}
-                width={350}
-                backgroundColor="#fff"
-                borderRadius={5}
-                marginVertical='$1.5'
-                padding='$3'
-              >
+            return  (
+              <Task {...todo}/>
+            //   <YStack
+            //     key={todo.id}
+            //     width={350}
+            //     backgroundColor="#fff"
+            //     borderRadius={5}
+            //     marginVertical='$1.5'
+            //     padding='$3'
+            //   >
 
-              <XStack 
-                justifyContent='space-between' 
-                alignItems='center'
+            //   <XStack 
+            //     justifyContent='space-between' 
+            //     alignItems='center'
                 
-              >
-                <Button 
-                  icon={Trash}
-                  color={'red'}
-                  chromeless
-                  onPress={() => deleteTodo(todo.id)}
-                />
-                <Text>{todo.task} ({todo.point_value})</Text>
-                <Checkbox onCheckedChange={() => toggleTodoStatus(todo.id, todo.is_complete, todo.difficulty_level, todo.point_value)}>
-                  <Checkbox.Indicator >
-                    <CheckIcon />
-                  </Checkbox.Indicator>
-                </Checkbox>
-              </XStack>
-              <XStack
-                justifyContent='flex-start'
-                marginLeft='$4'
-              >
-                <Text marginRight='$4'>{todo.difficulty_level}</Text>
-                <Text>{displayDate(todo?.do_date!)}</Text>
+            //   >
+            //     <Button 
+            //       icon={Trash}
+            //       color={'red'}
+            //       chromeless
+            //       onPress={() => deleteTodo(todo.id)}
+            //     />
+            //     <Text>{todo.task} ({todo.point_value})</Text>
+            //     <Checkbox onCheckedChange={() => toggleTodoStatus(todo.id, todo.is_complete)}>
+            //       <Checkbox.Indicator >
+            //         <CheckIcon />
+            //       </Checkbox.Indicator>
+            //     </Checkbox>
+            //   </XStack>
+            //   <XStack
+            //     justifyContent='flex-start'
+            //     marginLeft='$4'
+            //   >
+            //     <Text marginRight='$4'>{todo.difficulty_level}</Text>
+            //     <Text>{displayDate(todo?.do_date!)}</Text>
 
-              </XStack>
-              </YStack>
-            ) : null 
+            //   </XStack>
+            //   </YStack>
+            ) 
           })}
         </View>
         <View>
@@ -279,12 +290,15 @@ export default function MainTabScreen() {
             </RadioGroup>
             <Button onPress={() => setShowDatePicker(!showDatePicker)}>Pick a date</Button>
             {showDatePicker && (
+            <>
+              <Button onPress={() => setShowTimePicker(!showTimePicker)}>Pick a time</Button>
               <DateTimePicker 
                 mode='single'
                 date={newTodo?.do_date}
-                timePicker={true}
+                timePicker={showTimePicker}
                 onChange={(params) => handleDate(params)}
               />
+            </>
             )}
             <Button 
               icon={Plus} 
