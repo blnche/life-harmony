@@ -1,7 +1,7 @@
 import { useFonts } from 'expo-font';
 import { Slot, SplashScreen, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
-import { TamaguiProvider, Theme } from 'tamagui';
+import { TamaguiProvider, Theme, View } from 'tamagui';
 
 import config from '../tamagui.config';
 import AuthProvider from '~/providers/AuthProvider';
@@ -30,13 +30,13 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={config}>
-      <Theme name='light'>
-        <AuthProvider>
-            <UserProfileProvider>
+      <AuthProvider>
+          <UserProfileProvider>
+            <Theme name='light'>
               <Slot />
-            </UserProfileProvider>
-        </AuthProvider>
-      </Theme>
+            </Theme>
+          </UserProfileProvider>
+      </AuthProvider>
     </TamaguiProvider>
   );
 }

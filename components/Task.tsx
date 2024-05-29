@@ -83,18 +83,18 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     rightAction: {
-        backgroundColor: '#DEDEDE',
-        borderRadius: 10,
+        backgroundColor: 'lightblue',
+        borderRadius: 25,
         marginHorizontal: 5,
         marginBottom: 10,
         paddingHorizontal: 10,
         paddingVertical: 5,
         shadowColor: '#000000',
         shadowOpacity: 0.1,
-        shadowRadius: 5,
+        shadowRadius: 3,
         shadowOffset: {
           width: 0,
-          height: 2,
+          height: 4,
         },
         justifyContent: 'center',
         alignItems: 'center'
@@ -106,15 +106,15 @@ const styles = StyleSheet.create({
     },
     cardContainer: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 10,
+        borderRadius: 25,
         padding: 15,
         marginBottom: 10,
         shadowColor: '#000000',
         shadowOpacity: 0.1,
-        shadowRadius: 5,
+        shadowRadius: 3,
         shadowOffset: {
           width: 0,
-          height: 2,
+          height: 4,
         },
         elevation: 3, // for Android
         minHeight: 100,

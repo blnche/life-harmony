@@ -17,7 +17,7 @@ console.log(userProfile)
   return(
     <Stack>
       <Stack.Screen name="(tabs)" options={{ 
-        headerShown: true, 
+        headerShown: false, 
         title:'Today', 
         headerRight: () => (
           <Link href="/settings" asChild>
@@ -26,7 +26,7 @@ console.log(userProfile)
         ),
         headerLeft:  () => (
           <Text>{userProfile?.username}</Text>
-        ), 
+        )
       }} />
       <Stack.Screen name="settings" options={{ presentation: 'card' }} />
     </Stack>

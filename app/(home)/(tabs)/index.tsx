@@ -1,7 +1,7 @@
-import { Stack } from 'expo-router';
-import { FlatList, StyleSheet } from 'react-native';
+import { Link, Stack } from 'expo-router';
+import { FlatList, SafeAreaView, StyleSheet } from 'react-native';
 import { ScreenContent } from '~/components/ScreenContent';
-import { View, Checkbox, H1, Input, Label, ListItem, Text, XStack, YStack, Button, RadioGroup, ScrollView } from 'tamagui';
+import { View, Checkbox, H1, Input, Label, ListItem, Text, XStack, YStack, Button, RadioGroup, ScrollView, Sheet } from 'tamagui';
 import { Check as CheckIcon, Trash, Plus } from '@tamagui/lucide-icons'
 import { useAuth } from '~/providers/AuthProvider';
 import React, { useEffect, useState } from 'react';
@@ -11,6 +11,10 @@ import DateTimePicker from 'react-native-ui-datepicker'
 import {format} from 'date-fns'
 import { useUserProfile } from '~/providers/UserProfileProvider';
 import Task from '~/components/Task';
+import NewTodo from '../newTodo';
+import { HeaderButton } from "~/components/HeaderButton";
+import { StatusBar } from 'expo-status-bar';
+
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -24,6 +28,7 @@ export default function MainTabScreen() {
   const [newTodo, setNewTodo] = useState<Todo>()
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showTimePicker, setShowTimePicker] = useState(false)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
 
@@ -34,12 +39,10 @@ export default function MainTabScreen() {
         .order('is_complete', { ascending: false })
         .returns<Todo[]>()
   
-        // todos?.map((todo) => console.log(todo.do_date))
       if (error) {
         console.log('error', error) 
       }
       else if (todos) {
-        // console.log(todos)
         setTodos(todos)
       }
       
@@ -47,7 +50,6 @@ export default function MainTabScreen() {
     fetchTodos()
 
   }, [])
-
 
   const addTodo = async (task : Todo) => {
     const text = task.task?.trim()
@@ -195,119 +197,155 @@ export default function MainTabScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'Tasks' }} />
+      <StatusBar 
+            style="dark"
+            hidden={false}
+        />
+      <SafeAreaView>
+
+      <Link href="/settings" asChild>
+            <HeaderButton />
+          </Link>
+      <Sheet
+        open={open}
+        onOpenChange={setOpen}
+        dismissOnSnapToBottom
+        snapPoints={[90,50]}
+      >
+        <Sheet.Overlay/>
+        <Sheet.Frame
+          style={{backgroundColor:'blue'}}
+        >
+          <NewTodo />
+        </Sheet.Frame>
+      </Sheet>
       <ScrollView>
 
         <View 
           alignItems='center'
         >
           {userProfile &&
-            <H1>Here's your points : {userProfile?.points}</H1>
+            <H1>Points : {userProfile?.points}</H1>
           }
           {todos && todos.map((todo, index) => {
             return  (
-              <Task {...todo}/>
-            //   <YStack
-            //     key={todo.id}
-            //     width={350}
-            //     backgroundColor="#fff"
-            //     borderRadius={5}
-            //     marginVertical='$1.5'
-            //     padding='$3'
-            //   >
-
-            //   <XStack 
-            //     justifyContent='space-between' 
-            //     alignItems='center'
-                
-            //   >
-            //     <Button 
-            //       icon={Trash}
-            //       color={'red'}
-            //       chromeless
-            //       onPress={() => deleteTodo(todo.id)}
-            //     />
-            //     <Text>{todo.task} ({todo.point_value})</Text>
-            //     <Checkbox onCheckedChange={() => toggleTodoStatus(todo.id, todo.is_complete)}>
-            //       <Checkbox.Indicator >
-            //         <CheckIcon />
-            //       </Checkbox.Indicator>
-            //     </Checkbox>
-            //   </XStack>
-            //   <XStack
-            //     justifyContent='flex-start'
-            //     marginLeft='$4'
-            //   >
-            //     <Text marginRight='$4'>{todo.difficulty_level}</Text>
-            //     <Text>{displayDate(todo?.do_date!)}</Text>
-
-            //   </XStack>
+              <Task {...todo} key={todo.id}/>
+              //   <YStack
+              //     key={todo.id}
+              //     width={350}
+              //     backgroundColor="#fff"
+              //     borderRadius={5}
+              //     marginVertical='$1.5'
+              //     padding='$3'
+              //   >
+              
+              //   <XStack 
+              //     justifyContent='space-between' 
+              //     alignItems='center'
+              
+              //   >
+              //     <Button 
+              //       icon={Trash}
+              //       color={'red'}
+              //       chromeless
+              //       onPress={() => deleteTodo(todo.id)}
+              //     />
+              //     <Text>{todo.task} ({todo.point_value})</Text>
+              //     <Checkbox onCheckedChange={() => toggleTodoStatus(todo.id, todo.is_complete)}>
+              //       <Checkbox.Indicator >
+              //         <CheckIcon />
+              //       </Checkbox.Indicator>
+              //     </Checkbox>
+              //   </XStack>
+              //   <XStack
+              //     justifyContent='flex-start'
+              //     marginLeft='$4'
+              //   >
+              //     <Text marginRight='$4'>{todo.difficulty_level}</Text>
+              //     <Text>{displayDate(todo?.do_date!)}</Text>
+              
+              //   </XStack>
             //   </YStack>
             ) 
           })}
         </View>
         <View>
           {/* <XStack space='$2' alignItems='center' justifyContent='center'> */}
-            <Label htmlFor='new-todo'/>
+            {/* <Label htmlFor='new-todo'/>
             <Input
-              id="new-todo"
-              onChangeText={(text) => setNewTodo({...newTodo, task : text})}
-              value={newTodo?.task!}
-              size={8}
-              placeholder='New task...'
+            id="new-todo"
+            onChangeText={(text) => setNewTodo({...newTodo, task : text})}
+            value={newTodo?.task!}
+            size={8}
+            placeholder='New task...'
             />
             <RadioGroup 
-              name="difficulty-level" 
-              aria-labelledby='Select one level of difficulty' 
-              defaultValue='2'
-              onValueChange={(level) => setNewTodo({...newTodo, difficulty_level : parseInt(level)})}
+            name="difficulty-level" 
+            aria-labelledby='Select one level of difficulty' 
+            defaultValue='2'
+            onValueChange={(level) => setNewTodo({...newTodo, difficulty_level : parseInt(level)})}
             >
-              <YStack>
-                <XStack alignItems="center">
-                  <RadioGroup.Item value="1" labelledBy="easy">
-                    <RadioGroup.Indicator />
-                  </RadioGroup.Item>
-                  <Label htmlFor='easy'>Easy</Label>
-                </XStack>
-                <XStack alignItems="center">
-                  <RadioGroup.Item value="2" labelledBy="medium">
-                    <RadioGroup.Indicator />
-                  </RadioGroup.Item>
-                  <Label htmlFor='medium'>Medium</Label>
-                </XStack>
-                <XStack alignItems="center">
-                  <RadioGroup.Item value="3" labelledBy="hard">
-                    <RadioGroup.Indicator />
-                  </RadioGroup.Item>
-                  <Label htmlFor='hard'>Hard</Label>
-                </XStack>
-                <XStack alignItems="center">
-                  <RadioGroup.Item value="4" labelledBy="very hard">
-                    <RadioGroup.Indicator />
-                  </RadioGroup.Item>
-                  <Label htmlFor='very-hard'>Very hard</Label>
-                </XStack>
-              </YStack>
+            <YStack>
+            <XStack alignItems="center">
+            <RadioGroup.Item value="1" labelledBy="easy">
+            <RadioGroup.Indicator />
+            </RadioGroup.Item>
+            <Label htmlFor='easy'>Easy</Label>
+            </XStack>
+            <XStack alignItems="center">
+            <RadioGroup.Item value="2" labelledBy="medium">
+            <RadioGroup.Indicator />
+            </RadioGroup.Item>
+            <Label htmlFor='medium'>Medium</Label>
+            </XStack>
+            <XStack alignItems="center">
+            <RadioGroup.Item value="3" labelledBy="hard">
+            <RadioGroup.Indicator />
+            </RadioGroup.Item>
+            <Label htmlFor='hard'>Hard</Label>
+            </XStack>
+            <XStack alignItems="center">
+            <RadioGroup.Item value="4" labelledBy="very hard">
+            <RadioGroup.Indicator />
+            </RadioGroup.Item>
+            <Label htmlFor='very-hard'>Very hard</Label>
+            </XStack>
+            </YStack>
             </RadioGroup>
             <Button onPress={() => setShowDatePicker(!showDatePicker)}>Pick a date</Button>
             {showDatePicker && (
-            <>
+              <>
               <Button onPress={() => setShowTimePicker(!showTimePicker)}>Pick a time</Button>
               <DateTimePicker 
-                mode='single'
-                date={newTodo?.do_date}
-                timePicker={showTimePicker}
-                onChange={(params) => handleDate(params)}
+              mode='single'
+              date={newTodo?.do_date}
+              timePicker={showTimePicker}
+              onChange={(params) => handleDate(params)}
               />
-            </>
+              </>
             )}
             <Button 
-              icon={Plus} 
-              onPress={() => addTodo(newTodo)} 
-              size='$6'
-            />
+            icon={Plus} 
+            onPress={() => addTodo(newTodo)} 
+            size='$6'
+          /> */}
           {/* </XStack> */}
         </View>
       </ScrollView>
+      <View>
+        <Link
+          href={"../newTodo"}
+          asChild
+        >
+          <Button 
+            icon={<Plus size={'$2'} />}
+            color={'black'}
+            chromeless
+          />
+        </Link>
+      </View>
+      <Button onPress={() => setOpen(true)}>Open</Button>
+      </SafeAreaView>
     </>
   );
 }
