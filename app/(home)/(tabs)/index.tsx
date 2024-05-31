@@ -14,86 +14,53 @@ import Task from '~/components/Task';
 import NewTodo from '../newTodo';
 import { HeaderButton } from "~/components/HeaderButton";
 import { StatusBar } from 'expo-status-bar';
+import { useTasks } from '~/providers/TasksProvider';
 
+import { Client } from '@notionhq/client'
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function MainTabScreen() {
 
-  const { user } = useAuth()
-  const { userProfile } = useUserProfile()
+  try {
+    const notion = new Client({ auth: process.env.EXPO_PUBLIC_NOTION_SECRET_KEY })
+    console.log(notion)
+    const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
+    console.log('id : '+databaseId)
+  
+    if(databaseId) {
 
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [newTodo, setNewTodo] = useState<Todo>()
-  const [showDatePicker, setShowDatePicker] = useState(false)
-  const [showTimePicker, setShowTimePicker] = useState(false)
+      const fetchDB = async () => {
+          const response = await notion.databases.query({
+            database_id: databaseId
+          });
+          const rows = response.results
+          rows.map((row) => {
+            console.log(row.properties.Name.title)
+            const title = row.properties.Name.title
+            title.map((item) => {
+              console.log(item.plain_text)
+            })
+          })
+      };
+    
+      fetchDB()
+    }
+    else {
+      console.log('DB ID undefined or null')
+    }
+  } catch (error) {
+    console.log(error)
+  }
+
+
+  const { userProfile } = useUserProfile()
+  const { todos } = useTasks()
+
   const [open, setOpen] = useState(false)
 
-  useEffect(() => {
 
-    const fetchTodos = async () => {
-      const { data: todos, error } = await supabase
-        .from('todos')
-        .select('*')
-        .order('is_complete', { ascending: false })
-        .returns<Todo[]>()
-  
-      if (error) {
-        console.log('error', error) 
-      }
-      else if (todos) {
-        setTodos(todos)
-      }
-      
-    }
-    fetchTodos()
-
-  }, [])
-
-  const addTodo = async (task : Todo) => {
-    const text = task.task?.trim()
-
-    if(text?.length) {
-      const { data: todo, error } = await supabase
-        .from('todos')
-        .insert([
-          { 
-            task : text, 
-            profile_user_id : user!.id,
-            difficulty_level : task.difficulty_level,
-            do_date : task.do_date
-
-          },//(the ! indicates that TypeScript should ignore potential null or undefined values for user)
-        ])
-        .select('*') // Ensures that the result should be a single object rather than an array of objects.
-        .single()
-
-      // console.log(todo)
-      if (error) {
-        console.log(error)
-      }
-      else {
-        const pointsUpdated = todo.point_value * todo.difficulty_level
-        const { data, error } = await supabase
-        .from('todos')
-        .update({ point_value : pointsUpdated})
-        .eq('id', todo.id)
-        .select('*')
-        .single()
-        
-        if (error) {
-          console.log(error)
-        } else {
-          todo.point_value = pointsUpdated
-          setTodos([todo!, ...todos])
-          setNewTodo<Todo>(null)
-          setShowDatePicker(!showDatePicker)
-
-        }
-      }
-    }
-  }
 
   const toggleTodoStatus = async (id: number, is_complete: boolean) => {
     // console.log(id, is_complete)
@@ -146,12 +113,6 @@ export default function MainTabScreen() {
       }
   }
 
-  const handleDate = ( receivedDate : object ) => {
-    // console.log(receivedDate)
-    const dateObject = new Date(receivedDate.date)
-    // console.log(dateObject)
-    setNewTodo({...newTodo, do_date : dateObject.toISOString()})
-  }
 
   const displayDate = ( receivedDate : string ) => {
     const currentDate = new Date()
@@ -196,155 +157,54 @@ export default function MainTabScreen() {
 
   return (
     <>
+
       <Stack.Screen options={{ title: 'Tasks' }} />
       <StatusBar 
             style="dark"
             hidden={false}
         />
       <SafeAreaView>
-
-      <Link href="/settings" asChild>
-            <HeaderButton />
+        <XStack justifyContent='space-between'>
+          <Text>{userProfile?.username}</Text>
+          <Link href="/settings" asChild>
+              <HeaderButton />
           </Link>
-      <Sheet
-        open={open}
-        onOpenChange={setOpen}
-        dismissOnSnapToBottom
-        snapPoints={[90,50]}
-      >
-        <Sheet.Overlay/>
-        <Sheet.Frame
-          style={{backgroundColor:'blue'}}
+        </XStack>
+        <Sheet
+          open={open}
+          onOpenChange={setOpen}
+          dismissOnSnapToBottom
+          snapPoints={[90,50]}
         >
-          <NewTodo />
-        </Sheet.Frame>
-      </Sheet>
-      <ScrollView>
-
-        <View 
-          alignItems='center'
+          <Sheet.Overlay/>
+          <Sheet.Frame
+            style={{backgroundColor:'blue'}}
+          >
+            <NewTodo />
+          </Sheet.Frame>
+        </Sheet>
+        <ScrollView style={{height:'80%'}}>
+          <View 
+            alignItems='center'
+          >
+            {userProfile &&
+              <H1>Points : {userProfile?.points}</H1>
+            }
+            {todos && todos.map((todo, index) => {
+              return  (
+                <Task {...todo} key={todo.id}/>
+              ) 
+            })}
+          </View>
+        </ScrollView>
+        <Button 
+          icon={<Plus size={'$2'} />}
+          color={'black'}
+          chromeless
+          onPress={() => setOpen(true)}
         >
-          {userProfile &&
-            <H1>Points : {userProfile?.points}</H1>
-          }
-          {todos && todos.map((todo, index) => {
-            return  (
-              <Task {...todo} key={todo.id}/>
-              //   <YStack
-              //     key={todo.id}
-              //     width={350}
-              //     backgroundColor="#fff"
-              //     borderRadius={5}
-              //     marginVertical='$1.5'
-              //     padding='$3'
-              //   >
-              
-              //   <XStack 
-              //     justifyContent='space-between' 
-              //     alignItems='center'
-              
-              //   >
-              //     <Button 
-              //       icon={Trash}
-              //       color={'red'}
-              //       chromeless
-              //       onPress={() => deleteTodo(todo.id)}
-              //     />
-              //     <Text>{todo.task} ({todo.point_value})</Text>
-              //     <Checkbox onCheckedChange={() => toggleTodoStatus(todo.id, todo.is_complete)}>
-              //       <Checkbox.Indicator >
-              //         <CheckIcon />
-              //       </Checkbox.Indicator>
-              //     </Checkbox>
-              //   </XStack>
-              //   <XStack
-              //     justifyContent='flex-start'
-              //     marginLeft='$4'
-              //   >
-              //     <Text marginRight='$4'>{todo.difficulty_level}</Text>
-              //     <Text>{displayDate(todo?.do_date!)}</Text>
-              
-              //   </XStack>
-            //   </YStack>
-            ) 
-          })}
-        </View>
-        <View>
-          {/* <XStack space='$2' alignItems='center' justifyContent='center'> */}
-            {/* <Label htmlFor='new-todo'/>
-            <Input
-            id="new-todo"
-            onChangeText={(text) => setNewTodo({...newTodo, task : text})}
-            value={newTodo?.task!}
-            size={8}
-            placeholder='New task...'
-            />
-            <RadioGroup 
-            name="difficulty-level" 
-            aria-labelledby='Select one level of difficulty' 
-            defaultValue='2'
-            onValueChange={(level) => setNewTodo({...newTodo, difficulty_level : parseInt(level)})}
-            >
-            <YStack>
-            <XStack alignItems="center">
-            <RadioGroup.Item value="1" labelledBy="easy">
-            <RadioGroup.Indicator />
-            </RadioGroup.Item>
-            <Label htmlFor='easy'>Easy</Label>
-            </XStack>
-            <XStack alignItems="center">
-            <RadioGroup.Item value="2" labelledBy="medium">
-            <RadioGroup.Indicator />
-            </RadioGroup.Item>
-            <Label htmlFor='medium'>Medium</Label>
-            </XStack>
-            <XStack alignItems="center">
-            <RadioGroup.Item value="3" labelledBy="hard">
-            <RadioGroup.Indicator />
-            </RadioGroup.Item>
-            <Label htmlFor='hard'>Hard</Label>
-            </XStack>
-            <XStack alignItems="center">
-            <RadioGroup.Item value="4" labelledBy="very hard">
-            <RadioGroup.Indicator />
-            </RadioGroup.Item>
-            <Label htmlFor='very-hard'>Very hard</Label>
-            </XStack>
-            </YStack>
-            </RadioGroup>
-            <Button onPress={() => setShowDatePicker(!showDatePicker)}>Pick a date</Button>
-            {showDatePicker && (
-              <>
-              <Button onPress={() => setShowTimePicker(!showTimePicker)}>Pick a time</Button>
-              <DateTimePicker 
-              mode='single'
-              date={newTodo?.do_date}
-              timePicker={showTimePicker}
-              onChange={(params) => handleDate(params)}
-              />
-              </>
-            )}
-            <Button 
-            icon={Plus} 
-            onPress={() => addTodo(newTodo)} 
-            size='$6'
-          /> */}
-          {/* </XStack> */}
-        </View>
-      </ScrollView>
-      <View>
-        <Link
-          href={"../newTodo"}
-          asChild
-        >
-          <Button 
-            icon={<Plus size={'$2'} />}
-            color={'black'}
-            chromeless
-          />
-        </Link>
-      </View>
-      <Button onPress={() => setOpen(true)}>Open</Button>
+          New task
+        </Button>
       </SafeAreaView>
     </>
   );

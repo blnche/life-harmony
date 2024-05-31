@@ -1,16 +1,68 @@
 import { Text, View, StyleSheet } from "react-native"
+import { supabase } from "~/utils/supabase"
 import { Database } from "~/utils/supabase-types"
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler'
 import { Button, Checkbox } from "tamagui"
 import { Circle, Trash, CheckCircle } from '@tamagui/lucide-icons'
-
-
+import { useTasks } from "~/providers/TasksProvider"
 
 type Todo = Database['public']['Tables']['todos']['Row']
 
 export default function Task ( task : Todo) {
+
+    const { todos, setTodos } = useTasks()
+
+    const toggleTodoStatus = async (id: number, is_complete: boolean) => {
+        // console.log(id, is_complete)
+        try {
+
+        const { data: updatedTodo, error: todoError } = await supabase  
+            .from('todos')
+            .update({ is_complete: !is_complete})
+            .eq('id', id)
+            .select('*')
+            .single()
     
-    console.log(task)
+        // console.log(updatedTodo.point_value)
+        if(todoError) {
+            console.log(todoError)
+        }
+        else {
+            setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)))
+        }
+
+        // const { data: profile, error: profileError } = await supabase
+        //   .from('profiles')
+        //   .update({ points: updatedTodo.point_value})
+        //   .eq('id', userProfile?.id)
+        //   .select<Profile>('*')
+        //   .single()
+
+        //   if(profileError) {
+        //     console.log(profileError)
+        //   } 
+        //   else {
+        //     console.log(profile)
+        //   }
+        } catch (error) {
+        console.log(error)
+        }
+    }
+
+    const deleteTodo = async (id: number) => {
+        const { error } = await supabase  
+        .from('todos')
+        .delete()
+        .eq('id', id)
+
+        if (error) {
+            console.log(error)
+        }
+        else {
+            setTodos((todos ?? []).filter((todo) => todo.id !== Number(id)))
+        }
+    }
+    
     const RightActions = (progress, dragX) => {
         return (
             <View style={styles.rightActionContainer}>
@@ -19,7 +71,7 @@ export default function Task ( task : Todo) {
                     icon={<Trash size={'$2'} />}
                     color={'red'}
                     chromeless
-                    onPress={() => console.log('todo deleted')}
+                    onPress={() => deleteTodo(task.id)}
                     />
                 </View>
                 <View style={styles.rightAction}>
@@ -28,7 +80,7 @@ export default function Task ( task : Todo) {
             </View>
         )
     }
-
+   
     const SwipeableRow = () => {
         const handleRightAction = () => {
             console.log('Right action triggered')
@@ -54,12 +106,12 @@ export default function Task ( task : Todo) {
                         />
                     )}
                     {task && !task.is_complete && (
-
+                        
                         <Button 
                         icon={<Circle size={'$2'} />}
                         color={'black'}
                         chromeless
-                        onPress={() => console.log('todo done')}
+                        onPress={() => toggleTodoStatus(task.id, task.is_complete)}
                         />
                     )}
                 </View>

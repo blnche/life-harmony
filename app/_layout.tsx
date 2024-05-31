@@ -6,6 +6,7 @@ import { TamaguiProvider, Theme, View } from 'tamagui';
 import config from '../tamagui.config';
 import AuthProvider from '~/providers/AuthProvider';
 import UserProfileProvider from '~/providers/UserProfileProvider';
+import TasksProvider from '~/providers/TasksProvider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,9 +33,12 @@ export default function RootLayout() {
     <TamaguiProvider config={config}>
       <AuthProvider>
           <UserProfileProvider>
+            <TasksProvider>
+
             <Theme name='light'>
               <Slot />
             </Theme>
+            </TasksProvider>
           </UserProfileProvider>
       </AuthProvider>
     </TamaguiProvider>

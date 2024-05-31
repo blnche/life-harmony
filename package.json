@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
+    "@notionhq/client": "^2.2.15",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^6.1.7",
     "@supabase/supabase-js": "^2.38.4",

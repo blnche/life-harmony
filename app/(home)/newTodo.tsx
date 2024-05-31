@@ -9,6 +9,7 @@ import { XStack, YStack, Button, Label, RadioGroup, Input } from "tamagui";
 import { Plus } from '@tamagui/lucide-icons'
 
 import DateTimePicker from 'react-native-ui-datepicker'
+import { useTasks } from "~/providers/TasksProvider";
 
 
 type Todo = Database['public']['Tables']['todos']['Row']
@@ -17,6 +18,7 @@ type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['R
 
 export default function NewTodo () {
     const { userProfile } = useUserProfile()
+    const { todos, setTodos } = useTasks()
 
     const [newTodo, setNewTodo] = useState<Todo | null>(null)
     const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
@@ -66,27 +68,29 @@ export default function NewTodo () {
             console.log(error)
           }
           else {
-            const pointsUpdated = todo.point_value * todo.difficulty_level
-            const { data, error } = await supabase
-            .from('todos')
-            .update({ point_value : pointsUpdated})
-            .eq('id', todo.id)
-            .select('*')
-            .single()
-            
-            if (error) {
-              console.log(error)
-            } else {
-              todo.point_value = pointsUpdated
-            //   setTodos([todo!, ...todos])
-              setNewTodo(null)
-              setSelectedDifficulty(null)
-              if(showDatePicker === true) {
 
-                setShowDatePicker(!showDatePicker)
-              }
+            setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo]))
+            // const pointsUpdated = todo.point_value * todo.difficulty_level
+            // const { data, error } = await supabase
+            // .from('todos')
+            // .update({ point_value : pointsUpdated})
+            // .eq('id', todo.id)
+            // .select('*')
+            // .single()
+            
+            // if (error) {
+            //   console.log(error)
+            // } else {
+            //   todo.point_value = pointsUpdated
+            // //   setTodos([todo!, ...todos])
+            //   setNewTodo(null)
+            //   setSelectedDifficulty(null)
+            //   if(showDatePicker === true) {
+
+            //     setShowDatePicker(!showDatePicker)
+            //   }
     
-            }
+            // }
           }
         }
     }
