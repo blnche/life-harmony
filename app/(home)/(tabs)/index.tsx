@@ -16,36 +16,173 @@ import { HeaderButton } from "~/components/HeaderButton";
 import { StatusBar } from 'expo-status-bar';
 import { useTasks } from '~/providers/TasksProvider';
 
-import { Client } from '@notionhq/client'
+import { notion } from '~/utils/notion';
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
+type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
+
 
 export default function MainTabScreen() {
+  const { userProfile } = useUserProfile()
+  const { todos } = useTasks()
+  const [open, setOpen] = useState(false)
+  const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
+
+
+  useEffect(() => {
+
+    const fetchDifficultyLevels = async () => {
+        const { data: todo_difficulty_levels, error } = await supabase
+        .from('todo_difficulty_levels')
+        .select('*')
+        .returns<DifficultyLevel[]>()
+        // console.log(todo_difficulty_levels)
+        if (error) {
+            console.log(error)
+        }
+        else {
+            setDifficultyLevels(todo_difficulty_levels)
+        }
+    } 
+    fetchDifficultyLevels()
+    
+  },[])
 
   try {
-    const notion = new Client({ auth: process.env.EXPO_PUBLIC_NOTION_SECRET_KEY })
+    
     console.log(notion)
     const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
     console.log('id : '+databaseId)
   
     if(databaseId) {
+      // GET ALL TASK IN NOTION DB
+      // const fetchDB = async () => {
+      //     const response = await notion.databases.query({
+      //       database_id: databaseId
+      //     });
+      //     // console.log(response)
+      //     const rows = response.results
+      //     // console.log(rows)
+      //     rows.map((row) => {
+      //       // console.log(row)
+      //       if(!row.LH_id) {
+      //         console.log('_____________________________________')
+      //         console.log('Does not have LH_ID')
+      //         const properties = row.properties
 
-      const fetchDB = async () => {
-          const response = await notion.databases.query({
-            database_id: databaseId
-          });
-          const rows = response.results
-          rows.map((row) => {
-            console.log(row.properties.Name.title)
-            const title = row.properties.Name.title
-            title.map((item) => {
-              console.log(item.plain_text)
-            })
-          })
-      };
-    
-      fetchDB()
+      //         let title
+      //         properties.Name.title.map((item : any) => {
+      //           title = item.plain_text
+      //         })
+            
+      //         //get difficulty levl from supabase, if all uppercase supabase difficulty level === notion name of select then task.difficulty_level = value of supaabse level
+      //         const difficultyLevel = difficultyLevels.find((level) => {
+      //           return level.name.toUpperCase() === properties.Difficulty.select.name.toUpperCase()
+      //         }) ?.id || 2
+      //         console.log(difficultyLevel)
+
+      //         //check DO date
+      //         let doDate
+      //         // console.log(properties.Do.date)
+      //         if(!properties.Do.date) {
+      //           // console.log('do is null')
+      //           doDate = null
+      //         } else {
+      //           // console.log(properties.Do.date.start)
+
+      //           // need to check if date is timestamp with timezone
+      //           if(properties.Do.date.start.length <= 10) {
+      //             // console.log(new Date(properties.Do.date.start))
+      //             doDate = new Date(properties.Do.date.start)
+      //           } else {
+      //             doDate = properties.Do.date.start
+      //           }
+      //         }
+
+      //         //check DUE date
+      //         let dueDate
+      //         // console.log(properties.Due.date)
+      //         // let dateFormatted = new Date(properties.Due.date)
+      //         // console.log(dateFormatted)
+      //         // console.log(properties.Due.date.toISOString())
+      //         if(!properties.Due.date) {
+      //           // console.log('due is null')
+      //           dueDate = null
+      //         } else {
+      //           // console.log(properties.Due.date.start)
+      //           // need to check if date is timestamp with timezone
+      //           if(properties.Due.date.start.length <= 10) {
+      //             // console.log(new Date(properties.Due.date.start))
+      //             dueDate = new Date(properties.Due.date.start)
+      //           } else {
+      //             dueDate = properties.Due.date.start
+      //           }
+      //         }
+
+      //         const task = {
+      //           difficulty_level: difficultyLevel,
+      //           do_date: doDate,
+      //           due_date: dueDate,
+      //           is_complete: properties.is_complete.checkbox,
+      //           profile_user_id: userProfile?.id,
+      //           task: title,
+      //         }
+      //         console.log(task);
+      //         //add todo to supabase db
+      //         // if(task) {
+
+      //         //   (async (task : Todo) => {
+      //         //     console.log('______________ADD_TODO______________________')
+      //         //     console.log(task)
+      //         //     const text = task.task?.trim()
+              
+      //         //     if(text?.length) {
+      //         //       const { data: todo, error } = await supabase
+      //         //         .from('todos')
+      //         //         .insert([
+      //         //           { 
+      //         //             task : text, 
+      //         //             profile_user_id : task.profile_user_id,
+      //         //             difficulty_level : task.difficulty_level,
+      //         //             do_date : task.do_date,
+      //         //             due_date : task.due_date,
+      //         //             is_complete : task.is_complete
+              
+      //         //           },
+      //         //         ])
+      //         //         .select('*')
+      //         //         .single()
+              
+      //         //       console.log(todo)
+      //         //       if (error) {
+      //         //         console.log(error)
+      //         //       }
+      //         //       else {
+          
+      //         //         // setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo])) maybe not needed ?
+                            // update notion row id with supabase todo id
+                      
+      //         //       }
+      //         //     }
+      //         //   })(task)
+      //         // }
+      //       }
+      //         //retrieve newly created todo's id 
+      //         //update row corresponding row in db with id
+            
+      //       else {
+      //         console.log('Already has a LH_ID')
+      //       }
+      //       // const properties = (row as PageObjectResponse).properties
+      //       // console.log(properties.Name)
+      //       // const title = properties.Name.title
+      //       // title.map((item) => {
+      //       //   console.log(item.plain_text)
+      //       // })
+      //     })
+      // };
+      // fetchDB()
     }
     else {
       console.log('DB ID undefined or null')
@@ -55,63 +192,8 @@ export default function MainTabScreen() {
   }
 
 
-  const { userProfile } = useUserProfile()
-  const { todos } = useTasks()
-
-  const [open, setOpen] = useState(false)
-
-
-
-  const toggleTodoStatus = async (id: number, is_complete: boolean) => {
-    // console.log(id, is_complete)
-    try {
-
-      const { data: updatedTodo, error: todoError } = await supabase  
-        .from('todos')
-        .update({ is_complete: !is_complete})
-        .eq('id', id)
-        .select('*')
-        .single()
   
-      // console.log(updatedTodo.point_value)
-      if(todoError) {
-        console.log(todoError)
-      }
-      else {
-        setTodos(todos.map((todo) => (todo.id === id ? updatedTodo! : todo)))
-      }
-
-      // const { data: profile, error: profileError } = await supabase
-      //   .from('profiles')
-      //   .update({ points: updatedTodo.point_value})
-      //   .eq('id', userProfile?.id)
-      //   .select<Profile>('*')
-      //   .single()
-
-      //   if(profileError) {
-      //     console.log(profileError)
-      //   } 
-      //   else {
-      //     console.log(profile)
-      //   }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const deleteTodo = async (id: number) => {
-    const { error } = await supabase  
-      .from('todos')
-      .delete()
-      .eq('id', id)
-
-      if (error) {
-        console.log(error)
-      }
-      else {
-        setTodos(todos.filter((todo) => todo.id !== Number(id)))
-      }
-  }
+  
 
 
   const displayDate = ( receivedDate : string ) => {

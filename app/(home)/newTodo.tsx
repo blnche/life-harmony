@@ -7,6 +7,7 @@ import { useUserProfile } from "~/providers/UserProfileProvider";
 import { useEffect, useState } from "react";
 import { XStack, YStack, Button, Label, RadioGroup, Input } from "tamagui";
 import { Plus } from '@tamagui/lucide-icons'
+import { notion } from '~/utils/notion';
 
 import DateTimePicker from 'react-native-ui-datepicker'
 import { useTasks } from "~/providers/TasksProvider";
@@ -25,6 +26,9 @@ export default function NewTodo () {
     const [selectedDifficutly, setSelectedDifficulty] = useState<number | null>(null)
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [showTimePicker, setShowTimePicker] = useState(false)
+
+    const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
+    console.log('id : '+databaseId)
 
     useEffect(() => {
 
@@ -70,6 +74,63 @@ export default function NewTodo () {
           else {
 
             setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo]))
+
+            // add newTodo to NOTION TASK DB
+            if(databaseId) {
+                (async () => {
+                    console.log(todo)
+                    const properties = {
+                        'Name': {
+                            type: 'title',
+                            title: [
+                              {
+                                text: {
+                                  content: todo.task!
+                                },
+                              }
+                            ],
+                        },
+                        'LH_id': {
+                            number: todo.id,
+                        },
+                        'is_complete': {
+                            checkbox : todo.is_complete
+                        },
+                        'Status': {
+                            status: {
+                                'name' : 'Not started'
+                            },
+                        },
+                    }
+  
+                    if(todo.do_date) {
+                        properties['Do'] = {
+                            date: {
+                                'start' : todo.do_date!,
+                            },
+                        }
+                    }
+
+                    if(todo.due_date) {
+                        properties['Due'] = {
+
+                            date: {
+                                'start' : todo.due_date!,
+                            },
+                        }
+                    }
+
+                    const response = await notion.pages.create({
+                        parent: {
+                            type: 'database_id',
+                            database_id: databaseId,
+                        },
+                        properties: properties,
+                    });
+                    console.log(response);
+                })();
+            }
+
             // const pointsUpdated = todo.point_value * todo.difficulty_level
             // const { data, error } = await supabase
             // .from('todos')
@@ -95,11 +156,20 @@ export default function NewTodo () {
         }
     }
 
-    const handleDate = ( receivedDate : object ) => {
-    // console.log(receivedDate)
-    const dateObject = new Date(receivedDate.date)
-    // console.log(dateObject)
-    setNewTodo({...newTodo, do_date : dateObject.toISOString()})
+    const handleDate = ( receivedDate : any ) => {
+        console.log(receivedDate)
+        if(receivedDate.date.length < 24) {
+            console.log('with time')
+            const [datePart, timePart] = receivedDate.date.split(" ")
+            console.log(datePart, timePart)
+            const localDate = new Date(`${datePart}T${timePart}:00`)
+            console.log(localDate.toISOString())
+            setNewTodo({...newTodo as Todo, do_date : localDate.toISOString()})
+        } else {
+            console.log('no time')
+            console.log(receivedDate.date)
+            setNewTodo({...newTodo as Todo, do_date : receivedDate.date})
+        }
     }
 
     return (
@@ -120,7 +190,7 @@ export default function NewTodo () {
                 <Label htmlFor='new-todo'>Title : </Label>
                 <Input
                 id="new-todo"
-                onChangeText={(text) => setNewTodo({...newTodo, task : text})}
+                onChangeText={(text) => setNewTodo({...newTodo as Todo, task : text})}
                 value={newTodo?.task!}
                 borderWidth={2}
                 borderColor={'$color.blue8Light'}
