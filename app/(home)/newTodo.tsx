@@ -79,7 +79,7 @@ export default function NewTodo () {
             if(databaseId) {
                 (async () => {
                     console.log(todo)
-                    const properties = {
+                    const properties : {[key: string] : any} = {
                         'Name': {
                             type: 'title',
                             title: [
