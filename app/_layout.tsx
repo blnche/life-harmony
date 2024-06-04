@@ -34,10 +34,9 @@ export default function RootLayout() {
       <AuthProvider>
           <UserProfileProvider>
             <TasksProvider>
-
-            <Theme name='light'>
-              <Slot />
-            </Theme>
+              <Theme name='light'>
+                <Slot />
+              </Theme>
             </TasksProvider>
           </UserProfileProvider>
       </AuthProvider>
