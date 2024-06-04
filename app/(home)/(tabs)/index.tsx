@@ -67,11 +67,10 @@ export default function MainTabScreen() {
           const rows = response.results
           // console.log(rows)
           rows.map((row) => {
-            console.log(row)
             if(!row.properties.LH_id.number) {
-              console.log('_____________________________________')
-              console.log('Does not have LH_ID')
-              console.log('pageID :'+row.id)
+              // console.log('_____________________________________')
+              // console.log('Does not have LH_ID')
+              // console.log('pageID :'+row.id)
               const pageId = row.id
               const properties = row.properties
   
@@ -90,20 +89,13 @@ export default function MainTabScreen() {
                   return level
                 }
               }) ?.id
-              // console.log(difficultyLevel)
   
               // CHECK DO DATE
               let doDate
-              // console.log(properties.Do.date)
               if(!properties.Do.date) {
-                // console.log('do is null')
                 doDate = null
               } else {
-                // console.log(properties.Do.date.start)
-  
-                // need to check if date is timestamp with timezone
                 if(properties.Do.date.start.length <= 10) {
-                  // console.log(new Date(properties.Do.date.start))
                   doDate = new Date(properties.Do.date.start)
                 } else {
                   doDate = properties.Do.date.start
@@ -112,18 +104,10 @@ export default function MainTabScreen() {
   
               // CHECK DUE DATE
               let dueDate
-              // console.log(properties.Due.date)
-              // let dateFormatted = new Date(properties.Due.date)
-              // console.log(dateFormatted)
-              // console.log(properties.Due.date.toISOString())
               if(!properties.Due.date) {
-                // console.log('due is null')
                 dueDate = null
               } else {
-                // console.log(properties.Due.date.start)
-                // need to check if date is timestamp with timezone
                 if(properties.Due.date.start.length <= 10) {
-                  // console.log(new Date(properties.Due.date.start))
                   dueDate = new Date(properties.Due.date.start)
                 } else {
                   dueDate = properties.Due.date.start
@@ -138,14 +122,14 @@ export default function MainTabScreen() {
                 profile_user_id: userProfile?.id,
                 task: title,
               }
-              console.log(task);
+              // console.log(task);
   
               // ADD TASK TO SUPABASE DB
               if(task) {
   
-                (async (task : Todo) => {
-                  console.log('______________ADD_TODO______________________')
-                  console.log(task)
+                (async (task : any) => {
+                  // console.log('______________ADD_TODO______________________')
+                  // console.log(task)
                   const text = task.task?.trim()
               
                   if(text?.length) {
@@ -165,7 +149,7 @@ export default function MainTabScreen() {
                       .select('*')
                       .single()
               
-                    console.log(todo)
+                    // console.log(todo)
                     if (error) {
                       console.log(error)
                     }
@@ -183,20 +167,21 @@ export default function MainTabScreen() {
                             },
                           },
                         });
-                        console.log(response);
+                        // console.log(response);
                       })(pageId);
                     }
                   }
                 })(task);
   
               }
-              console.log('_____________________________________')
+              // console.log('_____________________________________')
             }
             else {
-              console.log('_____________________________________')
-              console.log('Already has a LH_ID')
-              console.log(row.properties.LH_id.number)
-              console.log('_____________________________________');
+              // console.log('_____________________________________')
+              // console.log('Already has a LH_ID')
+              // console.log(row.properties.LH_id.number)
+              // console.log(row.archived)
+              // console.log('_____________________________________');
               
               // maybe check if which was edited last and then proceed to updates rows on each side 
             }

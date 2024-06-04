@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet } from "react-native"
+import { Text, View, StyleSheet, Alert } from "react-native"
 import { supabase } from "~/utils/supabase"
 import { Database } from "~/utils/supabase-types"
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler'
@@ -88,7 +88,19 @@ export default function Task ( task : Todo) {
         }
     }
 
-    const deleteTodo = async (id: number) => {
+    const deleteButtonsAlert = () => {
+        Alert.alert('This task will be deleted from your Notion workspace as well.', 'You can modify this action in your profile settings.', [
+            {
+                text:'Cancel',
+                onPress: () => console.log('cancel pressed')
+            },
+            {
+                text: 'Yes', 
+                onPress: () => deleteTodo(task.id)
+            }
+        ])
+    } 
+    const deleteTodo = async (id : number) => {
         const { error } = await supabase  
         .from('todos')
         .delete()
@@ -98,8 +110,37 @@ export default function Task ( task : Todo) {
             console.log(error)
         }
         else {
-            setTodos((todos ?? []).filter((todo) => todo.id !== Number(id)))
+            setTodos((todos ?? []).filter((todo) => todo.id !== Number(id)));
             // delete todo in notion but need alert before
+            if(databaseId) {
+
+                (async () => {
+                    const response = await notion.databases.query({
+                        database_id: databaseId,
+                        filter: {
+                            property: 'LH_id',
+                            number: {
+                                equals: id
+                            }
+                        }
+                    })
+                    
+                    // GET PAGE ID TO UPDATE ARCHIVED TO TRUE
+                    const pageId = response.results[0].id
+
+                    if(pageId) {
+                        const pageToUpdate = await notion.pages.update({
+                            page_id: pageId,
+                            archived: true
+                        })
+                        console.log(pageToUpdate)
+                    }
+                    else {
+                        console.log('Page to update not found')
+                    }
+                })()
+            }
+
         }
     }
     
@@ -111,7 +152,7 @@ export default function Task ( task : Todo) {
                     icon={<Trash size={'$2'} />}
                     color={'red'}
                     chromeless
-                    onPress={() => deleteTodo(task.id)}
+                    onPress={() => deleteButtonsAlert(task.id)}
                     />
                 </View>
                 <View style={styles.rightAction}>
