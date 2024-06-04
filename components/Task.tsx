@@ -5,12 +5,14 @@ import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler'
 import { Button, Checkbox } from "tamagui"
 import { Circle, Trash, CheckCircle } from '@tamagui/lucide-icons'
 import { useTasks } from "~/providers/TasksProvider"
+import { notion } from '~/utils/notion';
 
 type Todo = Database['public']['Tables']['todos']['Row']
 
 export default function Task ( task : Todo) {
 
     const { todos, setTodos } = useTasks()
+    const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
 
     const toggleTodoStatus = async (id: number, is_complete: boolean) => {
         // console.log(id, is_complete)
@@ -28,7 +30,44 @@ export default function Task ( task : Todo) {
             console.log(todoError)
         }
         else {
-            setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)))
+            setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)));
+
+            // UPDATE STATUS IN NOTION DB
+            if(databaseId) {
+
+                (async () => {
+                    const response = await notion.databases.query({
+                        database_id: databaseId,
+                        filter: {
+                            property: 'LH_id',
+                            number: {
+                                equals: updatedTodo.id
+                            }
+                        }
+                    })
+                    
+                    // GET PAGE ID TO UPDATE STATUS TO DONE
+                    const pageId = response.results[0].id
+
+                    if(pageId) {
+                        const pageToUpdate = await notion.pages.update({
+                            page_id: pageId,
+                            properties: {
+                                'Status': {
+                                    status : {
+                                        name: 'Done'
+                                    }
+                                }
+                            }
+                        })
+                        console.log(pageToUpdate)
+                    }
+                    else {
+                        console.log('Page to update not found')
+                    }
+                })()
+            }
+
         }
 
         // const { data: profile, error: profileError } = await supabase
@@ -60,6 +99,7 @@ export default function Task ( task : Todo) {
         }
         else {
             setTodos((todos ?? []).filter((todo) => todo.id !== Number(id)))
+            // delete todo in notion but need alert before
         }
     }
     

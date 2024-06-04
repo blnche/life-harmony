@@ -25,7 +25,7 @@ type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['R
 
 export default function MainTabScreen() {
   const { userProfile } = useUserProfile()
-  const { todos } = useTasks()
+  const { todos, setTodos } = useTasks()
   const [open, setOpen] = useState(false)
   const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
 
@@ -67,6 +67,7 @@ export default function MainTabScreen() {
           const rows = response.results
           // console.log(rows)
           rows.map((row) => {
+            console.log(row)
             if(!row.properties.LH_id.number) {
               console.log('_____________________________________')
               console.log('Does not have LH_ID')
@@ -170,7 +171,7 @@ export default function MainTabScreen() {
                     }
                     else {
           
-                      // setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo])) maybe not needed ?
+                      setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo]));
   
                       // UPDATE NOTION ROW (PAGE) LH_id TO TODO ID
                       (async (pageId : string) => {
