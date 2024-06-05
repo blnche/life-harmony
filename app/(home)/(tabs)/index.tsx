@@ -26,6 +26,7 @@ type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['R
 export default function MainTabScreen() {
   const { userProfile } = useUserProfile()
   const { todos, setTodos } = useTasks()
+  const [notionTodosId, setNotionTodosId] = useState()
   const [open, setOpen] = useState(false)
   const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
 
@@ -46,8 +47,9 @@ export default function MainTabScreen() {
         }
     } 
     fetchDifficultyLevels()
+    checkingNotionDeletedPages()
     
-  },[])
+  },[notionTodosId])
 
   const fetchNotionTaskDb = () => {
 
@@ -58,19 +60,21 @@ export default function MainTabScreen() {
       console.log('id : '+databaseId)
     
       if(databaseId) {
+
         // GET ALL TASK IN NOTION DB
-        const fetchDB = async () => {
+        const syncingNotion = async () => {
           const response = await notion.databases.query({
             database_id: databaseId
           });
           // console.log(response)
           const rows = response.results
           // console.log(rows)
+          const rowsId : any = []
           rows.map((row) => {
+
+            // CHECK IF ALREADY IN APP DATABASE
             if(!row.properties.LH_id.number) {
-              // console.log('_____________________________________')
-              // console.log('Does not have LH_ID')
-              // console.log('pageID :'+row.id)
+
               const pageId = row.id
               const properties = row.properties
   
@@ -128,8 +132,7 @@ export default function MainTabScreen() {
               if(task) {
   
                 (async (task : any) => {
-                  // console.log('______________ADD_TODO______________________')
-                  // console.log(task)
+
                   const text = task.task?.trim()
               
                   if(text?.length) {
@@ -149,7 +152,6 @@ export default function MainTabScreen() {
                       .select('*')
                       .single()
               
-                    // console.log(todo)
                     if (error) {
                       console.log(error)
                     }
@@ -176,48 +178,48 @@ export default function MainTabScreen() {
               }
             }
             else {
-
               const rowLH_id = row.properties.LH_id.number
+              rowsId.push(rowLH_id)
+              // setNotionTodosId([...notionTodosId, rowLH_id])
+              
               const rowProperties = row.properties
               const notionLastEdited = new Date(row.last_edited_time)
-
+              
               const task = todos?.find(task => 
                 task.id === rowLH_id
               )
-
+              
               if (task) {
-
+                
                 const todoLastEdited = new Date(task?.last_edited_at!)
                 const todoDifficultyLevel = difficultyLevels.find(level => level.id === task.difficulty_level)
-
+                
                 
                 if(notionLastEdited > todoLastEdited) {
-                  console.log('notion is most recent');
                   // check each property to see which to update
                   // build object 
                   // pass object in update
+                  // console.log(rowProperties)
                   const propertiesToUpdate : {[key: string] : any} = {};
-
+                  
                   if(rowProperties.Difficulty !== todoDifficultyLevel?.name) {
-                    console.log(rowProperties)
                     const rowDifficultyLevel = difficultyLevels.find(level => level.name.toUpperCase() === rowProperties.Difficulty.select.name.toUpperCase())
-                    console.log(rowDifficultyLevel)
                     if(rowDifficultyLevel) {
                       propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
                     } else {
                       console.log('There was an error when trying to match the difficulty level when updating.')
                     }
                   }
-
+                  
                   (async () => {
-
+                    
                     const { data: updatedTodo, error: todoError } = await supabase  
-                      .from('todos')
-                      .update(propertiesToUpdate)
-                      .eq('id', task.id)
-                      .select('*')
-                      .single()
-          
+                    .from('todos')
+                    .update(propertiesToUpdate)
+                    .eq('id', task.id)
+                    .select('*')
+                    .single()
+                    
                     if(todoError) {
                       console.log(todoError)
                     }
@@ -225,26 +227,41 @@ export default function MainTabScreen() {
                       setTodos((todos ?? []).map(todo => (todo.id === task.id ? updatedTodo as Todo : todo as Todo)));
                     }
                   })()
-
+                  
                 } else {
                   console.log('app is most recent')
                 }
               }
+              else {
+                console.log('notion task was archived')
+                // console.log(rowLH_id)
+                // const deletedTodosFromNotion = todos!.filter((todo) => todo.id !== rowLH_id) 
+                // console.log(deletedTodosFromNotion)
+                // deletedTodosFromNotion.map((todo) => console.log(todo.id))
+                // alert user that a task was deleted from notion but not in app
+                //proceed to deletion or check if user want to keep task
+                // if keep then reinsert it into notion
+                // else delete task
+              }
             }
+            setNotionTodosId(rowsId)
           })
         };
-        fetchDB()
+        syncingNotion()
       }
       else {
         console.log('DB ID undefined or null')
       }
+      console.log(notionTodosId)
     } catch (error) {
       console.log(error)
     }
   }
 
 
-  
+  const checkingNotionDeletedPages = () => {
+    console.log(notionTodosId)
+  }
   
 
 
