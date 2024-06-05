@@ -26,7 +26,6 @@ type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['R
 export default function MainTabScreen() {
   const { userProfile } = useUserProfile()
   const { todos, setTodos } = useTasks()
-  const [notionTodosId, setNotionTodosId] = useState()
   const [open, setOpen] = useState(false)
   const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
 
@@ -47,43 +46,45 @@ export default function MainTabScreen() {
         }
     } 
     fetchDifficultyLevels()
-    checkingNotionDeletedPages()
+    fetchNotionTaskDb()
     
-  },[notionTodosId])
+  },[])
 
   const fetchNotionTaskDb = () => {
 
     try {
       
-      console.log(notion)
       const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
-      console.log('id : '+databaseId)
+      // console.log('id : '+databaseId)
     
-      if(databaseId) {
+      if(databaseId) { 
 
         // GET ALL TASK IN NOTION DB
         const syncingNotion = async () => {
+
           const response = await notion.databases.query({
             database_id: databaseId
           });
           // console.log(response)
           const rows = response.results
           // console.log(rows)
-          const rowsId : any = []
-          rows.map((row) => {
 
+          const rowsId : number[] = []
+          
+          for(const row of rows) {
+            
             // CHECK IF ALREADY IN APP DATABASE
             if(!row.properties.LH_id.number) {
-
+              
               const pageId = row.id
               const properties = row.properties
-  
+              
               // GET TITLE
               let title
               properties.Name.title.map((item : any) => {
                 title = item.plain_text
-              })
-            
+              }) 
+              
               // GET DIFFICULTY LEVEL
               const difficultyLevel = difficultyLevels.find((level) => {
                 if(!properties.Difficulty.select) {
@@ -93,7 +94,7 @@ export default function MainTabScreen() {
                   return level
                 }
               }) ?.id
-  
+              
               // CHECK DO DATE
               let doDate
               if(!properties.Do.date) {
@@ -105,7 +106,7 @@ export default function MainTabScreen() {
                   doDate = properties.Do.date.start
                 }
               }
-  
+              
               // CHECK DUE DATE
               let dueDate
               if(!properties.Due.date) {
@@ -117,7 +118,7 @@ export default function MainTabScreen() {
                   dueDate = properties.Due.date.start
                 }
               }
-  
+              
               const task = {
                 difficulty_level: difficultyLevel,
                 do_date: doDate,
@@ -127,38 +128,38 @@ export default function MainTabScreen() {
                 task: title,
               }
               // console.log(task);
-  
+              
               // ADD TASK TO SUPABASE DB
               if(task) {
-  
+                
                 (async (task : any) => {
-
+                  
                   const text = task.task?.trim()
-              
+                  
                   if(text?.length) {
                     const { data: todo, error } = await supabase
-                      .from('todos')
-                      .insert([
-                        { 
-                          task : text, 
-                          profile_user_id : task.profile_user_id,
-                          difficulty_level : task.difficulty_level,
-                          do_date : task.do_date,
-                          due_date : task.due_date,
-                          is_complete : task.is_complete
-              
-                        },
-                      ])
-                      .select('*')
-                      .single()
-              
+                    .from('todos')
+                    .insert([
+                      { 
+                        task : text, 
+                        profile_user_id : task.profile_user_id,
+                        difficulty_level : task.difficulty_level,
+                        do_date : task.do_date,
+                        due_date : task.due_date,
+                        is_complete : task.is_complete
+                        
+                      },
+                    ])
+                    .select('*')
+                    .single()
+                    
                     if (error) {
                       console.log(error)
                     }
                     else {
-          
+                      
                       setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo]));
-  
+                      
                       // UPDATE NOTION ROW (PAGE) LH_id TO TODO ID
                       (async (pageId : string) => {
                         const response = await notion.pages.update({
@@ -174,93 +175,145 @@ export default function MainTabScreen() {
                     }
                   }
                 })(task);
-  
+                
               }
             }
             else {
               const rowLH_id = row.properties.LH_id.number
               rowsId.push(rowLH_id)
-              // setNotionTodosId([...notionTodosId, rowLH_id])
               
               const rowProperties = row.properties
-              const notionLastEdited = new Date(row.last_edited_time)
+              const rowLastEdited = new Date(row.last_edited_time)
+              let title
+              rowProperties.Name.title.map((item : any) => {
+                title = item.plain_text
+              }) 
+              
+              // console.log(` notion rows with id : ${title}`)
               
               const task = todos?.find(task => 
                 task.id === rowLH_id
               )
-              
+              // console.log(`task found : ${task?.task}`)
               if (task) {
                 
                 const todoLastEdited = new Date(task?.last_edited_at!)
                 const todoDifficultyLevel = difficultyLevels.find(level => level.id === task.difficulty_level)
                 
-                
-                if(notionLastEdited > todoLastEdited) {
-                  // check each property to see which to update
-                  // build object 
-                  // pass object in update
-                  // console.log(rowProperties)
-                  const propertiesToUpdate : {[key: string] : any} = {};
+                if(rowLastEdited > todoLastEdited) {
+                  console.log(`notion : ${rowLastEdited} | app : ${todoLastEdited}`)
+
+                  if (rowProperties.Difficulty.select) {
+                    const difficultyName = rowProperties.Difficulty.select.name
+                    
+                    const rowDifficultyLevel = difficultyLevels.find(level => {
+
+                      const levelName = level.name.toUpperCase()
+
+                      if (levelName == difficultyName.toUpperCase()) {
+                        return level
+                      }
+                    })
+                    // console.log(rowDifficultyLevel)
+
+                    // check each property to see which to update
+                    // build object 
+                    // pass object in update
+                    // console.log(rowProperties)
+
+                    const propertiesToUpdate : {[key: string] : any} = {};
+
+                    // CHECK DIFFICULTY LEVEL
+                    // console.log(`${rowDifficultyLevel?.name.toUpperCase()} | ${todoDifficultyLevel?.name.toUpperCase()}`)
+                    if(rowDifficultyLevel?.name.toUpperCase() !== todoDifficultyLevel?.name.toUpperCase()) {
+                      if(rowDifficultyLevel) {
+                        propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
+                      } else {
+                        console.log('There was an error when trying to match the difficulty level when updating.')
+                      }
+                    }
+
+                    // CHECK DO DATE
+                    if(rowProperties.Do.date) {
+                      console.log(`DO DATE :  ${row.properties.Do.date.start} | ${task.do_date}`)
+
+                      if(row.properties.Do.date.start !== task.do_date) {
+                        propertiesToUpdate.do_date = row.properties.Do.date.start
+                      }
+                    }
                   
-                  if(rowProperties.Difficulty !== todoDifficultyLevel?.name) {
-                    const rowDifficultyLevel = difficultyLevels.find(level => level.name.toUpperCase() === rowProperties.Difficulty.select.name.toUpperCase())
-                    if(rowDifficultyLevel) {
-                      propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
+
+                    // CHECK DUE DATE
+                    if(rowProperties.Due.date) {
+                      console.log(`DUE DATE :  ${row.properties.Due.date.start} | ${task.due_date}`)
+
+                      if(row.properties.Due.date.start !== task.due_date) {
+                        propertiesToUpdate.due_date = row.properties.Due.date.start
+                      }
+                    }
+                    console.log(propertiesToUpdate);
+
+                    if(Object.keys(propertiesToUpdate).length !== 0) {
+
+                      (async () => {
+                        
+                        const { data: updatedTodo, error: todoError } = await supabase  
+                        .from('todos')
+                        .update(propertiesToUpdate)
+                        .eq('id', task.id)
+                        .select('*')
+                        .single()
+                        
+                        if(todoError) {
+                          console.log(todoError)
+                        }
+                        else {
+                          setTodos((todos ?? []).map(todo => (todo.id === task.id ? updatedTodo as Todo : todo as Todo)));
+                        }
+                      })()
                     } else {
-                      console.log('There was an error when trying to match the difficulty level when updating.')
+                      console.log(`Error : no properties were found to update.`)
                     }
+                    
+                  } else {
+                    console.log(`Row is undefined`)
                   }
-                  
-                  (async () => {
-                    
-                    const { data: updatedTodo, error: todoError } = await supabase  
-                    .from('todos')
-                    .update(propertiesToUpdate)
-                    .eq('id', task.id)
-                    .select('*')
-                    .single()
-                    
-                    if(todoError) {
-                      console.log(todoError)
-                    }
-                    else {
-                      setTodos((todos ?? []).map(todo => (todo.id === task.id ? updatedTodo as Todo : todo as Todo)));
-                    }
-                  })()
-                  
                 } else {
-                  console.log('app is most recent')
+                  // console.log('app is most recent')
                 }
               }
-              else {
-                console.log('notion task was archived')
-                // console.log(rowLH_id)
-                // const deletedTodosFromNotion = todos!.filter((todo) => todo.id !== rowLH_id) 
-                // console.log(deletedTodosFromNotion)
-                // deletedTodosFromNotion.map((todo) => console.log(todo.id))
-                // alert user that a task was deleted from notion but not in app
-                //proceed to deletion or check if user want to keep task
-                // if keep then reinsert it into notion
-                // else delete task
-              }
+              
             }
-            setNotionTodosId(rowsId)
-          })
+          }
+          // console.log(rowsId)
+          checkingNotionDeletedPages(rowsId)
         };
         syncingNotion()
       }
       else {
         console.log('DB ID undefined or null')
       }
-      console.log(notionTodosId)
     } catch (error) {
-      console.log(error)
+      console.log(error) 
     }
   }
 
 
-  const checkingNotionDeletedPages = () => {
-    console.log(notionTodosId)
+  const checkingNotionDeletedPages = (notionTasksIds : number[]) => {
+    // compare db id to notiontodosid if no match then todos is deleted 
+    if (notionTasksIds) {
+      todos!.forEach((todo) => {
+        let match = false;
+        notionTasksIds.forEach((id) => { 
+          if (todo.id === id) {
+            match = true; 
+          }
+        });
+        if (!match) {
+          console.log('Todo with ID ' + todo.id + ' is deleted from Notion.');
+        }
+      }); 
+    }
   }
   
 
