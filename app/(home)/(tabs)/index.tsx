@@ -174,16 +174,62 @@ export default function MainTabScreen() {
                 })(task);
   
               }
-              // console.log('_____________________________________')
             }
             else {
-              // console.log('_____________________________________')
-              // console.log('Already has a LH_ID')
-              // console.log(row.properties.LH_id.number)
-              // console.log(row.archived)
-              // console.log('_____________________________________');
-              
-              // maybe check if which was edited last and then proceed to updates rows on each side 
+
+              const rowLH_id = row.properties.LH_id.number
+              const rowProperties = row.properties
+              const notionLastEdited = new Date(row.last_edited_time)
+
+              const task = todos?.find(task => 
+                task.id === rowLH_id
+              )
+
+              if (task) {
+
+                const todoLastEdited = new Date(task?.last_edited_at!)
+                const todoDifficultyLevel = difficultyLevels.find(level => level.id === task.difficulty_level)
+
+                
+                if(notionLastEdited > todoLastEdited) {
+                  console.log('notion is most recent');
+                  // check each property to see which to update
+                  // build object 
+                  // pass object in update
+                  const propertiesToUpdate : {[key: string] : any} = {};
+
+                  if(rowProperties.Difficulty !== todoDifficultyLevel?.name) {
+                    console.log(rowProperties)
+                    const rowDifficultyLevel = difficultyLevels.find(level => level.name.toUpperCase() === rowProperties.Difficulty.select.name.toUpperCase())
+                    console.log(rowDifficultyLevel)
+                    if(rowDifficultyLevel) {
+                      propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
+                    } else {
+                      console.log('There was an error when trying to match the difficulty level when updating.')
+                    }
+                  }
+
+                  (async () => {
+
+                    const { data: updatedTodo, error: todoError } = await supabase  
+                      .from('todos')
+                      .update(propertiesToUpdate)
+                      .eq('id', task.id)
+                      .select('*')
+                      .single()
+          
+                    if(todoError) {
+                      console.log(todoError)
+                    }
+                    else {
+                      setTodos((todos ?? []).map(todo => (todo.id === task.id ? updatedTodo as Todo : todo as Todo)));
+                    }
+                  })()
+
+                } else {
+                  console.log('app is most recent')
+                }
+              }
             }
           })
         };

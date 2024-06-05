@@ -16,73 +16,78 @@ export default function Task ( task : Todo) {
 
     const toggleTodoStatus = async (id: number, is_complete: boolean) => {
         // console.log(id, is_complete)
+        const now = new Date().toISOString()
+
         try {
 
-        const { data: updatedTodo, error: todoError } = await supabase  
-            .from('todos')
-            .update({ is_complete: !is_complete})
-            .eq('id', id)
-            .select('*')
-            .single()
-    
-        // console.log(updatedTodo.point_value)
-        if(todoError) {
-            console.log(todoError)
-        }
-        else {
-            setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)));
+            const { data: updatedTodo, error: todoError } = await supabase  
+                .from('todos')
+                .update({ 
+                    is_complete: !is_complete,
+                    last_edited_at: now
+                })
+                .eq('id', id)
+                .select('*')
+                .single()
+        
+            // console.log(updatedTodo.point_value)
+            if(todoError) {
+                console.log(todoError)
+            }
+            else {
+                setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)));
 
-            // UPDATE STATUS IN NOTION DB
-            if(databaseId) {
+                // UPDATE STATUS IN NOTION DB
+                if(databaseId) {
 
-                (async () => {
-                    const response = await notion.databases.query({
-                        database_id: databaseId,
-                        filter: {
-                            property: 'LH_id',
-                            number: {
-                                equals: updatedTodo.id
-                            }
-                        }
-                    })
-                    
-                    // GET PAGE ID TO UPDATE STATUS TO DONE
-                    const pageId = response.results[0].id
-
-                    if(pageId) {
-                        const pageToUpdate = await notion.pages.update({
-                            page_id: pageId,
-                            properties: {
-                                'Status': {
-                                    status : {
-                                        name: 'Done'
-                                    }
+                    (async () => {
+                        const response = await notion.databases.query({
+                            database_id: databaseId,
+                            filter: {
+                                property: 'LH_id',
+                                number: {
+                                    equals: updatedTodo.id
                                 }
                             }
                         })
-                        console.log(pageToUpdate)
-                    }
-                    else {
-                        console.log('Page to update not found')
-                    }
-                })()
+                        
+                        // GET PAGE ID TO UPDATE STATUS TO DONE
+                        const pageId = response.results[0].id
+
+                        if(pageId) {
+                            const pageToUpdate = await notion.pages.update({
+                                page_id: pageId,
+                                properties: {
+                                    'Status': {
+                                        status : {
+                                            name: 'Done'
+                                        }
+                                    }
+                                }
+                            })
+                            console.log(pageToUpdate)
+                        }
+                        else {
+                            console.log('Page to update not found')
+                        }
+                    })()
+                }
+
             }
 
-        }
+            // const { data: profile, error: profileError } = await supabase
+            //   .from('profiles')
+            //   .update({ points: updatedTodo.point_value})
+            //   .eq('id', userProfile?.id)
+            //   .select<Profile>('*')
+            //   .single()
 
-        // const { data: profile, error: profileError } = await supabase
-        //   .from('profiles')
-        //   .update({ points: updatedTodo.point_value})
-        //   .eq('id', userProfile?.id)
-        //   .select<Profile>('*')
-        //   .single()
-
-        //   if(profileError) {
-        //     console.log(profileError)
-        //   } 
-        //   else {
-        //     console.log(profile)
-        //   }
+            //   if(profileError) {
+            //     console.log(profileError)
+            //   } 
+            //   else {
+            //     console.log(profile)
+            //   }
         } catch (error) {
         console.log(error)
         }

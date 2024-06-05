@@ -86,6 +86,7 @@ export type Database = {
           id: number
           inserted_at: string
           is_complete: boolean
+          last_edited_at: string | null
           point_value: number
           profile_user_id: string
           task: string | null
@@ -97,6 +98,7 @@ export type Database = {
           id?: number
           inserted_at?: string
           is_complete?: boolean
+          last_edited_at?: string | null
           point_value?: number
           profile_user_id: string
           task?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           id?: number
           inserted_at?: string
           is_complete?: boolean
+          last_edited_at?: string | null
           point_value?: number
           profile_user_id?: string
           task?: string | null
