@@ -316,7 +316,20 @@ export default function MainTabScreen() {
     }
   }
   
-
+  const fetchAllNotionDB = async () => {
+    
+    const response = await notion.search({
+      
+      filter: {
+        value: 'database',
+        property: 'object'
+      },
+      
+    });
+    console.log(`Notion DB title : ${response.results[0].title[0].plain_text}`);
+    console.log(`Notion DB id : ${response.results[0].id}`);
+    
+  }
 
   const displayDate = ( receivedDate : string ) => {
     const currentDate = new Date()
@@ -414,6 +427,12 @@ export default function MainTabScreen() {
           onPress={fetchNotionTaskDb}
         >
           Sync Notion Task Database
+        </Button>
+        <Button 
+          color={'black'}
+          onPress={fetchAllNotionDB}
+        >
+          Get Notion Databases
         </Button>
       </SafeAreaView>
     </>
