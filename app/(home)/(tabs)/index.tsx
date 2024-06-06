@@ -244,13 +244,13 @@ export default function MainTabScreen() {
                   
 
                     // CHECK DUE DATE
-                    if(rowProperties.Due.date) {
-                      console.log(`DUE DATE :  ${row.properties.Due.date.start} | ${task.due_date}`)
+                    // if(rowProperties.Due.date) {
+                    //   console.log(`DUE DATE :  ${row.properties.Due.date.start} | ${task.due_date}`)
 
-                      if(row.properties.Due.date.start !== task.due_date) {
-                        propertiesToUpdate.due_date = row.properties.Due.date.start
-                      }
-                    }
+                    //   if(row.properties.Due.date.start !== task.due_date) {
+                    //     propertiesToUpdate.due_date = row.properties.Due.date.start
+                    //   }
+                    // }
                     console.log(propertiesToUpdate);
 
                     if(Object.keys(propertiesToUpdate).length !== 0) {
