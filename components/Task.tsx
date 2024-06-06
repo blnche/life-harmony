@@ -6,8 +6,21 @@ import { Button, Checkbox } from "tamagui"
 import { Circle, Trash, CheckCircle } from '@tamagui/lucide-icons'
 import { useTasks } from "~/providers/TasksProvider"
 import { notion } from '~/utils/notion';
+import * as Haptics from 'expo-haptics'
+import * as Notifications from 'expo-notifications';
+
+
 
 type Todo = Database['public']['Tables']['todos']['Row']
+
+Notifications.scheduleNotificationAsync({
+    content: {
+        title: 'Look at that notification',
+        body: "I'm so proud of myself!",
+    },
+    trigger: null,
+  });
+
 
 export default function Task ( task : Todo) {
 
@@ -36,7 +49,9 @@ export default function Task ( task : Todo) {
             }
             else {
                 setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)));
-
+                Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                  )
                 // UPDATE STATUS IN NOTION DB
                 if(databaseId) {
 

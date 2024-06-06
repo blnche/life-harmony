@@ -7,6 +7,7 @@ import { Text } from 'react-native';
 import { supabase } from '~/utils/supabase';
 import { Database } from '~/utils/supabase-types';
 
+
 type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function TabLayout() {

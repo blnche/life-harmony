@@ -7,8 +7,18 @@ import config from '../tamagui.config';
 import AuthProvider from '~/providers/AuthProvider';
 import UserProfileProvider from '~/providers/UserProfileProvider';
 import TasksProvider from '~/providers/TasksProvider';
+import * as Notifications from 'expo-notifications';
+
 
 SplashScreen.preventAutoHideAsync();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+  }),
+});
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.

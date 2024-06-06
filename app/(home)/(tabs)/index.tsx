@@ -1,6 +1,5 @@
 import { Link, Stack } from 'expo-router';
 import { FlatList, SafeAreaView, StyleSheet } from 'react-native';
-import { ScreenContent } from '~/components/ScreenContent';
 import { View, Checkbox, H1, Input, Label, ListItem, Text, XStack, YStack, Button, RadioGroup, ScrollView, Sheet } from 'tamagui';
 import { Check as CheckIcon, Trash, Plus } from '@tamagui/lucide-icons'
 import { useAuth } from '~/providers/AuthProvider';
@@ -21,6 +20,9 @@ import { notion } from '~/utils/notion';
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
+
+
+
 
 
 export default function MainTabScreen() {
@@ -374,12 +376,11 @@ export default function MainTabScreen() {
 
   return (
     <>
-
-      <Stack.Screen options={{ title: 'Tasks' }} />
       <StatusBar 
             style="dark"
             hidden={false}
         />
+      <Stack.Screen options={{ title: 'Tasks' }} />
       <SafeAreaView>
         <XStack justifyContent='space-between'>
           <Text>{userProfile?.username}</Text>
