@@ -8,6 +8,8 @@ import AuthProvider from '~/providers/AuthProvider';
 import UserProfileProvider from '~/providers/UserProfileProvider';
 import TasksProvider from '~/providers/TasksProvider';
 import * as Notifications from 'expo-notifications';
+import { PostHogProvider } from 'posthog-react-native'
+
 
 
 SplashScreen.preventAutoHideAsync();
@@ -41,15 +43,19 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={config}>
-      <AuthProvider>
-          <UserProfileProvider>
-            <TasksProvider>
-              <Theme name='light'>
-                <Slot />
-              </Theme>
-            </TasksProvider>
-          </UserProfileProvider>
-      </AuthProvider>
+      <PostHogProvider apiKey="phc_qtO8KiLdPSOTD3N9vRtxyW4akppUnVuVFESu66JrZgl" options={{
+            host: "https://us.i.posthog.com",
+        }}>
+        <AuthProvider>
+            <UserProfileProvider>
+              <TasksProvider>
+                <Theme name='light'>
+                  <Slot />
+                </Theme>
+              </TasksProvider>
+            </UserProfileProvider>
+        </AuthProvider>
+      </PostHogProvider>
     </TamaguiProvider>
   );
 }

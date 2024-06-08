@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react'
-import { Platform, Alert, StyleSheet, View } from 'react-native'
+import { Platform, Alert, StyleSheet, View, SafeAreaView } from 'react-native'
 import { supabase } from '../../utils/supabase'
 import { Button, Input, Label } from 'tamagui'
+import { Auth as NativeAuth } from '~/components/Auth.native';
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -36,35 +37,40 @@ export default function Auth() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Label htmlFor='email'>Email</Label>
-        <Input
-          id='email'
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          placeholder="email@address.com"
-          autoCapitalize={'none'}
-        />
+    <SafeAreaView>
+      <View style={styles.container}>
+        <View style={[styles.verticallySpaced, styles.mt20]}>
+          <Label htmlFor='email'>Email</Label>
+          <Input
+            id='email'
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+            placeholder="email@address.com"
+            autoCapitalize={'none'}
+          />
+        </View>
+        <View style={styles.verticallySpaced}>
+          <Label htmlFor='password'>Password</Label>
+          <Input
+            id='password'
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+            secureTextEntry={true}
+            placeholder="Password"
+            autoCapitalize={'none'}
+          />
+        </View>
+        <View style={[styles.verticallySpaced, styles.mt20]}>
+          <Button disabled={loading} onPress={() => signInWithEmail()}>Sign in</Button>
+        </View>
+        <View style={styles.verticallySpaced}>
+          <Button disabled={loading} onPress={() => signUpWithEmail()}>Sign up</Button>
+        </View>
       </View>
-      <View style={styles.verticallySpaced}>
-        <Label htmlFor='password'>Password</Label>
-        <Input
-          id='password'
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
-          autoCapitalize={'none'}
-        />
+      <View>
+        {/* <NativeAuth /> */}
       </View>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button disabled={loading} onPress={() => signInWithEmail()}>Sign in</Button>
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Button disabled={loading} onPress={() => signUpWithEmail()}>Sign up</Button>
-      </View>
-    </View>
+    </SafeAreaView>
   )
 }
 

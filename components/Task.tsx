@@ -9,20 +9,57 @@ import { notion } from '~/utils/notion';
 import * as Haptics from 'expo-haptics'
 import * as Notifications from 'expo-notifications';
 
-
-
 type Todo = Database['public']['Tables']['todos']['Row']
 
-Notifications.scheduleNotificationAsync({
-    content: {
-        title: 'Look at that notification',
-        body: "I'm so proud of myself!",
-    },
-    trigger: null,
-  });
 
 
 export default function Task ( task : Todo) {
+
+    if(task.do_date) {
+
+        // GET NEXT TRIGGER DATE
+        const getNextTriggerDate = async () => {
+            const trigger = {
+                seconds: (new Date(task.do_date!).getTime() - new Date().getTime()) / 1000,
+                repeats: false
+            }
+            console.log(trigger.seconds)
+            if(trigger.seconds > 0) {
+
+                try {
+                    const nextTriggerDate = await Notifications.getNextTriggerDateAsync(trigger)
+            
+                    if(nextTriggerDate) {
+                        // IF PREVIOUSLY A NOTIFICATION WAS SET ITS CANCELLED
+                        await Notifications.cancelAllScheduledNotificationsAsync()
+    
+                        // SET DO DATE NOTIFICATION
+                        await Notifications.scheduleNotificationAsync({
+                            content: {
+                                title: 'Next task :',
+                                body: task.task,
+                            },
+                            trigger: trigger,
+                        });
+                        console.log(`(${task.task}) Notification scheduled for : ${new Date(nextTriggerDate).toLocaleString()}`)
+                    }
+                    else {
+                        console.log(`(${task.task}) Notification will not be triggered.`)
+                    }
+                } catch (error) {
+                    console.log(`(${task.task}) Couldn't calculate next trigger date : ${error}`)
+                }
+            } else {
+                console.log(`(${task.task}) Task do date is overdue.`)
+            }
+    
+        }
+        getNextTriggerDate()
+    }
+    else {
+        console.log(`No do date for this task : ${task.task}`)
+    }
+
 
     const { todos, setTodos } = useTasks()
     const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID

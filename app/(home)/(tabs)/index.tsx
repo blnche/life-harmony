@@ -16,11 +16,12 @@ import { StatusBar } from 'expo-status-bar';
 import { useTasks } from '~/providers/TasksProvider';
 
 import { notion } from '~/utils/notion';
+import { usePostHog } from 'posthog-react-native';
+
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
-
 
 
 
@@ -30,7 +31,8 @@ export default function MainTabScreen() {
   const { todos, setTodos } = useTasks()
   const [open, setOpen] = useState(false)
   const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
-
+  
+  const posthog = usePostHog()
 
   useEffect(() => {
 
@@ -49,11 +51,10 @@ export default function MainTabScreen() {
     } 
     fetchDifficultyLevels()
     fetchNotionTaskDb()
-    
   },[])
 
   const fetchNotionTaskDb = () => {
-
+    
     try {
       
       const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
@@ -295,6 +296,8 @@ export default function MainTabScreen() {
       else {
         console.log('DB ID undefined or null')
       }
+
+      posthog.capture('Notion tasks fetched')
     } catch (error) {
       console.log(error) 
     }
