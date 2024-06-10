@@ -1,5 +1,5 @@
 import { Link, Stack } from 'expo-router';
-import { FlatList, SafeAreaView, StyleSheet } from 'react-native';
+import { FlatList, Platform, StyleSheet } from 'react-native';
 import { View, Checkbox, H1, Input, Label, ListItem, Text, XStack, YStack, Button, RadioGroup, ScrollView, Sheet } from 'tamagui';
 import { Check as CheckIcon, Trash, Plus } from '@tamagui/lucide-icons'
 import { useAuth } from '~/providers/AuthProvider';
@@ -14,25 +14,30 @@ import NewTodo from '../newTodo';
 import { HeaderButton } from "~/components/HeaderButton";
 import { StatusBar } from 'expo-status-bar';
 import { useTasks } from '~/providers/TasksProvider';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { notion } from '~/utils/notion';
 import { usePostHog } from 'posthog-react-native';
 
+import { useTranslation } from "react-i18next";
+import '../../../src/i18n/i18n'
+import i18next from '../../../src/i18n/i18n';
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
 
 
-
-
 export default function MainTabScreen() {
+
   const { userProfile } = useUserProfile()
   const { todos, setTodos } = useTasks()
   const [open, setOpen] = useState(false)
   const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
   
   const posthog = usePostHog()
+
+  const {t} = useTranslation();
 
   useEffect(() => {
 
@@ -377,16 +382,25 @@ export default function MainTabScreen() {
     return formattedDate
   }
 
+  const changeLanguage = () => {
+    if(i18next.language === 'en') {
+      i18next.changeLanguage('fr')
+    } else if (i18next.language === 'fr') {
+      i18next.changeLanguage('en')
+    }
+  }
+
   return (
     <>
+      <Stack.Screen options={{ title: 'Tasks' }} />
       <StatusBar 
-            style="dark"
+            style={'dark'}
             hidden={false}
         />
-      <Stack.Screen options={{ title: 'Tasks' }} />
       <SafeAreaView>
         <XStack justifyContent='space-between'>
-          <Text>{userProfile?.username}</Text>
+          <Text>{t('greet')}{userProfile?.username}</Text>
+          <Button onPress={changeLanguage}>{t('changeLanguage')}</Button>
           <Link href="/settings" asChild>
               <HeaderButton />
           </Link>
@@ -424,7 +438,7 @@ export default function MainTabScreen() {
           chromeless
           onPress={() => setOpen(true)}
         >
-          New task
+          {t('todo.newTask')} 
         </Button>
         <Button 
           color={'black'}

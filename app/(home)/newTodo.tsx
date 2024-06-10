@@ -1,5 +1,4 @@
 import { Link, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { Text, View } from "react-native";
 import { Database } from "~/utils/supabase-types";
 import { supabase } from "~/utils/supabase";
@@ -175,10 +174,6 @@ export default function NewTodo () {
     return (
         <>
         <Stack.Screen options={{ title: 'Create a new task'}}/>
-        <StatusBar 
-            style="light"
-            hidden={false}
-        />
         <YStack fullscreen justifyContent="space-between" padding="$4">
           <YStack space='$2' alignItems='flex-start' justifyContent='center'>
             <YStack

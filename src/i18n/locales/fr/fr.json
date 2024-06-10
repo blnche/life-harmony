@@ -1,0 +1,7 @@
+{
+    "greet": "Bienvenue, ",
+    "changeLanguage": "Changer de langue",
+    "todo" : {
+        "newTask": "Nouvelle tache"
+    }
+}

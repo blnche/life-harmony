@@ -44,8 +44,8 @@ export default function RootLayout() {
   return (
     <TamaguiProvider config={config}>
       <PostHogProvider apiKey="phc_qtO8KiLdPSOTD3N9vRtxyW4akppUnVuVFESu66JrZgl" options={{
-            host: "https://us.i.posthog.com",
-        }}>
+        host: "https://us.i.posthog.com",
+      }}>
         <AuthProvider>
             <UserProfileProvider>
               <TasksProvider>

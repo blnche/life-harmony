@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react'
 import { Platform, Alert, StyleSheet, View, SafeAreaView } from 'react-native'
 import { supabase } from '../../utils/supabase'
