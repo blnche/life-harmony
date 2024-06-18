@@ -3,11 +3,7 @@ module.exports = function (api) {
   const plugins = [];
 
   plugins.push([
-    '@tamagui/babel-plugin',
-    {
-      components: ['tamagui'],
-      config: './tamagui.config.ts',
-    },
+    {}
   ]);
 
   return {

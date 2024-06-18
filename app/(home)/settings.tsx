@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../utils/supabase'
-import { StyleSheet, View, Alert } from 'react-native'
-import { Button, Input, Label } from 'tamagui'
+import { StyleSheet, View, Alert, Button, Text, TextInput } from 'react-native'
+// import { Button, TextInput, Text } from 'tamagui'
 import { Session } from '@supabase/supabase-js'
 import { useAuth } from '~/providers/AuthProvider'
 import { Stack } from 'expo-router'
@@ -11,7 +11,6 @@ export default function ProfileScreen() {
 
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
-  const [website, setWebsite] = useState('')
 
 
   useEffect(() => {
@@ -25,7 +24,7 @@ export default function ProfileScreen() {
 
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`username, website`)
+        .select(`username`)
         .eq('id', session?.user.id)
         .single()
       if (error && status !== 406) {
@@ -34,7 +33,6 @@ export default function ProfileScreen() {
 
       if (data) {
         setUsername(data.username)
-        setWebsite(data.website)
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -46,11 +44,9 @@ export default function ProfileScreen() {
   }
 
   async function updateProfile({
-    username,
-    website,
+    username
   }: {
     username: string
-    website: string
   }) {
     try {
       setLoading(true)
@@ -59,7 +55,6 @@ export default function ProfileScreen() {
       const updates = {
         id: session?.user.id,
         username,
-        website,
         updated_at: new Date(),
       }
 
@@ -82,27 +77,28 @@ export default function ProfileScreen() {
       <Stack.Screen options={{ title: 'Settings'}}/>
       <View style={styles.container}>
         <View style={[styles.verticallySpaced, styles.mt20]}>
-          <Label htmlFor='email'>Email</Label>
-          <Input id="email" placeholder={session?.user?.email} value={session?.user?.email} disabled />
+          <Text>Email</Text>
+          <TextInput id="email" placeholder={session?.user?.email} value={session?.user?.email} disabled />
         </View>
         <View style={styles.verticallySpaced}>
-          <Label htmlFor='username'>Username</Label>
-          <Input id="Username" placeholder={username} value={username || ''} onChangeText={(text) => setUsername(text)} />
+          <Text>Username</Text>
+          <TextInput id="Username" placeholder={username} value={username || ''} onChangeText={(text) => setUsername(text)} />
         </View>
-        <View style={styles.verticallySpaced}>
-          <Label htmlFor='website'>Website</Label>
-          <Input id="Website" value={website || ''} onChangeText={(text) => setWebsite(text)} />
-        </View>
+       
 
         <View style={[styles.verticallySpaced, styles.mt20]}>
           <Button
-            onPress={() => updateProfile({ username, website })}
+            onPress={() => updateProfile({ username })}
             disabled={loading}
-          >{loading ? 'Loading ...' : 'Update'}</Button>
+            title={loading ? 'Loading ...' : 'Update'}
+          />
         </View>
 
         <View style={styles.verticallySpaced}>
-          <Button onPress={() => supabase.auth.signOut()}>Sign Out</Button>
+          <Button 
+            onPress={() => supabase.auth.signOut()}
+            title="Sign Out"
+          />
         </View>
       </View>
     </>

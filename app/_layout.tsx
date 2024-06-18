@@ -1,7 +1,7 @@
 import { useFonts } from 'expo-font';
 import { Slot, SplashScreen, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
-import { TamaguiProvider, Theme, View } from 'tamagui';
+// import { TamaguiProvider, Theme, View } from 'tamagui';
 
 import config from '../tamagui.config';
 import AuthProvider from '~/providers/AuthProvider';
@@ -28,34 +28,34 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
-    Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
-    InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
-  });
+//   const [loaded] = useFonts({
+//     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
+//     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
+//   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+//   useEffect(() => {
+//     if (loaded) {
+//       SplashScreen.hideAsync();
+//     }
+//   }, [loaded]);
 
-  if (!loaded) return null;
+//   if (!loaded) return null;
 
   return (
-    <TamaguiProvider config={config}>
+    // <TamaguiProvider config={config}>
       <PostHogProvider apiKey="phc_qtO8KiLdPSOTD3N9vRtxyW4akppUnVuVFESu66JrZgl" options={{
         host: "https://us.i.posthog.com",
       }}>
         <AuthProvider>
             <UserProfileProvider>
               <TasksProvider>
-                <Theme name='light'>
+                {/* <Theme name='light'> */}
                   <Slot />
-                </Theme>
+                {/* </Theme> */}
               </TasksProvider>
             </UserProfileProvider>
         </AuthProvider>
       </PostHogProvider>
-    </TamaguiProvider>
+    // </TamaguiProvider>
   );
 }

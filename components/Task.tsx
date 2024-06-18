@@ -1,17 +1,15 @@
-import { Text, View, StyleSheet, Alert } from "react-native"
-import { supabase } from "~/utils/supabase"
-import { Database } from "~/utils/supabase-types"
-import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler'
-import { Button, Checkbox } from "tamagui"
-import { Circle, Trash, CheckCircle } from '@tamagui/lucide-icons'
-import { useTasks } from "~/providers/TasksProvider"
+import { Text, View, StyleSheet, Alert, Button } from "react-native";
+import { supabase } from "~/utils/supabase";
+import { Database } from "~/utils/supabase-types";
+import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
+// import { Button, Checkbox } from "tamagui"
+// import { Circle, Trash, CheckCircle } from '@tamagui/lucide-icons'
+import { useTasks } from "~/providers/TasksProvider";
 import { notion } from '~/utils/notion';
-import * as Haptics from 'expo-haptics'
+import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 
-type Todo = Database['public']['Tables']['todos']['Row']
-
-
+type Todo = Database['public']['Tables']['todos']['Row'];
 
 export default function Task ( task : Todo) {
 
@@ -22,8 +20,8 @@ export default function Task ( task : Todo) {
             const trigger = {
                 seconds: (new Date(task.do_date!).getTime() - new Date().getTime()) / 1000,
                 repeats: false
-            }
-            console.log(trigger.seconds)
+            };
+            console.log(trigger.seconds);
             if(trigger.seconds > 0) {
 
                 try {
@@ -50,23 +48,23 @@ export default function Task ( task : Todo) {
                     console.log(`(${task.task}) Couldn't calculate next trigger date : ${error}`)
                 }
             } else {
-                console.log(`(${task.task}) Task do date is overdue.`)
-            }
+                console.log(`(${task.task}) Task do date is overdue.`);
+            };
     
         }
-        getNextTriggerDate()
+        getNextTriggerDate();
     }
     else {
-        console.log(`No do date for this task : ${task.task}`)
+        console.log(`No do date for this task : ${task.task}`);
     }
 
 
-    const { todos, setTodos } = useTasks()
-    const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
+    const { todos, setTodos } = useTasks();
+    const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID;
 
     const toggleTodoStatus = async (id: number, is_complete: boolean) => {
         // console.log(id, is_complete)
-        const now = new Date().toISOString()
+        const now = new Date().toISOString();
 
         try {
 
@@ -79,7 +77,7 @@ export default function Task ( task : Todo) {
                 .eq('id', id)
                 .select('*')
                 .single()
-        
+                ;
             // console.log(updatedTodo.point_value)
             if(todoError) {
                 console.log(todoError)
@@ -88,7 +86,7 @@ export default function Task ( task : Todo) {
                 setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)));
                 Haptics.notificationAsync(
                     Haptics.NotificationFeedbackType.Success
-                  )
+                  );
                 // UPDATE STATUS IN NOTION DB
                 if(databaseId) {
 
@@ -101,10 +99,10 @@ export default function Task ( task : Todo) {
                                     equals: updatedTodo.id
                                 }
                             }
-                        })
+                        });
                         
                         // GET PAGE ID TO UPDATE STATUS TO DONE
-                        const pageId = response.results[0].id
+                        const pageId = response.results[0].id;
 
                         if(pageId) {
                             const pageToUpdate = await notion.pages.update({
@@ -116,16 +114,16 @@ export default function Task ( task : Todo) {
                                         }
                                     }
                                 }
-                            })
-                            console.log(pageToUpdate)
+                            });
+                            console.log(pageToUpdate);
                         }
                         else {
-                            console.log('Page to update not found')
+                            console.log('Page to update not found');
                         }
                     })()
                 }
 
-            }
+            };
 
             // const { data: profile, error: profileError } = await supabase
             //   .from('profiles')
@@ -141,9 +139,9 @@ export default function Task ( task : Todo) {
             //     console.log(profile)
             //   }
         } catch (error) {
-        console.log(error)
-        }
-    }
+        console.log(error);
+        };
+    };
 
     const deleteButtonsAlert = () => {
         Alert.alert('This task will be deleted from your Notion workspace as well.', 'You can modify this action in your profile settings.', [
@@ -155,16 +153,16 @@ export default function Task ( task : Todo) {
                 text: 'Yes', 
                 onPress: () => deleteTodo(task.id)
             }
-        ])
-    } 
+        ]);
+    } ;
     const deleteTodo = async (id : number) => {
         const { error } = await supabase  
         .from('todos')
         .delete()
         .eq('id', id)
-
+;
         if (error) {
-            console.log(error)
+            console.log(error);
         }
         else {
             setTodos((todos ?? []).filter((todo) => todo.id !== Number(id)));
@@ -180,49 +178,48 @@ export default function Task ( task : Todo) {
                                 equals: id
                             }
                         }
-                    })
+                    });
                     
                     // GET PAGE ID TO UPDATE ARCHIVED TO TRUE
-                    const pageId = response.results[0].id
+                    const pageId = response.results[0].id;
 
                     if(pageId) {
                         const pageToUpdate = await notion.pages.update({
                             page_id: pageId,
                             archived: true
-                        })
-                        console.log(pageToUpdate)
+                        });
+                        console.log(pageToUpdate);
                     }
                     else {
                         console.log('Page to update not found')
-                    }
-                })()
-            }
+                    };
+                })();
+            };
 
-        }
-    }
+        };
+    };
     
     const RightActions = (progress, dragX) => {
         return (
             <View style={styles.rightActionContainer}>
                 <View style={styles.rightAction}>
                     <Button 
-                    icon={<Trash size={'$2'} />}
                     color={'red'}
-                    chromeless
-                    onPress={() => deleteButtonsAlert(task.id)}
+                    onPress={() => deleteButtonsAlert()}
+                    title="Delete"
                     />
                 </View>
                 <View style={styles.rightAction}>
                     <Text style={styles.actionText}>Action 2</Text>
                 </View>
             </View>
-        )
-    }
+        );
+    };
    
     const SwipeableRow = () => {
         const handleRightAction = () => {
-            console.log('Right action triggered')
-        }
+            console.log('Right action triggered');
+        };
 
         return (
             <Swipeable 
@@ -237,32 +234,30 @@ export default function Task ( task : Todo) {
                     {task && task.is_complete && (
 
                         <Button 
-                        icon={<CheckCircle size={'$2'} />}
                         disabled
                         color={'black'}
-                        chromeless
+                        title="Done"
                         />
                     )}
                     {task && !task.is_complete && (
                         
                         <Button 
-                        icon={<Circle size={'$2'} />}
                         color={'black'}
-                        chromeless
+                        title="Done"
                         onPress={() => toggleTodoStatus(task.id, task.is_complete)}
                         />
                     )}
                 </View>
             </Swipeable>
-        )
-    }
+        );
+    };
 
     return (
         <GestureHandlerRootView style={styles.container}>
             <SwipeableRow />
         </GestureHandlerRootView>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {

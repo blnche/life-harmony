@@ -1,11 +1,11 @@
 import { Link, Stack } from "expo-router";
-import { Text, View } from "react-native";
+import { Text, View, Button, TextInput } from "react-native";
 import { Database } from "~/utils/supabase-types";
 import { supabase } from "~/utils/supabase";
 import { useUserProfile } from "~/providers/UserProfileProvider";
 import { useEffect, useState } from "react";
-import { XStack, YStack, Button, Label, RadioGroup, Input } from "tamagui";
-import { Plus } from '@tamagui/lucide-icons'
+// import { XStack, YStack, Button, Label, RadioGroup, Input } from "tamagui";
+// import { Plus } from '@tamagui/lucide-icons'
 import { notion } from '~/utils/notion';
 
 import DateTimePicker from 'react-native-ui-datepicker'
@@ -174,72 +174,41 @@ export default function NewTodo () {
     return (
         <>
         <Stack.Screen options={{ title: 'Create a new task'}}/>
-        <YStack fullscreen justifyContent="space-between" padding="$4">
-          <YStack space='$2' alignItems='flex-start' justifyContent='center'>
-            <YStack
-                backgroundColor={'$blue11Dark'}
-                width={'100%'}
-                padding={'$4'}
-                borderRadius={'$5'}
-            >
-                <Label htmlFor='new-todo'>Title : </Label>
-                <Input
+        
+            
+                <Text>Title : </Text>
+                <TextInput
                 id="new-todo"
                 onChangeText={(text) => setNewTodo({...newTodo as Todo, task : text})}
                 value={newTodo?.task!}
-                borderWidth={2}
-                borderColor={'$color.blue8Light'}
-                backgroundColor={'$color.blue4Light'}
                 placeholder='New task...'
-                width={'100%'}
                 />
-            </YStack>
-            <YStack
-                backgroundColor={'$blue11Dark'}
-                width={'100%'}
-                padding={'$4'}
-                borderRadius={'$5'}
-            >
+            
                 <Text>How difficult for you this task is going to be ?</Text>
-                <XStack justifyContent="center">
+                
                     {difficultyLevels && difficultyLevels.map((difficulty, index) => {
                         return (
 
                             <Button 
                                 key={difficulty.id}
-                                theme={selectedDifficutly === difficulty.id ? 'active' : null}
                                 onPress={() => setSelectedDifficulty(difficulty.id)}
-                                borderWidth={2}
-                                borderColor={'$color.blue8Light'}
-                                backgroundColor={selectedDifficutly === difficulty.id ? '$color.blue6Light' : '$color.blue4Light'}
-                                marginHorizontal={"$1.5"}
-                            >
-                                {difficulty.name}
-                            </Button>
+                                title={difficulty.name}
+                            />
                         )
                     })}
-                </XStack>
-            </YStack>
-            <YStack
-                backgroundColor={'$blue11Dark'}
-                width={'100%'}
-                padding={'$4'}
-                borderRadius={'$5'}
-            >
+
+  
                 <Button 
                     onPress={() => setShowDatePicker(!showDatePicker)}
-                    marginBottom={'$2'}
-                >
-                    Pick a date
-                </Button>
+                    title="Pick a date"
+                />
+                    
                 {showDatePicker && (
                     <>
                         <Button 
                             onPress={() => setShowTimePicker(!showTimePicker)}
-                            marginBottom={'$2'}
-                        >
-                            Pick a time
-                        </Button>
+                            title="Pick a time"  
+                        />
                         <DateTimePicker 
                             mode='single'
                             date={newTodo?.do_date}
@@ -248,9 +217,7 @@ export default function NewTodo () {
                         />
                     </>
                 )}
-            </YStack>
-          </YStack>
-          <XStack alignSelf="center" alignItems="center" marginBottom={'$4'}>
+            
             <Link
                 href={'../'}
             >
@@ -258,14 +225,8 @@ export default function NewTodo () {
             </Link>
             <Button  
               onPress={() => addTodo(newTodo!)} 
-              marginLeft={'$5'}
-              borderWidth={2}
-              borderColor={'$color.blue8Light'}
-            >
-                Validate
-            </Button>
-          </XStack>
-        </YStack>
+              title="Validate"
+            />
         </>
     )
 }

@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Platform, Alert, StyleSheet, View, SafeAreaView } from 'react-native'
+import { Platform, Alert, StyleSheet, View, SafeAreaView, Button, Text, TextInput } from 'react-native'
 import { supabase } from '../../utils/supabase'
-import { Button, Input, Label } from 'tamagui'
-import { Auth as NativeAuth } from '~/components/Auth.native';
+// import { Button, TextInput, Label } from 'tamagui'
+import { AppleAuth } from '~/components/AppleAuth';
+import { GoogleAuth } from '~/components/GoogleAuth'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -10,6 +11,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
 
   async function signInWithEmail() {
+    console.log(email)
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
@@ -39,8 +41,8 @@ export default function Auth() {
     <SafeAreaView>
       <View style={styles.container}>
         <View style={[styles.verticallySpaced, styles.mt20]}>
-          <Label htmlFor='email'>Email</Label>
-          <Input
+          <Text>Email</Text>
+          <TextInput
             id='email'
             onChangeText={(text) => setEmail(text)}
             value={email}
@@ -49,25 +51,25 @@ export default function Auth() {
           />
         </View>
         <View style={styles.verticallySpaced}>
-          <Label htmlFor='password'>Password</Label>
-          <Input
+          <Text>Password</Text>
+          <TextInput
             id='password'
             onChangeText={(text) => setPassword(text)}
             value={password}
-            secureTextEntry={true}
             placeholder="Password"
             autoCapitalize={'none'}
           />
         </View>
         <View style={[styles.verticallySpaced, styles.mt20]}>
-          <Button disabled={loading} onPress={() => signInWithEmail()}>Sign in</Button>
+          <Button disabled={loading} onPress={() => signInWithEmail} title="Sign in" />
         </View>
         <View style={styles.verticallySpaced}>
-          <Button disabled={loading} onPress={() => signUpWithEmail()}>Sign up</Button>
+          <Button disabled={loading} onPress={() => signUpWithEmail()} title="Sign up" />
         </View>
       </View>
       <View>
-        {/* <NativeAuth /> */}
+        <GoogleAuth />
+        <AppleAuth />
       </View>
     </SafeAreaView>
   )

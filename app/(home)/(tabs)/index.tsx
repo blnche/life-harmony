@@ -1,7 +1,7 @@
 import { Link, Stack } from 'expo-router';
-import { FlatList, Platform, StyleSheet } from 'react-native';
-import { View, Checkbox, H1, Input, Label, ListItem, Text, XStack, YStack, Button, RadioGroup, ScrollView, Sheet } from 'tamagui';
-import { Check as CheckIcon, Trash, Plus } from '@tamagui/lucide-icons'
+import { FlatList, Platform, StyleSheet, Button, View, Text, ScrollView } from 'react-native';
+// import {  Sheet } from 'tamagui';
+// import { Check as CheckIcon, Trash, Plus } from '@tamagui/lucide-icons'
 import { useAuth } from '~/providers/AuthProvider';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '~/utils/supabase';
@@ -341,46 +341,46 @@ export default function MainTabScreen() {
     
   }
 
-  const displayDate = ( receivedDate : string ) => {
-    const currentDate = new Date()
-    const baseDate = new Date(receivedDate)
-    // console.log(date)
-    // console.log('base '+baseDate)
+  // const displayDate = ( receivedDate : string ) => {
+  //   const currentDate = new Date()
+  //   const baseDate = new Date(receivedDate)
+  //   // console.log(date)
+  //   // console.log('base '+baseDate)
 
-    const year = baseDate.getFullYear()
-    const hours = baseDate.getHours()
-    const minutes = baseDate.getMinutes()
-    const formattedHours = String(hours).padStart(2, '0');
-    const formattedMinutes = String(minutes).padStart(2, '0');
+  //   const year = baseDate.getFullYear()
+  //   const hours = baseDate.getHours()
+  //   const minutes = baseDate.getMinutes()
+  //   const formattedHours = String(hours).padStart(2, '0');
+  //   const formattedMinutes = String(minutes).padStart(2, '0');
 
-    const differenceInMilliseconds = baseDate.getTime() - currentDate.getTime()
-    const differenceInDays = Math.ceil(differenceInMilliseconds / (1000 * 60 * 60 * 24))
+  //   const differenceInMilliseconds = baseDate.getTime() - currentDate.getTime()
+  //   const differenceInDays = Math.ceil(differenceInMilliseconds / (1000 * 60 * 60 * 24))
 
-    if (differenceInDays <= 3 && differenceInDays > 1) {
-      return `In ${differenceInDays} days`
-    }
-    if (differenceInDays === 1) {
-      return `Tomorrow at ${formattedHours}:${formattedMinutes}`
-    }
-    if (differenceInDays === 0) {
-      return `Today at ${formattedHours}:${formattedMinutes}`
-    }
+  //   if (differenceInDays <= 3 && differenceInDays > 1) {
+  //     return `In ${differenceInDays} days`
+  //   }
+  //   if (differenceInDays === 1) {
+  //     return `Tomorrow at ${formattedHours}:${formattedMinutes}`
+  //   }
+  //   if (differenceInDays === 0) {
+  //     return `Today at ${formattedHours}:${formattedMinutes}`
+  //   }
 
-    if (year === 1970) {
-      // console.log('year '+year)
-      const formattedDate = new Date(receivedDate).toLocaleString('en-US', {})
-      return <Button size={'$1'}>Add date</Button>
-    }
-    if (hours === 0 && minutes === 0) {
-      // console.log('midnight '+hours+':'+minutes)
-      const formattedDate = new Date(receivedDate).toLocaleString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: '2-digit'})
-      return formattedDate
-    }
+  //   if (year === 1970) {
+  //     // console.log('year '+year)
+  //     const formattedDate = new Date(receivedDate).toLocaleString('en-US', {})
+  //     return <Button size={'$1'}>Add date</Button>
+  //   }
+  //   if (hours === 0 && minutes === 0) {
+  //     // console.log('midnight '+hours+':'+minutes)
+  //     const formattedDate = new Date(receivedDate).toLocaleString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: '2-digit'})
+  //     return formattedDate
+  //   }
 
-    const formattedDate = new Date(receivedDate).toLocaleString('en-US', {month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', weekday: 'long'})
-    // console.log(formattedDate)
-    return formattedDate
-  }
+  //   const formattedDate = new Date(receivedDate).toLocaleString('en-US', {month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', weekday: 'long'})
+  //   // console.log(formattedDate)
+  //   return formattedDate
+  // }
 
   const changeLanguage = () => {
     if(i18next.language === 'en') {
@@ -398,32 +398,29 @@ export default function MainTabScreen() {
             hidden={false}
         />
       <SafeAreaView>
-        <XStack justifyContent='space-between'>
           <Text>{t('greet')}{userProfile?.username}</Text>
-          <Button onPress={changeLanguage}>{t('changeLanguage')}</Button>
+          <Button 
+            onPress={changeLanguage} 
+            title="{t('changeLanguage')}"
+          />
           <Link href="/settings" asChild>
               <HeaderButton />
           </Link>
-        </XStack>
-        <Sheet
+        {/* <Sheet
           open={open}
           onOpenChange={setOpen}
           dismissOnSnapToBottom
           snapPoints={[90,50]}
         >
           <Sheet.Overlay/>
-          <Sheet.Frame
-            style={{backgroundColor:'blue'}}
-          >
+          <Sheet.Frame>
             <NewTodo />
           </Sheet.Frame>
-        </Sheet>
+        </Sheet> */}
         <ScrollView style={{height:'80%'}}>
-          <View 
-            alignItems='center'
-          >
+          <View>
             {userProfile &&
-              <H1>Points : {userProfile?.points}</H1>
+              <Text>Points : {userProfile?.points}</Text>
             }
             {todos && todos.map((todo, index) => {
               return  (
@@ -433,25 +430,20 @@ export default function MainTabScreen() {
           </View>
         </ScrollView>
         <Button 
-          icon={<Plus size={'$2'} />}
           color={'black'}
-          chromeless
           onPress={() => setOpen(true)}
-        >
-          {t('todo.newTask')} 
-        </Button>
+          title={t('todo.newTask')}
+        />
         <Button 
           color={'black'}
           onPress={fetchNotionTaskDb}
-        >
-          Sync Notion Task Database
-        </Button>
+          title="Sync Notion Task Database"
+        />
         <Button 
           color={'black'}
           onPress={fetchAllNotionDB}
-        >
-          Get Notion Databases
-        </Button>
+          title="Get Notion Databases"
+        />
       </SafeAreaView>
     </>
   );
