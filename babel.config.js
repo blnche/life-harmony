@@ -1,14 +1,14 @@
 module.exports = function (api) {
   api.cache(true);
-  const plugins = [];
+  // const plugins = [];
 
-  plugins.push([
-    {}
-  ]);
+  // plugins.push([
+  //   {}
+  // ]);
 
   return {
     presets: ['babel-preset-expo'],
 
-    plugins,
+    plugins: ["nativewind/babel"],
   };
 };

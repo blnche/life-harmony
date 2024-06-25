@@ -18,7 +18,10 @@ export default function Auth() {
       password: password,
     })
 
-    if (error) Alert.alert(error.message)
+    if (error) {
+      console.log(error)
+      Alert.alert(error.message)
+    }
     setLoading(false)
   }
 
@@ -61,7 +64,7 @@ export default function Auth() {
           />
         </View>
         <View style={[styles.verticallySpaced, styles.mt20]}>
-          <Button disabled={loading} onPress={() => signInWithEmail} title="Sign in" />
+          <Button disabled={loading} onPress={() => signInWithEmail()} title="Sign in" />
         </View>
         <View style={styles.verticallySpaced}>
           <Button disabled={loading} onPress={() => signUpWithEmail()} title="Sign up" />

@@ -226,7 +226,7 @@ export default function Task ( task : Todo) {
                 renderRightActions={RightActions}
                 onSwipeableOpen={handleRightAction}
             >
-                <View style={styles.cardContainer}>
+                <View className="bg-white">
                     <View style={styles.cardContent}>
                         <Text style={styles.dueDate}>In 2 days</Text>
                         <Text style={styles.title}>{task.task}</Text>

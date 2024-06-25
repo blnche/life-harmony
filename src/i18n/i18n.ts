@@ -1,7 +1,9 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import 'intl-pluralrules'
 import AsyncStoragePlugin from 'i18next-react-native-async-storage'
 
+import { en, fr } from './locales';
 
 // export const defaultNS = 'ns1';
 
@@ -15,7 +17,6 @@ import AsyncStoragePlugin from 'i18next-react-native-async-storage'
 
 // export default i18next;
 
-import { en, fr } from './locales';
 
 const resources = {
   en: {

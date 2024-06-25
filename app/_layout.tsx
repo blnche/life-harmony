@@ -3,7 +3,7 @@ import { Slot, SplashScreen, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
 // import { TamaguiProvider, Theme, View } from 'tamagui';
 
-import config from '../tamagui.config';
+// import config from '../tamagui.config';
 import AuthProvider from '~/providers/AuthProvider';
 import UserProfileProvider from '~/providers/UserProfileProvider';
 import TasksProvider from '~/providers/TasksProvider';
@@ -12,7 +12,7 @@ import { PostHogProvider } from 'posthog-react-native'
 
 
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

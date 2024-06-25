@@ -1,7 +1,25 @@
 {
     "greet": "Welcome, ",
     "changeLanguage": "Change Language",
-    "todo" : {
-        "newTask": "New task"
+    "homepage" : {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "tasks_progress":{
+            "tasks_left": "Tasks left"
+        },
+        "estimated_time": "Estimated Time",
+        "events_reminders": {
+            "events": "Events",
+            "reminders": "Reminders"
+        },
+        "tasks_container" : {
+            "tasks_selector": {
+                "all_tasks": "All tasks",
+                "morning": "Morning",
+                "work": "Work"
+            },
+            "overdue": "Overdue",
+            "completed": "Completed"
+        }
     }
 }
