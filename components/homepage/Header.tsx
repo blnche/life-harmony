@@ -1,5 +1,8 @@
 import { View, Text } from "react-native"
 import EventsReminders from "./EventsReminders"
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { Entypo } from '@expo/vector-icons';
+
 
 const Header = ({ t }) => (
     <View className="border-b pb-4 mb-4">
@@ -12,7 +15,8 @@ const Header = ({ t }) => (
                 <View>
                     <Text>Task bar</Text>
                     <View className="flex-row justify-between">
-                        <Text>Icon</Text>
+                        {/* <Entypo name="check" size={16} color="black" /> */}
+                        <Ionicons name="checkmark-circle-outline" size={16} color="black" />
                         <Text className="text-xs">6 {t('homepage.tasks_progress.tasks_left')}</Text>
                     </View>
                 </View>

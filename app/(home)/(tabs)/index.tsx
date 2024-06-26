@@ -16,6 +16,9 @@ import i18next from '../../../src/i18n/i18n';
 import Task from '~/components/Task';
 import Header from '~/components/homepage/Header';
 
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { Entypo } from '@expo/vector-icons';
+
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
@@ -96,7 +99,7 @@ export default function MainTabScreen() {
             <View className='border-b pb-4 mb-2'>
               <View className='flex-row justify-between'>
                 <Text>{t('homepage.tasks_container.overdue')}</Text>
-                <Text>Icon</Text>
+                <Entypo name="chevron-right" size={24} color="black" />
               </View>
               <View></View>
             </View>
@@ -109,7 +112,7 @@ export default function MainTabScreen() {
             <View>
               <View className='flex-row justify-between'>
                 <Text>{t('homepage.tasks_container.completed')}</Text>
-                <Text>Icon</Text>
+                <Entypo name="chevron-right" size={24} color="black" />
               </View>
               <View>
               <FlatList 

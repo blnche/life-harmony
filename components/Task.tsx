@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Alert, Button } from "react-native";
+import { Text, View, StyleSheet, Alert, Button, Pressable } from "react-native";
 import { supabase } from "~/utils/supabase";
 import { Database } from "~/utils/supabase-types";
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
@@ -8,6 +8,10 @@ import { useTasks } from "~/providers/TasksProvider";
 import { notion } from '~/utils/notion';
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
+
+
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { Entypo } from '@expo/vector-icons';
 
 type Todo = Database['public']['Tables']['todos']['Row'];
 
@@ -233,19 +237,24 @@ export default function Task ( task : Todo) {
                     </View>
                     {task && task.is_complete && (
 
-                        <Button 
-                        disabled
-                        color={'black'}
-                        title="Done"
-                        />
+                        <>
+                            <Pressable 
+                            disabled
+                            >
+                                <Text>Done</Text>
+                            </Pressable>
+                        </>
                     )}
                     {task && !task.is_complete && (
                         
-                        <Button 
-                        color={'black'}
-                        title="Done"
-                        onPress={() => toggleTodoStatus(task.id, task.is_complete)}
-                        />
+                        <>
+                            <Pressable 
+                            disabled
+                            onPress={() => toggleTodoStatus(task.id, task.is_complete)}
+                            >
+                                <Text>Done</Text>
+                            </Pressable>
+                        </>
                     )}
                 </View>
             </Swipeable>

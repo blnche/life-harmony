@@ -1,4 +1,6 @@
 import { View, Text } from "react-native"
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { Entypo } from '@expo/vector-icons';
 
 const EventsReminders = ({ t }) => {
 
@@ -6,7 +8,8 @@ const EventsReminders = ({ t }) => {
         <View className="flex-row justify-center">
             <View className="w-3/6">
                 <View className="flex-row items-center">
-                    <Text>Icon</Text>
+                    {/* <Ionicons name="calendar-clear" size={16} color="black"/> */}
+                    <Entypo name="calendar" size={16} color="black" />
                     <Text className="text-base font-black">{t('homepage.events_reminders.events')}</Text>
                 </View>
                 <View className="ml-2">
@@ -16,7 +19,8 @@ const EventsReminders = ({ t }) => {
             </View>
             <View className="w-3/6">
                 <View className="flex-row items-center">
-                    <Text>Icon</Text>
+                    {/* <Ionicons name="pin-sharp" size={16} color="black"/> */}
+                    <Entypo name="pin" size={16} color="black" />
                     <Text className="text-base font-black">{t('homepage.events_reminders.reminders')}</Text>
                 </View>
                 <View className="ml-2">
