@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Button, View, Text, FlatList, Pressable } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Button, View, Text, FlatList, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -19,50 +19,91 @@ import Header from '~/components/homepage/Header';
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { Entypo } from '@expo/vector-icons';
 
+import {
+  BottomSheetModal,
+  BottomSheetView,
+  BottomSheetModalProvider,
+} from '@gorhom/bottom-sheet';
+
+import OverdueTaskList from '~/components/homepage/OverdueTaskList';
+import CompletedTaskList from '~/components/homepage/CompletedTaskList';
+import TaskList from '~/components/homepage/TaskList';
+
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
 
 export default function MainTabScreen() {
 
+  // PROVIDERS
   const { userProfile } = useUserProfile()
   const { todos, setTodos } = useTasks()
   
+  // TOOLS  
   const posthog = usePostHog()
+  const {t} = useTranslation()
+ 
+  // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
+  const [tasksType, setTasksType] = useState('all')
+  const today = new Date()
 
-  const {t} = useTranslation();
-  const changeLanguage = () => {
-    if(i18next.language === 'en') {
-      i18next.changeLanguage('fr')
-    } else if (i18next.language === 'fr') {
-      i18next.changeLanguage('en')
+  const handleTasksType = (type : String) => {
+    console.log(type)
+    setTasksType(type)
+  }
+
+  const tasks = todos?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return ((do_date == today || due_date == today) && !todo.is_complete)
+  })
+
+  const overdueTasks = todos?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return ((do_date < today || due_date < today) && !todo.is_complete)
+  })
+
+  const completedTasks = todos?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return ((do_date == today || due_date == today) && todo.is_complete)
+  })
+
+  // NEW TASK BOTTOM SHEET
+   
+   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+   const snapPoints = useMemo(() => ['50%', '93%'], []);
+ 
+   const handlePresentModalPress = useCallback(() => {
+     bottomSheetModalRef.current?.present();
+   }, []);
+   
+   const handleSheetChanges = useCallback((index: number) => {
+     console.log('handleSheetChanges', index);
+   }, []);
+
+   // PROGRESS BAR
+   const tasksCompletionProgress = () => {
+    if (tasks && completedTasks) {
+      const totalTasks = tasks.length + completedTasks.length
+      
+      if (totalTasks === 0) {
+        return 0
+      }
+      return (completedTasks.length / totalTasks)
     }
-  }
+   }
 
-  const renderTasks = ({item}: {item: Todo}) => {
-    const today = new Date()
-    const doDate = new Date(item.do_date)
-    const dueDate = new Date(item.due_date)
-
-    if(doDate < today|| dueDate < today) return
-
-    return (
-      <Task {...item}/>
-    )
-
-  }
-  const renderCompletedTasks = ({item}: {item: Todo}) => {
-    const today = new Date()
-    const doDate = new Date(item.do_date)
-    const dueDate = new Date(item.due_date)
-
-    if(doDate < today|| dueDate < today) {
-
-      return (
-        <Task {...item}/>
-      )
+   const tasksLeft = () => {
+    if (tasks && overdueTasks) {
+      return tasks?.length + overdueTasks?.length
     }
-  }
+   }
 
   return (
     <>
@@ -71,70 +112,64 @@ export default function MainTabScreen() {
             style={'dark'}
             hidden={false}
         />
-      <SafeAreaView style={styles.container}>
-          <Header t={t}/>
-          <View>
-            <View className='flex-row justify-center space-x-4 mb-5'>
-              <Pressable
-                onPress={() => console.log('All tasks selected')} 
-                className="flex justify-center items-center w-[98] h-[30] rounded-md border border-[#548164] bg-[#EEF3ED]"
-              >
-                <Text className='text-[#548164] text-xs'>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
-              </Pressable> 
-              <Pressable
-                onPress={() => console.log('Morning tasks selected')} 
-                className="flex justify-center items-center w-[98] h-[30] rounded-md border border-[#CBD5E1]"
-              >
-                <Text>{t('homepage.tasks_container.tasks_selector.morning')}</Text>
-              </Pressable> 
-              <Pressable
-                onPress={() => console.log('Work tasks selected')} 
-                className="flex justify-center items-center w-[98] h-[30] rounded-md border border-[#CBD5E1]"
-              >
-                <Text>{t('homepage.tasks_container.tasks_selector.work')}</Text>
-              </Pressable> 
-            </View>
+      <SafeAreaView className='p-[15px] h-full flex items-center'>
+          <Header t={t} progress={tasksCompletionProgress()} tasksLeft={tasksLeft()}/>
+          <View className='flex-row justify-center space-x-4 mb-5'>
+            <Pressable
+              onPress={() => handleTasksType('all')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${tasksType === 'all' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+            >
+              <Text className={` ${tasksType === 'all' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
+            </Pressable> 
+            <Pressable
+              onPress={() => handleTasksType('morning')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${tasksType === 'morning' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+            >
+              <Text className={` ${tasksType === 'morning' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.morning')}</Text>
+            </Pressable> 
+            <Pressable
+              onPress={() => handleTasksType('work')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${tasksType === 'work' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+            >
+              <Text className={` ${tasksType === 'work' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.work')}</Text>
+            </Pressable> 
           </View>
-          <View>
-            <View className='border-b pb-4 mb-2'>
-              <View className='flex-row justify-between'>
-                <Text>{t('homepage.tasks_container.overdue')}</Text>
-                <Entypo name="chevron-right" size={24} color="black" />
-              </View>
-              <View></View>
-            </View>
-            <View>
-              <FlatList 
-                data={todos}
-                renderItem={renderTasks}
-              />
-            </View>
-            <View>
-              <View className='flex-row justify-between'>
-                <Text>{t('homepage.tasks_container.completed')}</Text>
-                <Entypo name="chevron-right" size={24} color="black" />
-              </View>
-              <View>
-              <FlatList 
-                data={todos}
-                renderItem={renderCompletedTasks}
-              />
-              </View>
-            </View>
-          </View>
-          <Button 
-            onPress={changeLanguage} 
-            title={t('changeLanguage')}
-            />
-          <Text>{userProfile?.username}</Text>
+          <ScrollView className='w-full h-[365]'>
+            {overdueTasks && overdueTasks.length > 0 && <OverdueTaskList t={t} overdueTasks={overdueTasks}/>}
+            {tasks && <TaskList t={t} tasks={tasks} />}
+            {completedTasks && completedTasks.length > 0 && <CompletedTaskList t={t} completedTasks={completedTasks} />}
+          </ScrollView>
+          <BottomSheetModalProvider>
+          <Pressable 
+            className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white'
+            onPress={handlePresentModalPress}
+          >
+            <Entypo name="plus" size={24} color="black" />
+            <Text className='text-xl ml-1.5'>New Task</Text>
+          </Pressable>
+              <BottomSheetModal
+                ref={bottomSheetModalRef}
+                index={1}
+                snapPoints={snapPoints}
+                onChange={handleSheetChanges}
+              >
+                <BottomSheetView style={styles.contentContainer}>
+                  <Text>Awesome 🎉</Text>
+                </BottomSheetView>
+              </BottomSheetModal>
+          </BottomSheetModalProvider>
       </SafeAreaView>
     </>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
+    backgroundColor: 'grey',
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
 });

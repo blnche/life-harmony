@@ -230,32 +230,35 @@ export default function Task ( task : Todo) {
                 renderRightActions={RightActions}
                 onSwipeableOpen={handleRightAction}
             >
-                <View className="bg-white">
-                    <View style={styles.cardContent}>
-                        <Text style={styles.dueDate}>In 2 days</Text>
-                        <Text style={styles.title}>{task.task}</Text>
-                    </View>
-                    {task && task.is_complete && (
+                <View className="max-w-[360] min-h-[55] rounded-[18px] mb-5 px-5 bg-white flex-row justify-between items-center">
+                    <View className="flex-row items-center">
+                        {task && task.is_complete && (
 
-                        <>
-                            <Pressable 
-                            disabled
-                            >
-                                <Text>Done</Text>
-                            </Pressable>
-                        </>
-                    )}
-                    {task && !task.is_complete && (
-                        
-                        <>
-                            <Pressable 
-                            disabled
-                            onPress={() => toggleTodoStatus(task.id, task.is_complete)}
-                            >
-                                <Text>Done</Text>
-                            </Pressable>
-                        </>
-                    )}
+                            <>
+                                <Pressable 
+                                disabled
+                                >
+                                    <Ionicons name="checkmark-circle" size={24} color="black" /> 
+                                </Pressable>
+                            </>
+                        )}
+                        {task && !task.is_complete && (
+                            
+                            <>
+                                <Pressable 
+                                disabled
+                                onPress={() => toggleTodoStatus(task.id, task.is_complete)}
+                                >
+                                    <Entypo name="circle" size={24} color="black" />
+                                </Pressable>
+                            </>
+                        )}
+                        <View className="ml-3">
+                            {task.do_date && <Text className="text-xs">{task.do_date}</Text>}
+                            <Text className="text-base w-[245]">{task.task}</Text>
+                        </View>
+                    </View>
+                    {!task.is_complete && <Entypo name="controller-play" size={24} color="black" />}
                 </View>
             </Swipeable>
         );
@@ -269,69 +272,69 @@ export default function Task ( task : Todo) {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        width: 350
-    },
-    rightActionContainer: {
-        flexDirection: 'row',
-        marginLeft: 10,
-    },
-    rightAction: {
-        backgroundColor: 'lightblue',
-        borderRadius: 25,
-        marginHorizontal: 5,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        shadowColor: '#000000',
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    actionText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    cardContainer: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 25,
-        padding: 15,
-        marginBottom: 10,
-        shadowColor: '#000000',
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
-        elevation: 3, // for Android
-        minHeight: 100,
-        flexDirection: 'row',
-        justifyContent:'space-between',
-        alignItems: 'center'
-    },
-    cardContent: {
+    // container: {
+    //     width: 350
+    // },
+    // rightActionContainer: {
+    //     flexDirection: 'row',
+    //     marginLeft: 10,
+    // },
+    // rightAction: {
+    //     backgroundColor: 'lightblue',
+    //     borderRadius: 25,
+    //     marginHorizontal: 5,
+    //     marginBottom: 10,
+    //     paddingHorizontal: 10,
+    //     paddingVertical: 5,
+    //     shadowColor: '#000000',
+    //     shadowOpacity: 0.1,
+    //     shadowRadius: 3,
+    //     shadowOffset: {
+    //       width: 0,
+    //       height: 4,
+    //     },
+    //     justifyContent: 'center',
+    //     alignItems: 'center'
+    // },
+    // actionText: {
+    //     color: 'white',
+    //     fontWeight: 'bold',
+    //     fontSize: 16,
+    // },
+    // cardContainer: {
+    //     backgroundColor: '#FFFFFF',
+    //     borderRadius: 25,
+    //     padding: 15,
+    //     marginBottom: 10,
+    //     shadowColor: '#000000',
+    //     shadowOpacity: 0.1,
+    //     shadowRadius: 3,
+    //     shadowOffset: {
+    //       width: 0,
+    //       height: 4,
+    //     },
+    //     elevation: 3, // for Android
+    //     minHeight: 100,
+    //     flexDirection: 'row',
+    //     justifyContent:'space-between',
+    //     alignItems: 'center'
+    // },
+    // cardContent: {
 
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 5,
-        color: '#333333',
-    },
-    description: {
-        fontSize: 16,
-        color: '#666666',
-    },
-    dueDate: {
-        fontSize: 14,
-        marginTop: 10,
-        color: '#999999',
-    },
+    // },
+    // title: {
+    //     fontSize: 18,
+    //     fontWeight: 'bold',
+    //     marginBottom: 5,
+    //     color: '#333333',
+    // },
+    // description: {
+    //     fontSize: 16,
+    //     color: '#666666',
+    // },
+    // dueDate: {
+    //     fontSize: 14,
+    //     marginTop: 10,
+    //     color: '#999999',
+    // },
   });

@@ -1,6 +1,8 @@
 import { useFonts } from 'expo-font';
 import { Slot, SplashScreen, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 // import { TamaguiProvider, Theme, View } from 'tamagui';
 
 // import config from '../tamagui.config';
@@ -43,6 +45,8 @@ export default function RootLayout() {
 
   return (
     // <TamaguiProvider config={config}>
+    <GestureHandlerRootView>
+
       <PostHogProvider apiKey="phc_qtO8KiLdPSOTD3N9vRtxyW4akppUnVuVFESu66JrZgl" options={{
         host: "https://us.i.posthog.com",
       }}>
@@ -56,6 +60,7 @@ export default function RootLayout() {
             </UserProfileProvider>
         </AuthProvider>
       </PostHogProvider>
+    </GestureHandlerRootView>
     // </TamaguiProvider>
   );
 }
