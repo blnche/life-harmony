@@ -1,6 +1,9 @@
 {
     "greet": "Bienvenue, ",
     "priority": "Priorité",
+    "high": "Haute",
+    "medium": "Moyenne",
+    "low": "Basse",
     "changeLanguage": "Changer de langue",
     "homepage" : {
         "today": "Aujourd'hui",
@@ -20,7 +23,9 @@
                 "work": "Travail"
             },
             "overdue": "En retard",
-            "completed": "Terminées"
+            "completed": "Terminées",
+            "no_task_left": "Aucune tâche restante pour aujourd'hui."
+
         }
     }
 }

@@ -19,7 +19,7 @@ const CompletedTaskList = ({ t, completedTasks } : {t: (key: string) => string, 
                 onPress={handleCompletedPressed}
                 className='flex-row justify-between mb-4'
             >
-                <Text className='text-base font-black'>{t('homepage.tasks_container.overdue')}</Text>
+                <Text className='text-base font-black'>{t('homepage.tasks_container.completed')}</Text>
                 <Entypo name={completedOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
             </Pressable>
             {completedOpen && 

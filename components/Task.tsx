@@ -66,8 +66,8 @@ export default function Task ( task : Todo) {
     const { todos, setTodos } = useTasks();
     const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID;
 
-    const toggleTodoStatus = async (id: number, is_complete: boolean) => {
-        // console.log(id, is_complete)
+    const toggleTodoStatus = async (id: number) => {
+        // console.log(id)
         const now = new Date().toISOString();
 
         try {
@@ -75,7 +75,7 @@ export default function Task ( task : Todo) {
             const { data: updatedTodo, error: todoError } = await supabase  
                 .from('todos')
                 .update({ 
-                    is_complete: !is_complete,
+                    is_complete: true,
                     last_edited_at: now
                 })
                 .eq('id', id)
@@ -90,7 +90,7 @@ export default function Task ( task : Todo) {
                 setTodos((todos ?? []).map(todo => (todo.id === id ? updatedTodo as Todo : todo as Todo)));
                 Haptics.notificationAsync(
                     Haptics.NotificationFeedbackType.Success
-                  );
+                );
                 // UPDATE STATUS IN NOTION DB
                 if(databaseId) {
 
@@ -119,7 +119,7 @@ export default function Task ( task : Todo) {
                                     }
                                 }
                             });
-                            // console.log(pageToUpdate);
+                            console.log(pageToUpdate);
                         }
                         else {
                             console.log('Page to update not found');
@@ -159,6 +159,7 @@ export default function Task ( task : Todo) {
             }
         ]);
     } ;
+
     const deleteTodo = async (id : number) => {
         const { error } = await supabase  
         .from('todos')
@@ -244,8 +245,7 @@ export default function Task ( task : Todo) {
                         {task && !task.is_complete && (
                             <>
                                 <Pressable 
-                                disabled
-                                onPress={() => toggleTodoStatus(task.id, task.is_complete)}
+                                onPress={() => toggleTodoStatus(task.id)}
                                 >
                                     <Entypo name="circle" size={24} color="black" />
                                 </Pressable>

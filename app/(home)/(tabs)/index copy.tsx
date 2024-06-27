@@ -82,7 +82,7 @@ export default function MainTabScreen() {
           for(const row of rows) {
             // CHECK IF ALREADY IN APP DATABASE
             if(!row.properties.LH_id.number) {
-              
+              console.log(`This row doesnt have an LH id : ${row.properties.Name.title[0].plain_text}`)
               const pageId = row.id
               const properties = row.properties
               
@@ -91,7 +91,7 @@ export default function MainTabScreen() {
               properties.Name.title.map((item : any) => {
                 title = item.plain_text
               }) 
-              
+
               // GET DIFFICULTY LEVEL
               const difficultyLevel = difficultyLevels.find((level) => {
                 if(!properties.Difficulty.select) {
@@ -102,10 +102,9 @@ export default function MainTabScreen() {
                 }
               }) ?.id
 
-              // // GET PRIORITY
-              // const priorityLevel = t('priority')
-              // const priority = JSON.stringify(response.results[0].properties[t('priority')].select)
-              // console.log(`priority: ${priority}`)
+              // GET PRIORITY
+              const priority = response.results[0].properties[t('priority')].select.name
+              console.log(priority)
               
               // CHECK DO DATE
               let doDate
@@ -138,13 +137,14 @@ export default function MainTabScreen() {
                 is_complete: properties.is_complete.checkbox,
                 profile_user_id: userProfile?.id,
                 task: title,
+                priority: priority
               }
-              // console.log(task);
+              console.log(task);
               
               // ADD TASK TO SUPABASE DB
               if(task) {
                 
-                (async (task : any) => {
+                (async (task : Todo) => {
                   
                   const text = task.task?.trim()
                   
@@ -158,7 +158,8 @@ export default function MainTabScreen() {
                         difficulty_level : task.difficulty_level,
                         do_date : task.do_date,
                         due_date : task.due_date,
-                        is_complete : task.is_complete
+                        is_complete : task.is_complete,
+                        priority : task.priority
                         
                       },
                     ])
@@ -166,10 +167,11 @@ export default function MainTabScreen() {
                     .single()
                     
                     if (error) {
+                      console.log(`error `)
                       console.log(error)
                     }
                     else {
-                      
+                      console.log(`is in`)
                       setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo]));
                       
                       // UPDATE NOTION ROW (PAGE) LH_id TO TODO ID
@@ -215,7 +217,7 @@ export default function MainTabScreen() {
                 if(rowLastEdited > todoLastEdited) {
                   console.log(`notion : ${rowLastEdited} | app : ${todoLastEdited}`)
                   console.log(task.task)
-                  console.log(task.priority)
+                  // console.log(task.priority)
 
                   const propertiesToUpdate : {[key: string] : any} = {};
 
@@ -257,11 +259,11 @@ export default function MainTabScreen() {
                     if(rowProperties[t('priority')]) {
 
                       const priority = row.properties[t('priority')].select.name
-                      console.log(`priorirty : ${priority}`)
+                      // console.log(`priorirty : ${priority}`)
   
                       if(priority) {
                         propertiesToUpdate.priority = priority
-                        console.log(`update : ${propertiesToUpdate.priority}`)
+                        // console.log(`update : ${propertiesToUpdate.priority}`)
                       }
                     }
 
@@ -300,6 +302,7 @@ export default function MainTabScreen() {
                           console.log(todoError)
                         }
                         else {
+                          console.log(`Row was updated.`)
                           setTodos((todos ?? []).map(todo => (todo.id === task.id ? updatedTodo as Todo : todo as Todo)));
                         }
                       })()

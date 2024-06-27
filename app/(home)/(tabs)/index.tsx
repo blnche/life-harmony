@@ -47,19 +47,48 @@ export default function MainTabScreen() {
   // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
   const [tasksType, setTasksType] = useState<String>('all')
   const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
   const handleTasksType = (type : String) => {
     console.log(type)
     setTasksType(type)
   }
+  const datesAreEqual = (date1, date2) =>
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+
 
   const tasks = todos?.filter(todo => {
     const do_date = new Date(todo.do_date)
     const due_date = new Date(todo.due_date)
+    const isDoDateToday = datesAreEqual(do_date, today)
+    const isDueDateToday = datesAreEqual(due_date, today)
 
-    return ((do_date == today || due_date == today) && !todo.is_complete)
+    return ((isDoDateToday || isDueDateToday) && !todo.is_complete)
+  })
+  
+  const tasksHigh = tasks?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return (todo.priority === t('high'))
   })
 
+  const tasksMedium = tasks?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return (todo.priority === t('medium'))
+  })
+
+  const tasksLow = tasks?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return (todo.priority === t('low'))
+  })
+  
   const overdueTasks = todos?.filter(todo => {
     const do_date = new Date(todo.do_date)
     const due_date = new Date(todo.due_date)
@@ -67,11 +96,37 @@ export default function MainTabScreen() {
     return ((do_date < today || due_date < today) && !todo.is_complete)
   })
 
-  const completedTasks = todos?.filter(todo => {
+  const overdueTasksHigh = todos?.filter(todo => {
     const do_date = new Date(todo.do_date)
     const due_date = new Date(todo.due_date)
 
-    return ((do_date == today || due_date == today) && todo.is_complete)
+    return ((do_date < today || due_date < today) && !todo.is_complete && todo.priority === t('high'))
+  })
+ 
+
+  const overdueTasksMedium = todos?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return ((do_date < today || due_date < today) && !todo.is_complete && todo.priority === t('medium'))
+  })
+
+  const overdueTasksLow = todos?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+
+    return ((do_date < today || due_date < today) && !todo.is_complete && todo.priority === t('low'))
+  })
+
+  const overdueTasksLength = overdueTasksHigh?.length + overdueTasksMedium?.length + overdueTasksLow?.length
+
+  const completedTasks = todos?.filter(todo => {
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+    const isDoDateToday = datesAreEqual(do_date, today)
+    const isDueDateToday = datesAreEqual(due_date, today)
+
+    return ((isDoDateToday || isDueDateToday) && todo.is_complete)
   })
 
   // NEW TASK BOTTOM SHEET
@@ -101,8 +156,8 @@ export default function MainTabScreen() {
    }
 
    const tasksLeft = () => {
-    if (tasks && overdueTasks) {
-      return tasks?.length + overdueTasks?.length
+    if (tasks && overdueTasksHigh) {
+      return tasks?.length + overdueTasksHigh?.length
     }
    }
 
@@ -136,8 +191,14 @@ export default function MainTabScreen() {
             </Pressable> 
           </View>
           <ScrollView className='w-full h-[365]'>
-            {overdueTasks && overdueTasks.length > 0 && <OverdueTaskList t={t} overdueTasks={overdueTasks}/>}
-            {tasks && <TaskList t={t} tasks={tasks} />}
+            {overdueTasksHigh && overdueTasksMedium && overdueTasksLow && overdueTasksLength > 0 && <OverdueTaskList t={t} overdueTasksHigh={overdueTasksHigh} overdueTasksMedium={overdueTasksMedium} overdueTasksLow={overdueTasksLow}/>}
+
+            {tasks && tasksHigh && tasksMedium && tasksLow && tasks.length > 0 && 
+              <TaskList t={t} tasksHigh={tasksHigh} tasksMedium={tasksMedium} tasksLow={tasksLow} />
+            }
+
+            {tasks && tasks.length === 0 && <Text className="text-[#7A7A7A] mt-5">{t('homepage.tasks_container.no_task_left')}</Text>}
+            
             {completedTasks && completedTasks.length > 0 && <CompletedTaskList t={t} completedTasks={completedTasks} />}
           </ScrollView>
           <BottomSheetModalProvider>

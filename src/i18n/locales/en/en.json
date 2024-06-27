@@ -23,7 +23,8 @@
                 "work": "Work"
             },
             "overdue": "Overdue",
-            "completed": "Completed"
+            "completed": "Completed",
+            "no_task_left": "No task left for today."
         }
     }
 }
