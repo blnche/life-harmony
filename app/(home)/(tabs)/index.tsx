@@ -28,6 +28,7 @@ import {
 import OverdueTaskList from '~/components/homepage/OverdueTaskList';
 import CompletedTaskList from '~/components/homepage/CompletedTaskList';
 import TaskList from '~/components/homepage/TaskList';
+import NewTodo from '~/components/NewTask';
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -44,7 +45,7 @@ export default function MainTabScreen() {
   const {t} = useTranslation()
  
   // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
-  const [tasksType, setTasksType] = useState('all')
+  const [tasksType, setTasksType] = useState<String>('all')
   const today = new Date()
 
   const handleTasksType = (type : String) => {
@@ -89,11 +90,11 @@ export default function MainTabScreen() {
 
    // PROGRESS BAR
    const tasksCompletionProgress = () => {
-    if (tasks && completedTasks) {
-      const totalTasks = tasks.length + completedTasks.length
-      
+    if (tasks && completedTasks && overdueTasks) {
+      const totalTasks = tasks.length + completedTasks.length + overdueTasks.length
+
       if (totalTasks === 0) {
-        return 0
+        return 1
       }
       return (completedTasks.length / totalTasks)
     }
@@ -141,11 +142,11 @@ export default function MainTabScreen() {
           </ScrollView>
           <BottomSheetModalProvider>
           <Pressable 
-            className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white'
+            className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm'
             onPress={handlePresentModalPress}
           >
-            <Entypo name="plus" size={24} color="black" />
-            <Text className='text-xl ml-1.5'>New Task</Text>
+            <Entypo name="plus" size={24} color="#7A7A7A" />
+            <Text className='text-xl text-[#7A7A7A] ml-1.5'>New Task</Text>
           </Pressable>
               <BottomSheetModal
                 ref={bottomSheetModalRef}
@@ -154,7 +155,7 @@ export default function MainTabScreen() {
                 onChange={handleSheetChanges}
               >
                 <BottomSheetView style={styles.contentContainer}>
-                  <Text>Awesome 🎉</Text>
+                  <NewTodo/>
                 </BottomSheetView>
               </BottomSheetModal>
           </BottomSheetModalProvider>

@@ -1,5 +1,9 @@
 {
     "greet": "Welcome, ",
+    "priority": "Priority",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
     "changeLanguage": "Change Language",
     "homepage" : {
         "today": "Today",

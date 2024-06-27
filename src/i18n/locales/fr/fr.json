@@ -1,5 +1,6 @@
 {
     "greet": "Bienvenue, ",
+    "priority": "Priorité",
     "changeLanguage": "Changer de langue",
     "homepage" : {
         "today": "Aujourd'hui",

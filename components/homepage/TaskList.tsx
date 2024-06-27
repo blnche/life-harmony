@@ -11,15 +11,17 @@ const TaskList = ({ t, tasks } : {t: (key: string) => string, tasks : Todo[] }) 
 
     return (
         <View className='pb-4 mb-4'>
-                <View>
-                  {tasks && tasks.length > 0 && tasks.map((todo : Todo) => {
-                    return (
-                        <Task key={todo.id} {...todo} />
-                    )
-                  })}
-                  {tasks && tasks.length == 0 && <Text>No task planned for today</Text>}
-                </View>
-            </View>
+          <View className="flex items-center ">
+            {tasks && tasks.length > 0 && tasks.map((todo : Todo) => {
+              return (
+                <Task key={todo.id} {...todo} />
+              )
+            })}
+            {tasks && tasks.length == 0 && 
+              <Text className="text-[#7A7A7A] mt-5">No task planned for today</Text>
+            }
+          </View>
+        </View>
     )
 }
 

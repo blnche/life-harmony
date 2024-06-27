@@ -1,12 +1,17 @@
 import { View, Text } from "react-native"
 import EventsReminders from "./EventsReminders"
+import { Database } from '~/utils/supabase-types';
+
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { Entypo } from '@expo/vector-icons';
 
 import * as Progress from 'react-native-progress'
 
+type Todo = Database['public']['Tables']['todos']['Row']
 
-const Header = ({ t, progress, tasksLeft }) => {
+
+
+const Header = ({ t, progress, tasksLeft } : {t: (key: string) => string, progress : Number, tasksLeft : Todo[] }) => {
 
     return (
         <View className="border-b pb-4 mb-[15px]">
@@ -24,7 +29,7 @@ const Header = ({ t, progress, tasksLeft }) => {
                             borderWidth={0}
                             color="#7A7A7A"
                         />
-                        <View className="flex-row justify-between">
+                        <View className="flex-row justify-between w-[200] mt-1.5">
                             {/* <Entypo name="check" size={16} color="black" /> */}
                             <Ionicons name="checkmark-circle-outline" size={16} color="black" />
                             <Text className="text-xs">{tasksLeft} {t('homepage.tasks_progress.tasks_left')}</Text>

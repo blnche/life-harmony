@@ -80,7 +80,6 @@ export default function MainTabScreen() {
           const rowsId : number[] = []
           
           for(const row of rows) {
-            
             // CHECK IF ALREADY IN APP DATABASE
             if(!row.properties.LH_id.number) {
               
@@ -102,6 +101,11 @@ export default function MainTabScreen() {
                   return level
                 }
               }) ?.id
+
+              // // GET PRIORITY
+              // const priorityLevel = t('priority')
+              // const priority = JSON.stringify(response.results[0].properties[t('priority')].select)
+              // console.log(`priority: ${priority}`)
               
               // CHECK DO DATE
               let doDate
@@ -210,40 +214,60 @@ export default function MainTabScreen() {
                 
                 if(rowLastEdited > todoLastEdited) {
                   console.log(`notion : ${rowLastEdited} | app : ${todoLastEdited}`)
+                  console.log(task.task)
+                  console.log(task.priority)
 
-                  if (rowProperties.Difficulty.select) {
-                    const difficultyName = rowProperties.Difficulty.select.name
-                    
-                    const rowDifficultyLevel = difficultyLevels.find(level => {
+                  const propertiesToUpdate : {[key: string] : any} = {};
 
-                      const levelName = level.name.toUpperCase()
+                  // if (rowProperties.Difficulty) {
+                  //   const difficultyName = rowProperties.Difficulty.select.name
+                  //   console.log(`difficulty name ${difficultyName}`)
 
-                      if (levelName == difficultyName.toUpperCase()) {
-                        return level
-                      }
-                    })
-                    // console.log(rowDifficultyLevel)
+                  //   const rowDifficultyLevel = difficultyLevels.find(level => {
+
+                  //     const levelName = level.name.toUpperCase()
+
+                  //     if (levelName == difficultyName.toUpperCase()) {
+                  //       return level
+                  //     }
+                  //   })
+                  //   console.log(rowDifficultyLevel)
+                  //   // CHECK DIFFICULTY LEVEL
+                  //   // console.log(`${rowDifficultyLevel?.name.toUpperCase()} | ${todoDifficultyLevel?.name.toUpperCase()}`)
+                  //   if(rowDifficultyLevel?.name.toUpperCase() !== todoDifficultyLevel?.name.toUpperCase()) {
+                  //     if(rowDifficultyLevel) {
+                  //       propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
+                  //     } else {
+                  //       console.log('There was an error when trying to match the difficulty level when updating.')
+                  //     }
+                  //   }
+                  // } else {
+                  //   console.log(`dificulty select is undefined`)
+                  // }
 
                     // check each property to see which to update
                     // build object 
                     // pass object in update
                     // console.log(rowProperties)
 
-                    const propertiesToUpdate : {[key: string] : any} = {};
 
-                    // CHECK DIFFICULTY LEVEL
-                    // console.log(`${rowDifficultyLevel?.name.toUpperCase()} | ${todoDifficultyLevel?.name.toUpperCase()}`)
-                    if(rowDifficultyLevel?.name.toUpperCase() !== todoDifficultyLevel?.name.toUpperCase()) {
-                      if(rowDifficultyLevel) {
-                        propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
-                      } else {
-                        console.log('There was an error when trying to match the difficulty level when updating.')
+                    
+
+                    // CHECK PRIORITY
+                    if(rowProperties[t('priority')]) {
+
+                      const priority = row.properties[t('priority')].select.name
+                      console.log(`priorirty : ${priority}`)
+  
+                      if(priority) {
+                        propertiesToUpdate.priority = priority
+                        console.log(`update : ${propertiesToUpdate.priority}`)
                       }
                     }
 
                     // CHECK DO DATE
                     if(rowProperties.Do.date) {
-                      console.log(`DO DATE :  ${row.properties.Do.date.start} | ${task.do_date}`)
+                      // console.log(`DO DATE :  ${row.properties.Do.date.start} | ${task.do_date}`)
 
                       if(row.properties.Do.date.start !== task.do_date) {
                         propertiesToUpdate.do_date = row.properties.Do.date.start
@@ -259,7 +283,7 @@ export default function MainTabScreen() {
                     //     propertiesToUpdate.due_date = row.properties.Due.date.start
                     //   }
                     // }
-                    console.log(propertiesToUpdate);
+                    // console.log(propertiesToUpdate);
 
                     if(Object.keys(propertiesToUpdate).length !== 0) {
 
@@ -283,11 +307,9 @@ export default function MainTabScreen() {
                       console.log(`Error : no properties were found to update.`)
                     }
                     
-                  } else {
-                    console.log(`Row is undefined`)
-                  }
+                  
                 } else {
-                  // console.log('app is most recent')
+                  console.log('app is most recent')
                 }
               }
               
@@ -320,7 +342,7 @@ export default function MainTabScreen() {
           }
         });
         if (!match) {
-          console.log('Todo with ID ' + todo.id + ' is deleted from Notion.');
+          // console.log('Todo with ID ' + todo.id + ' is deleted from Notion.');
         }
       }); 
     }
@@ -336,20 +358,50 @@ export default function MainTabScreen() {
       },
       
     });
+
     console.log(`Notion DB title : ${response.results[0].title[0].plain_text}`);
     console.log(`Notion DB id : ${response.results[0].id}`);
-    
+
+    const TestPriority = t('priority')
+    // console.log(TestPriority)
+    console.log(`test : ${JSON.stringify(response.results[0].properties[t('priority')].select.options)}`);
+    // console.log(response.results[0].properties.Priority.select.options);
+    // const selectPriorityOptions = response.results[0].properties.Priority.select.options
+    // selectPriorityOptions.map(option => {
+    //     console.log(option.id)
+    //     console.log(option.name)
+    //   })
+      
+    //   console.log(response.results[0].properties.Status.status.options);
+    //   const selectOptions = response.results[0].properties.Status.status.options
+    //   selectOptions.map(option => {
+    //       console.log(option.id)
+    //       console.log(option.name)
+        
+    //     })
+        
+    //     console.log(response.results[0].properties.Status.status.groups);
+    //     const selectGroups = response.results[0].properties.Status.status.groups
+    //     selectGroups.map(group => {
+    //         console.log(group.id)
+    //         console.log(group.name)
+    //         if(group.option_ids) {
+    //             console.log(group.option_ids)
+            
+    //           }
+    //         })
+            
   }
-
-  // const displayDate = ( receivedDate : string ) => {
-  //   const currentDate = new Date()
-  //   const baseDate = new Date(receivedDate)
-  //   // console.log(date)
-  //   // console.log('base '+baseDate)
-
-  //   const year = baseDate.getFullYear()
-  //   const hours = baseDate.getHours()
-  //   const minutes = baseDate.getMinutes()
+          
+  //   const displayDate = ( receivedDate : string ) => {
+  //       const currentDate = new Date()
+  //       const baseDate = new Date(receivedDate)
+  //       // console.log(date)
+  //       // console.log('base '+baseDate)
+      
+  //       const year = baseDate.getFullYear()
+  //       const hours = baseDate.getHours()
+  //       const minutes = baseDate.getMinutes()
   //   const formattedHours = String(hours).padStart(2, '0');
   //   const formattedMinutes = String(minutes).padStart(2, '0');
 
@@ -417,7 +469,7 @@ export default function MainTabScreen() {
             <NewTodo />
           </Sheet.Frame>
         </Sheet> */}
-        <ScrollView style={{height:'80%'}}>
+        <ScrollView style={{height:'70%'}}>
           <View>
             {userProfile &&
               <Text>Points : {userProfile?.points}</Text>
@@ -432,7 +484,7 @@ export default function MainTabScreen() {
         <Button 
           color={'black'}
           onPress={() => setOpen(true)}
-          title={t('todo.newTask')}
+          title="new task"
         />
         <Button 
           color={'black'}

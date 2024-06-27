@@ -86,8 +86,9 @@ export type Database = {
           id: number
           inserted_at: string
           is_complete: boolean
-          last_edited_at: string | null
+          last_edited_at: string
           point_value: number
+          priority: string | null
           profile_user_id: string
           task: string | null
         }
@@ -98,8 +99,9 @@ export type Database = {
           id?: number
           inserted_at?: string
           is_complete?: boolean
-          last_edited_at?: string | null
+          last_edited_at?: string
           point_value?: number
+          priority?: string | null
           profile_user_id: string
           task?: string | null
         }
@@ -110,8 +112,9 @@ export type Database = {
           id?: number
           inserted_at?: string
           is_complete?: boolean
-          last_edited_at?: string | null
+          last_edited_at?: string
           point_value?: number
+          priority?: string | null
           profile_user_id?: string
           task?: string | null
         }
@@ -429,6 +432,10 @@ export type Database = {
           metadata: Json
           updated_at: string
         }[]
+      }
+      operation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       search: {
         Args: {

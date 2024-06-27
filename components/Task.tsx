@@ -25,7 +25,7 @@ export default function Task ( task : Todo) {
                 seconds: (new Date(task.do_date!).getTime() - new Date().getTime()) / 1000,
                 repeats: false
             };
-            console.log(trigger.seconds);
+            // console.log(trigger.seconds);
             if(trigger.seconds > 0) {
 
                 try {
@@ -52,14 +52,14 @@ export default function Task ( task : Todo) {
                     console.log(`(${task.task}) Couldn't calculate next trigger date : ${error}`)
                 }
             } else {
-                console.log(`(${task.task}) Task do date is overdue.`);
+                // console.log(`(${task.task}) Task do date is overdue.`);
             };
     
         }
         getNextTriggerDate();
     }
     else {
-        console.log(`No do date for this task : ${task.task}`);
+        // console.log(`No do date for this task : ${task.task}`);
     }
 
 
@@ -119,7 +119,7 @@ export default function Task ( task : Todo) {
                                     }
                                 }
                             });
-                            console.log(pageToUpdate);
+                            // console.log(pageToUpdate);
                         }
                         else {
                             console.log('Page to update not found');
@@ -192,7 +192,7 @@ export default function Task ( task : Todo) {
                             page_id: pageId,
                             archived: true
                         });
-                        console.log(pageToUpdate);
+                        // console.log(pageToUpdate);
                     }
                     else {
                         console.log('Page to update not found')
@@ -222,7 +222,7 @@ export default function Task ( task : Todo) {
    
     const SwipeableRow = () => {
         const handleRightAction = () => {
-            console.log('Right action triggered');
+            // console.log('Right action triggered');
         };
 
         return (
@@ -230,10 +230,9 @@ export default function Task ( task : Todo) {
                 renderRightActions={RightActions}
                 onSwipeableOpen={handleRightAction}
             >
-                <View className="max-w-[360] min-h-[55] rounded-[18px] mb-5 px-5 bg-white flex-row justify-between items-center">
+                <View className="max-w-[360] min-h-[55] rounded-[18px] mb-5 px-5 bg-white flex-row justify-between items-center shadow-sm">
                     <View className="flex-row items-center">
                         {task && task.is_complete && (
-
                             <>
                                 <Pressable 
                                 disabled
@@ -243,7 +242,6 @@ export default function Task ( task : Todo) {
                             </>
                         )}
                         {task && !task.is_complete && (
-                            
                             <>
                                 <Pressable 
                                 disabled

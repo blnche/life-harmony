@@ -15,18 +15,19 @@ const CompletedTaskList = ({ t, completedTasks } : {t: (key: string) => string, 
 
     return (
         <View className='pb-4 mb-4'>
-            <View className='flex-row justify-between mb-4'>
+            <Pressable 
+                onPress={handleCompletedPressed}
+                className='flex-row justify-between mb-4'
+            >
                 <Text className='text-base font-black'>{t('homepage.tasks_container.overdue')}</Text>
-                <Pressable onPress={handleCompletedPressed}>
-                    <Entypo name={completedOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
-                </Pressable>
-            </View>
+                <Entypo name={completedOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+            </Pressable>
             {completedOpen && 
                 <View>
                     {completedTasks && completedTasks.map((todo : Todo) => {
-                    return (
-                        <Task key={todo.id} {...todo} />
-                    )
+                        return (
+                            <Task key={todo.id} {...todo} />
+                        )
                     })}
                 </View>
             }
