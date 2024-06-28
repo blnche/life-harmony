@@ -53,7 +53,7 @@ export default function MainTabScreen() {
 
   
   // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
-  const [timeBlock, setTimeBlock] = useState<TimeBlock>({ id: 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b', name: 'Morning' })
+  const [timeBlock, setTimeBlock] = useState<TimeBlock>({ id: '08b61182-86a9-4141-8ae3-69c0c3bff440', name: 'All' })
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -174,22 +174,22 @@ export default function MainTabScreen() {
           <Header t={t} progress={tasksCompletionProgress()} tasksLeft={tasksLeft()}/>
           <View className='flex-row justify-center space-x-4 mb-5'>
             <Pressable
-              onPress={() => handleTimeBlock('all', '08b61182-86a9-4141-8ae3-69c0c3bff440')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'all' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+              onPress={() => handleTimeBlock('All', '08b61182-86a9-4141-8ae3-69c0c3bff440')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'All' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
             >
-              <Text className={` ${timeBlock.name === 'all' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
+              <Text className={` ${timeBlock.name === 'All' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
             </Pressable> 
             <Pressable
-              onPress={() => handleTimeBlock('morning', 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'morning' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+              onPress={() => handleTimeBlock('Morning', 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Morning' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
             >
-              <Text className={` ${timeBlock.name === 'morning' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.morning')}</Text>
+              <Text className={` ${timeBlock.name === 'Morning' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.morning')}</Text>
             </Pressable> 
             <Pressable
-              onPress={() => handleTimeBlock('work', 'f0381068-50ee-4f3f-8763-bbf9e0cdd146')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'work' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+              onPress={() => handleTimeBlock('Work', 'f0381068-50ee-4f3f-8763-bbf9e0cdd146')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Work' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
             >
-              <Text className={` ${timeBlock.name === 'work' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.work')}</Text>
+              <Text className={` ${timeBlock.name === 'Work' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.work')}</Text>
             </Pressable> 
           </View>
             {todos && 
