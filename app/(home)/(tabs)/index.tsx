@@ -29,10 +29,16 @@ import OverdueTaskList from '~/components/homepage/OverdueTaskList';
 import CompletedTaskList from '~/components/homepage/CompletedTaskList';
 import TaskList from '~/components/homepage/TaskList';
 import NewTodo from '~/components/NewTask';
+import { supabase } from '~/utils/supabase';
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
+
+interface TimeBlock {
+  id: string;
+  name: string;
+}
 
 export default function MainTabScreen() {
 
@@ -43,86 +49,82 @@ export default function MainTabScreen() {
   // TOOLS  
   const posthog = usePostHog()
   const {t} = useTranslation()
- 
+
+
+  
   // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
-  const [tasksType, setTasksType] = useState<String>('all')
+  const [timeBlock, setTimeBlock] = useState<TimeBlock>({ id: 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b', name: 'Morning' })
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const handleTasksType = (type : String) => {
-    console.log(type)
-    setTasksType(type)
-  }
-  const datesAreEqual = (date1, date2) =>
+  const datesAreEqual = (date1 : Date, date2 : Date) =>
     date1.getFullYear() === date2.getFullYear() &&
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate()
+  
+  const filterTasksByStatusAndPriority = useCallback((priority : string, status : string, timeBlockId : string) => {
+    return todos?.filter(todo => {
+      const do_date = new Date(todo.do_date!);
+      const due_date = new Date(todo.due_date!);
 
+      const isDoDateToday = datesAreEqual(do_date, today)
+      const isDueDateToday = datesAreEqual(due_date, today)
+
+      if(status === 'overdue') {
+        return !todo.is_complete && (do_date < today || due_date < today) && todo.priority === priority && todo.time_block_id === timeBlockId
+      }
+
+      if (status === 'completed') {
+        return todo.is_complete && (isDoDateToday || isDueDateToday) && todo.time_block_id === timeBlockId
+      }
+
+      if(status === 'default') {
+        return !todo.is_complete && (isDoDateToday || isDueDateToday) && todo.priority === priority && todo.time_block_id === timeBlockId
+      }
+    })
+  }, [todos, timeBlock])
+
+  const handleTimeBlock = (timeBlockName : string, timeBlockId : string) => {
+    setTimeBlock({id : timeBlockId, name : timeBlockName})
+  }
+  
+  // const fetchTimeBlocks = async () => {
+  //   try {
+  //     const timeBlocks = await supabase
+  //       .from('user_time_blocks')
+  //       .select('*')
+  //       .eq('user_id', userProfile?.id!)
+
+  //     console.log(timeBlocks.data)
+
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+  // fetchTimeBlocks()
 
   const tasks = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
+    const do_date = new Date(todo.do_date!)
+    const due_date = new Date(todo.due_date!)
     const isDoDateToday = datesAreEqual(do_date, today)
     const isDueDateToday = datesAreEqual(due_date, today)
 
     return ((isDoDateToday || isDueDateToday) && !todo.is_complete)
   })
+
   
-  const tasksHigh = tasks?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
-
-    return (todo.priority === t('high'))
-  })
-
-  const tasksMedium = tasks?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
-
-    return (todo.priority === t('medium'))
-  })
-
-  const tasksLow = tasks?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
-
-    return (todo.priority === t('low'))
-  })
   
   const overdueTasks = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
+    const do_date = new Date(todo.do_date!)
+    const due_date = new Date(todo.due_date!)
 
     return ((do_date < today || due_date < today) && !todo.is_complete)
   })
 
-  const overdueTasksHigh = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
-
-    return ((do_date < today || due_date < today) && !todo.is_complete && todo.priority === t('high'))
-  })
- 
-
-  const overdueTasksMedium = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
-
-    return ((do_date < today || due_date < today) && !todo.is_complete && todo.priority === t('medium'))
-  })
-
-  const overdueTasksLow = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
-
-    return ((do_date < today || due_date < today) && !todo.is_complete && todo.priority === t('low'))
-  })
-
-  const overdueTasksLength = overdueTasksHigh?.length + overdueTasksMedium?.length + overdueTasksLow?.length
-
   const completedTasks = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
+    const do_date = new Date(todo.do_date!)
+    const due_date = new Date(todo.due_date!)
     const isDoDateToday = datesAreEqual(do_date, today)
     const isDueDateToday = datesAreEqual(due_date, today)
 
@@ -156,8 +158,8 @@ export default function MainTabScreen() {
    }
 
    const tasksLeft = () => {
-    if (tasks && overdueTasksHigh) {
-      return tasks?.length + overdueTasksHigh?.length
+    if (tasks && overdueTasks) {
+      return tasks?.length + overdueTasks?.length
     }
    }
 
@@ -172,35 +174,52 @@ export default function MainTabScreen() {
           <Header t={t} progress={tasksCompletionProgress()} tasksLeft={tasksLeft()}/>
           <View className='flex-row justify-center space-x-4 mb-5'>
             <Pressable
-              onPress={() => handleTasksType('all')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${tasksType === 'all' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+              onPress={() => handleTimeBlock('all', '08b61182-86a9-4141-8ae3-69c0c3bff440')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'all' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
             >
-              <Text className={` ${tasksType === 'all' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
+              <Text className={` ${timeBlock.name === 'all' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
             </Pressable> 
             <Pressable
-              onPress={() => handleTasksType('morning')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${tasksType === 'morning' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+              onPress={() => handleTimeBlock('morning', 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'morning' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
             >
-              <Text className={` ${tasksType === 'morning' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.morning')}</Text>
+              <Text className={` ${timeBlock.name === 'morning' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.morning')}</Text>
             </Pressable> 
             <Pressable
-              onPress={() => handleTasksType('work')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${tasksType === 'work' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+              onPress={() => handleTimeBlock('work', 'f0381068-50ee-4f3f-8763-bbf9e0cdd146')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'work' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
             >
-              <Text className={` ${tasksType === 'work' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.work')}</Text>
+              <Text className={` ${timeBlock.name === 'work' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.work')}</Text>
             </Pressable> 
           </View>
-          <ScrollView className='w-full h-[365]'>
-            {overdueTasksHigh && overdueTasksMedium && overdueTasksLow && overdueTasksLength > 0 && <OverdueTaskList t={t} overdueTasksHigh={overdueTasksHigh} overdueTasksMedium={overdueTasksMedium} overdueTasksLow={overdueTasksLow}/>}
+            {todos && 
+              <ScrollView className='w-full h-[365]'>
+                <OverdueTaskList 
+                  t={t} 
+                  timeBlock={timeBlock}
+                  overdueTasksHigh={filterTasksByStatusAndPriority(t('high'), 'overdue', timeBlock.id)} 
+                  overdueTasksMedium={filterTasksByStatusAndPriority(t('medium'), 'overdue', timeBlock.id)} 
+                  overdueTasksLow={filterTasksByStatusAndPriority(t('low'), 'overdue', timeBlock.id)}/>
 
-            {tasks && tasksHigh && tasksMedium && tasksLow && tasks.length > 0 && 
-              <TaskList t={t} tasksHigh={tasksHigh} tasksMedium={tasksMedium} tasksLow={tasksLow} />
+                  <TaskList 
+                    t={t}
+                    timeBlock={timeBlock}
+                    tasksHigh={filterTasksByStatusAndPriority(t('high'), 'default', timeBlock.id)} 
+                    tasksMedium={filterTasksByStatusAndPriority(t('medium'), 'default', timeBlock.id)} 
+                    tasksLow={filterTasksByStatusAndPriority(t('low'), 'default', timeBlock.id)} 
+                  />
+
+                  <CompletedTaskList 
+                    t={t} 
+                    timeBlock={timeBlock}
+                    completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock.id)} 
+                  />
+
+                </ScrollView>
             }
 
             {tasks && tasks.length === 0 && <Text className="text-[#7A7A7A] mt-5">{t('homepage.tasks_container.no_task_left')}</Text>}
-            
-            {completedTasks && completedTasks.length > 0 && <CompletedTaskList t={t} completedTasks={completedTasks} />}
-          </ScrollView>
+
           <BottomSheetModalProvider>
           <Pressable 
             className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm'

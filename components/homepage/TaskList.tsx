@@ -7,31 +7,38 @@ import { usePostHog } from "posthog-react-native";
 
 type Todo = Database['public']['Tables']['todos']['Row']
 
-const TaskList = ({ t, tasksHigh, tasksMedium, tasksLow } : {t: (key: string) => string, tasksHigh : Todo[], tasksMedium : Todo[], tasksLow : Todo[] }) => {
-  
-  // TOOLS  
-  const posthog = usePostHog()
-  const highPriority = t('high')
-  const mediumPriority = t('medium')
-  const lowPriority = t('low')
+interface TimeBlock {
+    id: string;
+    name: string;
+}
 
+const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key: string) => string, timeBlock : TimeBlock, tasksHigh : Todo[], tasksMedium : Todo[], tasksLow : Todo[] }) => {
+  
+    // TOOLS  
+    const posthog = usePostHog()
+
+
+    if((tasksHigh.length + tasksMedium.length + tasksLow.length) === 0) {
+        return (
+            <Text>No tasks</Text>
+        )
+    }
     return (
         <View className='pb-4 mb-4'>
-          <View className="flex">
+            <View className="flex">
             {tasksHigh && tasksHigh.length > 0 && (
-              <>
-                  <View className="flex-row mb-4">
-                      <FontAwesome6 name="fire-burner" size={24} color="black" />
-                      <FontAwesome6 name="fire-burner" size={24} color="black" />                    
-                  </View>
-                  {tasksHigh.map((todo : Todo) => {
-                      if(todo.priority === highPriority) {
-                          return (
-                              <Task key={todo.id} {...todo} />
-                          )
-                      }
-                  })}
-              </>
+                <>
+                    <View className="flex-row mb-4">
+                        <FontAwesome6 name="fire-burner" size={24} color="black" />
+                        <FontAwesome6 name="fire-burner" size={24} color="black" />                    
+                    </View>
+                    {tasksHigh.map((todo : Todo) => {
+                            return (
+                                <Task key={todo.id} {...todo} />
+                            )
+                        
+                    })}
+                </>
             )}
             {tasksMedium && tasksMedium.length > 0 && (
                 <>
@@ -39,11 +46,10 @@ const TaskList = ({ t, tasksHigh, tasksMedium, tasksLow } : {t: (key: string) =>
                         <FontAwesome6 name="fire-burner" size={24} color="black" />                    
                     </View>
                     {tasksMedium.map((todo : Todo) => {
-                        if(todo.priority === mediumPriority) {
                             return (
                                 <Task key={todo.id} {...todo} />
                             )
-                        }
+                        
                     })}
                 </>
             )}
@@ -53,15 +59,14 @@ const TaskList = ({ t, tasksHigh, tasksMedium, tasksLow } : {t: (key: string) =>
                         <FontAwesome6 name="sink" size={24} color="black" />                    
                     </View>
                     {tasksLow.map((todo : Todo) => {
-                        if(todo.priority === lowPriority) {
                             return (
                                 <Task key={todo.id} {...todo} />
                             )
-                        }
+                        
                     })}
                 </>
             )}
-          </View>
+            </View>
         </View>
     )
 }

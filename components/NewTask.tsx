@@ -59,7 +59,8 @@ export default function NewTodo () {
                 task : text, 
                 profile_user_id : userProfile!.id,
                 difficulty_level : task.difficulty_level,
-                do_date : task.do_date
+                do_date : task.do_date,
+                priority: "Medium"
     
               },
             ])
@@ -100,6 +101,11 @@ export default function NewTodo () {
                                 'name' : 'Not started'
                             },
                         },
+                        'Priority': {
+                            select:{
+                                'name' : 'Medium'
+                            }
+                        }
                     }
   
                     if(todo.do_date) {

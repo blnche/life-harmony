@@ -30,7 +30,7 @@ export default function TasksProvider({ children } : PropsWithChildren) {
             const { data: todos, error } = await supabase
                 .from('todos')
                 .select('*')
-                .eq('profile_user_id', user?.id)
+                .eq('user_id', user?.id)
                 .order('is_complete', { ascending: false })
                 .returns<Todo[]>()
         

@@ -89,8 +89,9 @@ export type Database = {
           last_edited_at: string
           point_value: number
           priority: string | null
-          profile_user_id: string
           task: string | null
+          time_block_id: string | null
+          user_id: string
         }
         Insert: {
           difficulty_level?: number | null
@@ -102,8 +103,9 @@ export type Database = {
           last_edited_at?: string
           point_value?: number
           priority?: string | null
-          profile_user_id: string
           task?: string | null
+          time_block_id?: string | null
+          user_id: string
         }
         Update: {
           difficulty_level?: number | null
@@ -115,8 +117,9 @@ export type Database = {
           last_edited_at?: string
           point_value?: number
           priority?: string | null
-          profile_user_id?: string
           task?: string | null
+          time_block_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -128,16 +131,87 @@ export type Database = {
           },
           {
             foreignKeyName: "todos_profile_user_id_fkey"
-            columns: ["profile_user_id"]
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "todos_time_block_id_fkey"
+            columns: ["time_block_id"]
+            isOneToOne: false
+            referencedRelation: "user_time_blocks"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "todos_user_id_fkey"
-            columns: ["profile_user_id"]
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_settings: {
+        Row: {
+          created_at: string | null
+          theme: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          theme?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          theme?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_time_blocks: {
+        Row: {
+          block_name: string | null
+          created_at: string | null
+          day_type: string | null
+          end_time: string | null
+          id: string
+          start_time: string | null
+          user_id: string | null
+        }
+        Insert: {
+          block_name?: string | null
+          created_at?: string | null
+          day_type?: string | null
+          end_time?: string | null
+          id: string
+          start_time?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          block_name?: string | null
+          created_at?: string | null
+          day_type?: string | null
+          end_time?: string | null
+          id?: string
+          start_time?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_time_blocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
