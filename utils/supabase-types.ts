@@ -89,6 +89,7 @@ export type Database = {
           last_edited_at: string
           point_value: number
           priority: string | null
+          status: string | null
           task: string | null
           time_block_id: string | null
           user_id: string
@@ -103,6 +104,7 @@ export type Database = {
           last_edited_at?: string
           point_value?: number
           priority?: string | null
+          status?: string | null
           task?: string | null
           time_block_id?: string | null
           user_id: string
@@ -117,6 +119,7 @@ export type Database = {
           last_edited_at?: string
           point_value?: number
           priority?: string | null
+          status?: string | null
           task?: string | null
           time_block_id?: string | null
           user_id?: string

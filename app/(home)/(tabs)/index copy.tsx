@@ -193,119 +193,149 @@ export default function MainTabScreen() {
               }
             }
             else {
+              // console.log(row)
               const rowLH_id = row.properties.LH_id.number
               rowsId.push(rowLH_id)
               
               const rowProperties = row.properties
               const rowLastEdited = new Date(row.last_edited_time)
-              let title
-              rowProperties.Name.title.map((item : any) => {
-                title = item.plain_text
-              }) 
+              console.log(`notion row last edited time : ${rowLastEdited}`)
+              // let title
+              // rowProperties.Name.title.map((item : any) => {
+              //   title = item.plain_text
+              // }) 
               
               // console.log(` notion rows with id : ${title}`)
               
               const task = todos?.find(task => 
                 task.id === rowLH_id
               )
-              // console.log(`task found : ${task?.task}`)
               if (task) {
+                console.log(`task found : ${task.task}`)
+                // console.log(task)
                 
-                const todoLastEdited = new Date(task?.last_edited_at!)
-                const todoDifficultyLevel = difficultyLevels.find(level => level.id === task.difficulty_level)
+                const todoLastEdited = new Date(task.last_edited_at)
+                console.log(`db last edited time : ${todoLastEdited}`)
+              //   const todoDifficultyLevel = difficultyLevels.find(level => level.id === task.difficulty_level)
                 
                 if(rowLastEdited > todoLastEdited) {
                   console.log(`notion : ${rowLastEdited} | app : ${todoLastEdited}`)
-                  console.log(task.task)
-                  // console.log(task.priority)
-
+              //     console.log(task.task)
+              //     console.log(rowProperties)
+              //     // console.log(task.priority)
+                  
                   const propertiesToUpdate : {[key: string] : any} = {};
 
-                  // if (rowProperties.Difficulty) {
-                  //   const difficultyName = rowProperties.Difficulty.select.name
-                  //   console.log(`difficulty name ${difficultyName}`)
+              //     // if (rowProperties.Difficulty) {
+              //     //   const difficultyName = rowProperties.Difficulty.select.name
+              //     //   console.log(`difficulty name ${difficultyName}`)
 
-                  //   const rowDifficultyLevel = difficultyLevels.find(level => {
+              //     //   const rowDifficultyLevel = difficultyLevels.find(level => {
 
-                  //     const levelName = level.name.toUpperCase()
+              //     //     const levelName = level.name.toUpperCase()
 
-                  //     if (levelName == difficultyName.toUpperCase()) {
-                  //       return level
-                  //     }
-                  //   })
-                  //   console.log(rowDifficultyLevel)
-                  //   // CHECK DIFFICULTY LEVEL
-                  //   // console.log(`${rowDifficultyLevel?.name.toUpperCase()} | ${todoDifficultyLevel?.name.toUpperCase()}`)
-                  //   if(rowDifficultyLevel?.name.toUpperCase() !== todoDifficultyLevel?.name.toUpperCase()) {
-                  //     if(rowDifficultyLevel) {
-                  //       propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
-                  //     } else {
-                  //       console.log('There was an error when trying to match the difficulty level when updating.')
-                  //     }
-                  //   }
-                  // } else {
-                  //   console.log(`dificulty select is undefined`)
-                  // }
+              //     //     if (levelName == difficultyName.toUpperCase()) {
+              //     //       return level
+              //     //     }
+              //     //   })
+              //     //   console.log(rowDifficultyLevel)
+              //     //   // CHECK DIFFICULTY LEVEL
+              //     //   // console.log(`${rowDifficultyLevel?.name.toUpperCase()} | ${todoDifficultyLevel?.name.toUpperCase()}`)
+              //     //   if(rowDifficultyLevel?.name.toUpperCase() !== todoDifficultyLevel?.name.toUpperCase()) {
+              //     //     if(rowDifficultyLevel) {
+              //     //       propertiesToUpdate.difficulty_level = rowDifficultyLevel.id
+              //     //     } else {
+              //     //       console.log('There was an error when trying to match the difficulty level when updating.')
+              //     //     }
+              //     //   }
+              //     // } else {
+              //     //   console.log(`dificulty select is undefined`)
+              //     // }
 
-                    // check each property to see which to update
-                    // build object 
-                    // pass object in update
-                    // console.log(rowProperties)
+              //       // check each property to see which to update
+              //       // build object 
+              //       // pass object in update
+              //       // console.log(rowProperties)
 
+                     // CHECK STATUS
+                    if(rowProperties[t('status')]) {
+                      const status = row.properties[t('status')].status.name
+                      console.log(`notion status : ${status}`)
+                      console.log(`db status : ${task.status}`)
 
+                      if(status && status !== task.status) {
+                        propertiesToUpdate.status = status
+                        console.log(`update : ${propertiesToUpdate.status}`)
+
+                      }
+                    }
                     
 
-                    // CHECK PRIORITY
+                     // CHECK PRIORITY
                     if(rowProperties[t('priority')]) {
 
                       const priority = row.properties[t('priority')].select.name
-                      // console.log(`priorirty : ${priority}`)
+                      console.log(`priority : ${priority}`)
   
-                      if(priority) {
+                      if(priority && priority !== task.priority) {
                         propertiesToUpdate.priority = priority
-                        // console.log(`update : ${propertiesToUpdate.priority}`)
+                        console.log(`update : ${propertiesToUpdate.priority}`)
                       }
                     }
 
-                    // CHECK DO DATE
-                    if(rowProperties.Do.date) {
-                      // console.log(`DO DATE :  ${row.properties.Do.date.start} | ${task.do_date}`)
+                     // CHECK DO DATE
+                    // if(rowProperties[t('do_date')]) {
+                    //   console.log(`DO DATE :  ${row.properties[t('do_date')].date.start}`)
+                    //   console.log(`db date : ${task.do_date}`)
 
-                      if(row.properties.Do.date.start !== task.do_date) {
-                        propertiesToUpdate.do_date = row.properties.Do.date.start
-                      }
-                    }
+                    //   // const doDate = row.properties[t('do_date')].date.start
+                    //   // if(doDate && doDate !== task.do_date) {
+                    //   //   propertiesToUpdate.do_date = row.properties.Do.date.start
+                    //   // }
+                    // }
                   
 
-                    // CHECK DUE DATE
-                    // if(rowProperties.Due.date) {
-                    //   console.log(`DUE DATE :  ${row.properties.Due.date.start} | ${task.due_date}`)
+                     // CHECK DUE DATE
+                    // if(rowProperties[t('due_date')]) {
+                    //   console.log(`DUE DATE :  ${row.properties[t('due_date')].date.start}`)
+                    //   console.log(`change string to date : ${new Date(row.properties[t('due_date')].date.start).toISOString()}`)
+                    //   console.log(`db date : ${task.due_date}`)
+                    //   // const dueDate = row.properties[t('due_date')].date.start
 
-                    //   if(row.properties.Due.date.start !== task.due_date) {
-                    //     propertiesToUpdate.due_date = row.properties.Due.date.start
-                    //   }
+                    //   // if(dueDate && dueDate !== task.due_date) {
+                    //   //   propertiesToUpdate.due_date = row.properties.Due.date.start
+                    //   // }
                     // }
-                    // console.log(propertiesToUpdate);
+
+                    console.log(propertiesToUpdate)
+                    console.log(`properties length : ${Object.keys(propertiesToUpdate).length}`)
 
                     if(Object.keys(propertiesToUpdate).length !== 0) {
 
-                      (async () => {
+                      try {
+
+                        const result = updateDatabase(propertiesToUpdate, task)
+                        console.log(result)
+                      } catch (error) {
+                        console.log(error)
+                      }
+                      // (async () => {
                         
-                        const { data: updatedTodo, error: todoError } = await supabase  
-                        .from('todos')
-                        .update(propertiesToUpdate)
-                        .eq('id', task.id)
-                        .select('*')
-                        .single()
+                      //   const { data: updatedTodo, error: todoError } = await supabase  
+                      //   .from('todos')
+                      //   .update(propertiesToUpdate)
+                      //   .eq('id', task.id)
+                      //   .select('*')
+                      //   .single()
                         
-                        if(todoError) {
-                          console.log(todoError)
-                        }
-                        else {
-                          console.log(`Row was updated.`)
-                          setTodos((todos ?? []).map(todo => (todo.id === task.id ? updatedTodo as Todo : todo as Todo)));
-                        }
-                      })()
+                      //   if(todoError) {
+                      //     console.log(todoError)
+                      //   }
+                      //   else {
+                      //     console.log(`Row was updated.`)
+                      //     setTodos((todos ?? []).map(todo => (todo.id === task.id ? updatedTodo as Todo : todo as Todo)));
+                      //   }
+                      // })()
                     } else {
                       console.log(`Error : no properties were found to update.`)
                     }
@@ -333,6 +363,20 @@ export default function MainTabScreen() {
     }
   }
 
+  const updateDatabase = async (propertiesToUpdate, task) => {
+    try {
+      const response = await supabase  
+      .from('todos')
+      .update(propertiesToUpdate)
+      .eq('id', task.id)
+      .select('*')
+      .single()
+
+      console.log(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const checkingNotionDeletedPages = (notionTasksIds : number[]) => {
     // compare db id to notiontodosid if no match then todos is deleted 
@@ -365,9 +409,11 @@ export default function MainTabScreen() {
     console.log(`Notion DB title : ${response.results[0].title[0].plain_text}`);
     console.log(`Notion DB id : ${response.results[0].id}`);
 
-    const TestPriority = t('priority')
     // console.log(TestPriority)
     console.log(`test : ${JSON.stringify(response.results[0].properties[t('priority')].select.options)}`);
+    console.log(`test : ${JSON.stringify(response.results[0].properties[t('status')].status.options)}`);
+    console.log(`test : ${JSON.stringify(response.results[0].properties[t('do_date')])}`);
+    console.log(`test : ${JSON.stringify(response.results[0].properties[t('due_date')])}`);
     // console.log(response.results[0].properties.Priority.select.options);
     // const selectPriorityOptions = response.results[0].properties.Priority.select.options
     // selectPriorityOptions.map(option => {

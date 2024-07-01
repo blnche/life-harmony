@@ -16,7 +16,7 @@ const Header = ({ t, progress, tasksLeft } : {t: (key: string) => string, progre
     return (
         <View className="border-b pb-4 mb-[15px]">
             <View className="flex-row justify-between items-center mb-6">
-                <View className="w-3/6">
+                <View className="w-52">
                     <View className="flex-row items-end">
                         <Text className="text-xl font-black mr-2">{t('homepage.today')}</Text>
                         <Text className="text-xs">{t('homepage.tomorrow')}</Text>
@@ -36,7 +36,7 @@ const Header = ({ t, progress, tasksLeft } : {t: (key: string) => string, progre
                         </View>
                     </View>
                 </View>
-                <View className="items-center w-3/6">
+                <View className="items-center w-2/5">
                     <Text className="text-xs">HH:MM</Text>
                     <Text className="text-base font-bold">01:15</Text>
                     <Text className="text-sm">{t('homepage.estimated_time')}</Text>
