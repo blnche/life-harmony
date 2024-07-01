@@ -72,15 +72,16 @@ export default function MainTabScreen() {
       const isDueDateToday = datesAreEqual(due_date, today)
 
       if(status === 'overdue') {
-        return !todo.is_complete && (do_date < today || due_date < today) && todo.priority === priority && todo.time_block_id === timeBlockId
+        // console.log(`todo status : ${todo.status} ${todo.status !== t('done')}`)
+        return todo.status !== t('done') && (do_date < today || due_date < today) && todo.priority === priority && todo.time_block_id === timeBlockId
       }
 
       if (status === 'completed') {
-        return todo.is_complete && (isDoDateToday || isDueDateToday) && todo.time_block_id === timeBlockId
+        return todo.status === t('done') && (isDoDateToday || isDueDateToday)
       }
 
       if(status === 'default') {
-        return !todo.is_complete && (isDoDateToday || isDueDateToday) && todo.priority === priority && todo.time_block_id === timeBlockId
+        return todo.status !== t('done') && (isDoDateToday || isDueDateToday) && todo.priority === priority && todo.time_block_id === timeBlockId
       }
     })
   }, [todos, timeBlock])
@@ -110,7 +111,7 @@ export default function MainTabScreen() {
     const isDoDateToday = datesAreEqual(do_date, today)
     const isDueDateToday = datesAreEqual(due_date, today)
 
-    return ((isDoDateToday || isDueDateToday) && !todo.is_complete)
+    return (isDoDateToday || isDueDateToday) && todo.status !== t('done')
   })
 
   
@@ -119,49 +120,53 @@ export default function MainTabScreen() {
     const do_date = new Date(todo.do_date!)
     const due_date = new Date(todo.due_date!)
 
-    return ((do_date < today || due_date < today) && !todo.is_complete)
+    return (do_date < today || due_date < today) && todo.status !== t('done')
   })
+  console.log(overdueTasks?.length)
 
+  const test = []
   const completedTasks = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date!)
-    const due_date = new Date(todo.due_date!)
+    const do_date = new Date(todo.do_date)
+    const due_date = new Date(todo.due_date)
+    const markedDone = new Date(todo.marked_done_at)
     const isDoDateToday = datesAreEqual(do_date, today)
     const isDueDateToday = datesAreEqual(due_date, today)
+    const isMarkedDoneToday = datesAreEqual(markedDone, today)
 
-    return ((isDoDateToday || isDueDateToday) && todo.is_complete)
+    return (isDoDateToday || isDueDateToday || isMarkedDoneToday) && todo.status === t('done') && todo.is_complete
   })
-
+  // console.log(test.length)
+  
   // NEW TASK BOTTOM SHEET
-   
-   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-   const snapPoints = useMemo(() => ['50%', '93%'], []);
- 
-   const handlePresentModalPress = useCallback(() => {
-     bottomSheetModalRef.current?.present();
-   }, []);
-   
-   const handleSheetChanges = useCallback((index: number) => {
-     console.log('handleSheetChanges', index);
-   }, []);
+  const snapPoints = useMemo(() => ['50%', '93%'], []);
 
-   // PROGRESS BAR
-   const tasksCompletionProgress = () => {
-    if (tasks && completedTasks && overdueTasks) {
-      const totalTasks = tasks.length + completedTasks.length + overdueTasks.length
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
 
-      if (totalTasks === 0) {
-        return 1
-      }
-      return (completedTasks.length / totalTasks)
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  // PROGRESS BAR
+  const tasksCompletionProgress = () => {
+  if (tasks && completedTasks && overdueTasks) {
+    const totalTasks = tasks.length + completedTasks.length + overdueTasks.length
+
+    if (totalTasks === 0) {
+      return 1
     }
-   }
+    return (completedTasks.length / totalTasks)
+  }
+  }
 
-   const tasksLeft = () => {
+  const tasksLeft = () => {
     if (tasks && overdueTasks) {
       return tasks?.length + overdueTasks?.length
     }
-   }
+  }
 
   return (
     <>

@@ -87,6 +87,7 @@ export type Database = {
           inserted_at: string
           is_complete: boolean
           last_edited_at: string
+          marked_done_at: string | null
           point_value: number
           priority: string | null
           status: string | null
@@ -102,6 +103,7 @@ export type Database = {
           inserted_at?: string
           is_complete?: boolean
           last_edited_at?: string
+          marked_done_at?: string | null
           point_value?: number
           priority?: string | null
           status?: string | null
@@ -117,6 +119,7 @@ export type Database = {
           inserted_at?: string
           is_complete?: boolean
           last_edited_at?: string
+          marked_done_at?: string | null
           point_value?: number
           priority?: string | null
           status?: string | null

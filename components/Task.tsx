@@ -12,11 +12,15 @@ import * as Notifications from 'expo-notifications';
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { Entypo } from '@expo/vector-icons';
+import { useTranslation } from "react-i18next";
 
 type Todo = Database['public']['Tables']['todos']['Row'];
 
 export default function Task ( task : Todo) {
 
+    const {t} = useTranslation()
+
+    // NOTIFICATIONS
     if(task.do_date) {
 
         // GET NEXT TRIGGER DATE
@@ -69,6 +73,7 @@ export default function Task ( task : Todo) {
     const toggleTodoStatus = async (id: number) => {
         // console.log(id)
         const now = new Date().toISOString();
+        const done = t('done')
 
         try {
 
@@ -76,7 +81,9 @@ export default function Task ( task : Todo) {
                 .from('todos')
                 .update({ 
                     is_complete: true,
-                    last_edited_at: now
+                    last_edited_at: now,
+                    marked_down_at: now,
+                    status: done
                 })
                 .eq('id', id)
                 .select('*')
@@ -107,14 +114,14 @@ export default function Task ( task : Todo) {
                         
                         // GET PAGE ID TO UPDATE STATUS TO DONE
                         const pageId = response.results[0].id;
-
+                        
                         if(pageId) {
                             const pageToUpdate = await notion.pages.update({
                                 page_id: pageId,
                                 properties: {
-                                    'Status': {
+                                    [t('status')]: {
                                         status : {
-                                            name: 'Done'
+                                            name: t('done')
                                         }
                                     }
                                 }

@@ -1,5 +1,5 @@
 import { Link, Stack } from "expo-router";
-import { Text, View, Button, TextInput } from "react-native";
+import { Text, View, Button, TextInput, Pressable } from "react-native";
 import { Database } from "~/utils/supabase-types";
 import { supabase } from "~/utils/supabase";
 import { useUserProfile } from "~/providers/UserProfileProvider";
@@ -22,7 +22,8 @@ export default function NewTodo () {
 
     const [newTodo, setNewTodo] = useState<Todo | null>(null)
     const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
-    const [selectedDifficutly, setSelectedDifficulty] = useState<number | null>(null)
+    const [selectedDifficutly, setSelectedDifficulty] = useState<number>(2)
+    const [selectedTimeBlock, setSelectedTimeBlock] = useState<string>('08b61182-86a9-4141-8ae3-69c0c3bff440')
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [showTimePicker, setShowTimePicker] = useState(false)
 
@@ -60,7 +61,8 @@ export default function NewTodo () {
                 profile_user_id : userProfile!.id,
                 difficulty_level : task.difficulty_level,
                 do_date : task.do_date,
-                priority: "Medium"
+                priority: task.priority,
+                time_block_id: task.time_block_id
     
               },
             ])
@@ -76,65 +78,65 @@ export default function NewTodo () {
             setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo]))
 
             // add newTodo to NOTION TASK DB
-            if(databaseId) {
-                (async () => {
-                    console.log(todo)
-                    const properties : {[key: string] : any} = {
-                        'Name': {
-                            type: 'title',
-                            title: [
-                              {
-                                text: {
-                                  content: todo.task!
-                                },
-                              }
-                            ],
-                        },
-                        'LH_id': {
-                            number: todo.id,
-                        },
-                        'is_complete': {
-                            checkbox : todo.is_complete
-                        },
-                        'Status': {
-                            status: {
-                                'name' : 'Not started'
-                            },
-                        },
-                        'Priority': {
-                            select:{
-                                'name' : 'Medium'
-                            }
-                        }
-                    }
+            // if(databaseId) {
+            //     (async () => {
+            //         console.log(todo)
+            //         const properties : {[key: string] : any} = {
+            //             'Name': {
+            //                 type: 'title',
+            //                 title: [
+            //                   {
+            //                     text: {
+            //                       content: todo.task!
+            //                     },
+            //                   }
+            //                 ],
+            //             },
+            //             'LH_id': {
+            //                 number: todo.id,
+            //             },
+            //             'is_complete': {
+            //                 checkbox : todo.is_complete
+            //             },
+            //             'Status': {
+            //                 status: {
+            //                     'name' : 'Not started'
+            //                 },
+            //             },
+            //             'Priority': {
+            //                 select:{
+            //                     'name' : 'Medium'
+            //                 }
+            //             }
+            //         }
   
-                    if(todo.do_date) {
-                        properties['Do'] = {
-                            date: {
-                                'start' : todo.do_date!,
-                            },
-                        }
-                    }
+            //         if(todo.do_date) {
+            //             properties['Do'] = {
+            //                 date: {
+            //                     'start' : todo.do_date!,
+            //                 },
+            //             }
+            //         }
 
-                    if(todo.due_date) {
-                        properties['Due'] = {
+            //         if(todo.due_date) {
+            //             properties['Due'] = {
 
-                            date: {
-                                'start' : todo.due_date!,
-                            },
-                        }
-                    }
+            //                 date: {
+            //                     'start' : todo.due_date!,
+            //                 },
+            //             }
+            //         }
 
-                    const response = await notion.pages.create({
-                        parent: {
-                            type: 'database_id',
-                            database_id: databaseId,
-                        },
-                        properties: properties,
-                    });
-                    console.log(response);
-                })();
-            }
+            //         const response = await notion.pages.create({
+            //             parent: {
+            //                 type: 'database_id',
+            //                 database_id: databaseId,
+            //             },
+            //             properties: properties,
+            //         });
+            //         console.log(response);
+            //     })();
+            // }
 
             // const pointsUpdated = todo.point_value * todo.difficulty_level
             // const { data, error } = await supabase
@@ -177,6 +179,10 @@ export default function NewTodo () {
         }
     }
 
+    const handleTimeBlock = (blockId : string) => {
+        setSelectedTimeBlock(blockId)
+        setNewTodo({...newTodo as Todo, time_block_id : blockId})
+    }
     return (
         <>
         <Stack.Screen options={{ title: 'Create a new task'}}/>
@@ -229,6 +235,26 @@ export default function NewTodo () {
             >
                 Cancel
             </Link>
+            <View>
+                <Pressable
+                    onPress={() => handleTimeBlock('08b61182-86a9-4141-8ae3-69c0c3bff440')}
+                    className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${selectedTimeBlock === '08b61182-86a9-4141-8ae3-69c0c3bff440' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+                >
+                    <Text>All</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => handleTimeBlock('f0381068-50ee-4f3f-8763-bbf9e0cdd146')}
+                    className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${selectedTimeBlock === 'f0381068-50ee-4f3f-8763-bbf9e0cdd146' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+                >
+                    <Text>Work</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => handleTimeBlock('f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')}
+                    className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${selectedTimeBlock === 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+                >
+                    <Text>Morning</Text>
+                </Pressable>
+            </View>
             <Button  
               onPress={() => addTodo(newTodo!)} 
               title="Validate"
