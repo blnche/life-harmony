@@ -20,7 +20,7 @@ const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key:
 
     if((tasksHigh.length + tasksMedium.length + tasksLow.length) === 0) {
         return (
-            <Text>No tasks</Text>
+            <Text>No tasks (tasklist)</Text>
         )
     }
     return (
@@ -29,8 +29,8 @@ const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key:
             {tasksHigh && tasksHigh.length > 0 && (
                 <>
                     <View className="flex-row mb-4">
-                        <FontAwesome6 name="fire-burner" size={24} color="black" />
-                        <FontAwesome6 name="fire-burner" size={24} color="black" />                    
+                        <FontAwesome6 name="fire-burner" size={20} color="black" />
+                        <FontAwesome6 name="fire-burner" size={20} color="black" />                    
                     </View>
                     {tasksHigh.map((todo : Todo) => {
                             return (
@@ -43,7 +43,7 @@ const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key:
             {tasksMedium && tasksMedium.length > 0 && (
                 <>
                     <View className="flex-row mb-4">
-                        <FontAwesome6 name="fire-burner" size={24} color="black" />                    
+                        <FontAwesome6 name="fire-burner" size={20} color="black" />                    
                     </View>
                     {tasksMedium.map((todo : Todo) => {
                             return (
@@ -56,7 +56,7 @@ const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key:
             {tasksLow && tasksLow.length > 0 && (
                 <>
                     <View className="flex-row mb-4">
-                        <FontAwesome6 name="sink" size={24} color="black" />                    
+                        <FontAwesome6 name="sink" size={20} color="black" />                    
                     </View>
                     {tasksLow.map((todo : Todo) => {
                             return (

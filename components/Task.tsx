@@ -11,8 +11,16 @@ import * as Notifications from 'expo-notifications';
 
 
 import Ionicons from '@expo/vector-icons/Ionicons'
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Entypo } from '@expo/vector-icons';
 import { useTranslation } from "react-i18next";
+
+import {
+    BottomSheetModal,
+    BottomSheetView,
+    BottomSheetModalProvider,
+  } from '@gorhom/bottom-sheet';
+import { useCallback, useMemo, useRef } from "react";
 
 type Todo = Database['public']['Tables']['todos']['Row'];
 
@@ -114,7 +122,7 @@ export default function Task ( task : Todo) {
                         
                         // GET PAGE ID TO UPDATE STATUS TO DONE
                         const pageId = response.results[0].id;
-                        
+
                         if(pageId) {
                             const pageToUpdate = await notion.pages.update({
                                 page_id: pageId,
@@ -227,6 +235,19 @@ export default function Task ( task : Todo) {
             </View>
         );
     };
+
+    // POMO BOTTOM SHEET
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+    const snapPoints = useMemo(() => ['50%', '93%'], []);
+
+    const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+    }, []);
+
+    const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+    }, []);
    
     const SwipeableRow = () => {
         const handleRightAction = () => {
@@ -238,32 +259,49 @@ export default function Task ( task : Todo) {
                 renderRightActions={RightActions}
                 onSwipeableOpen={handleRightAction}
             >
-                <View className="max-w-[360] min-h-[55] rounded-[18px] mb-5 px-5 bg-white flex-row justify-between items-center shadow-sm">
+                <View className="max-w-[360] min-h-[55] rounded-[18px] mb-5 px-5 bg-white flex-row justify-between items-center shadow-sm border">
                     <View className="flex-row items-center">
-                        {task && task.is_complete && (
-                            <>
-                                <Pressable 
-                                disabled
-                                >
-                                    <Ionicons name="checkmark-circle" size={24} color="black" /> 
-                                </Pressable>
-                            </>
-                        )}
-                        {task && !task.is_complete && (
-                            <>
-                                <Pressable 
+                        {task && task.is_complete && 
+                            <Pressable 
+                            disabled
+                            >
+                                <Ionicons name="checkmark-circle" size={24} color="black" /> 
+                            </Pressable>
+                        }
+                        {task && !task.is_complete && 
+                            <Pressable 
                                 onPress={() => toggleTodoStatus(task.id)}
-                                >
-                                    <Entypo name="circle" size={24} color="black" />
-                                </Pressable>
-                            </>
-                        )}
+                            >
+                                <FontAwesome name="circle-thin" size={24} color="black" />
+                                {/* <Entypo name="circle" size={24} color="black" /> */}
+                            </Pressable>
+                        }
                         <View className="ml-3">
-                            {task.do_date && <Text className="text-xs">{task.do_date}</Text>}
+                            {task.do_date && 
+                                <Text className="text-xs">{task.do_date}</Text>
+                            }
                             <Text className="text-base w-[245]">{task.task}</Text>
                         </View>
                     </View>
-                    {!task.is_complete && <Entypo name="controller-play" size={24} color="black" />}
+                    {!task.is_complete && 
+                        <BottomSheetModalProvider>
+                            <Pressable
+                                onPress={handlePresentModalPress}                            
+                            >
+                                <Entypo name="controller-play" size={24} color="black" />
+                            </Pressable>
+                            <BottomSheetModal
+                            ref={bottomSheetModalRef}
+                            index={1}
+                            snapPoints={snapPoints}
+                            onChange={handleSheetChanges}
+                            >
+                                <BottomSheetView style={styles.contentContainer}>
+                                    <Text>Pomodoro</Text>
+                                </BottomSheetView>
+                            </BottomSheetModal>
+                        </BottomSheetModalProvider>
+                    }
                 </View>
             </Swipeable>
         );

@@ -120,7 +120,7 @@ export default function MainTabScreen() {
     const do_date = new Date(todo.do_date!)
     const due_date = new Date(todo.due_date!)
 
-    return (do_date < today || due_date < today) && todo.status !== t('done')
+    return (do_date < today || due_date < today) && todo.status !== t('done') //maybe not working
   })
   console.log(overdueTasks?.length)
 
@@ -175,7 +175,7 @@ export default function MainTabScreen() {
             style={'dark'}
             hidden={false}
         />
-      <SafeAreaView className='p-[15px] h-full flex items-center'>
+      <SafeAreaView className='p-[15px] h-full flex items-center bg-white'>
           <Header t={t} progress={tasksCompletionProgress()} tasksLeft={tasksLeft()}/>
           <View className='flex-row justify-center space-x-4 mb-5'>
             <Pressable
@@ -199,13 +199,16 @@ export default function MainTabScreen() {
           </View>
             {todos && 
               <ScrollView className='w-full h-[365]'>
-                <OverdueTaskList 
-                  t={t} 
-                  timeBlock={timeBlock}
-                  overdueTasksHigh={filterTasksByStatusAndPriority(t('high'), 'overdue', timeBlock.id)} 
-                  overdueTasksMedium={filterTasksByStatusAndPriority(t('medium'), 'overdue', timeBlock.id)} 
-                  overdueTasksLow={filterTasksByStatusAndPriority(t('low'), 'overdue', timeBlock.id)}/>
+                {overdueTasks?.length > 0 && 
+                    <OverdueTaskList 
+                      t={t} 
+                      timeBlock={timeBlock}
+                      overdueTasksHigh={filterTasksByStatusAndPriority(t('high'), 'overdue', timeBlock.id)} 
+                      overdueTasksMedium={filterTasksByStatusAndPriority(t('medium'), 'overdue', timeBlock.id)} 
+                      overdueTasksLow={filterTasksByStatusAndPriority(t('low'), 'overdue', timeBlock.id)}/>
+                }
 
+                {tasks?.length > 0 && 
                   <TaskList 
                     t={t}
                     timeBlock={timeBlock}
@@ -213,25 +216,28 @@ export default function MainTabScreen() {
                     tasksMedium={filterTasksByStatusAndPriority(t('medium'), 'default', timeBlock.id)} 
                     tasksLow={filterTasksByStatusAndPriority(t('low'), 'default', timeBlock.id)} 
                   />
+                }
 
+                {completedTasks?.length > 0 &&
                   <CompletedTaskList 
                     t={t} 
                     timeBlock={timeBlock}
                     completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock.id)} 
                   />
+                }
 
                 </ScrollView>
             }
 
-            {tasks && tasks.length === 0 && <Text className="text-[#7A7A7A] mt-5">{t('homepage.tasks_container.no_task_left')}</Text>}
+            {tasks?.length === 0 && overdueTasks?.length === 0 && <Text className="text-black mt-5">{t('homepage.tasks_container.no_task_left')}</Text>}
 
-          <BottomSheetModalProvider>
+        <BottomSheetModalProvider>
           <Pressable 
-            className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm'
+            className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm border'
             onPress={handlePresentModalPress}
           >
-            <Entypo name="plus" size={24} color="#7A7A7A" />
-            <Text className='text-xl text-[#7A7A7A] ml-1.5'>New Task</Text>
+            <Entypo name="plus" size={24} color="black" />
+            <Text className='text-xl text-black ml-1.5'>New Task</Text>
           </Pressable>
               <BottomSheetModal
                 ref={bottomSheetModalRef}
@@ -249,13 +255,5 @@ export default function MainTabScreen() {
   );
 }
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: 'grey',
-  },
-  contentContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
+  
 });

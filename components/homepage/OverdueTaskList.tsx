@@ -26,7 +26,7 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
     
     if((overdueTasksHigh.length + overdueTasksMedium.length + overdueTasksLow.length) === 0) {
         return (
-            <Text>No tasks</Text>
+            <></>
         )
     }
 
@@ -44,8 +44,8 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
                         {overdueTasksHigh && overdueTasksHigh.length > 0 && (
                             <>
                                 <View className="flex-row mb-4">
-                                    <FontAwesome6 name="fire-burner" size={24} color="black" />
-                                    <FontAwesome6 name="fire-burner" size={24} color="black" />                    
+                                    <FontAwesome6 name="fire-burner" size={20} color="black" />
+                                    <FontAwesome6 name="fire-burner" size={20} color="black" />                    
                                 </View>
                                 {overdueTasksHigh.map((todo : Todo) => {
                                         return (
@@ -58,7 +58,7 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
                         {overdueOpen && overdueTasksMedium && overdueTasksMedium.length > 0 && (
                             <>
                                 <View className="flex-row mb-4">
-                                    <FontAwesome6 name="fire-burner" size={24} color="black" />                    
+                                    <FontAwesome6 name="fire-burner" size={20} color="black" />                    
                                 </View>
                                 {overdueTasksMedium.map((todo : Todo) => {
                                         return (
@@ -71,7 +71,7 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
                         {overdueOpen && overdueTasksLow && overdueTasksLow.length > 0 && (
                             <>
                                 <View className="flex-row mb-4">
-                                    <FontAwesome6 name="sink" size={24} color="black" />                    
+                                    <FontAwesome6 name="sink" size={20} color="black" />                    
                                 </View>
                                 {overdueTasksLow.map((todo : Todo) => {
                                         return (
