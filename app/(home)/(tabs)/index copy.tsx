@@ -502,7 +502,7 @@ export default function MainTabScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Tasks' }} />
+      <Stack.Screen options={{ title: 'Settings' }} />
       <StatusBar 
             style={'dark'}
             hidden={false}

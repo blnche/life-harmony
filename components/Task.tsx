@@ -88,7 +88,7 @@ export default function Task ( task : Todo) {
                 .from('todos')
                 .update({ 
                     last_edited_at: now,
-                    marked_down_at: now,
+                    marked_done_at: now,
                     status: 'Done'
                 })
                 .eq('id', id)

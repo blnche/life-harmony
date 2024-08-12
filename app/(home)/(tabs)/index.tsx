@@ -53,7 +53,7 @@ export default function MainTabScreen() {
 
   
   // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
-  const [timeBlock, setTimeBlock] = useState<TimeBlock>({ id: '08b61182-86a9-4141-8ae3-69c0c3bff440', name: 'All' })
+  const [timeBlock, setTimeBlock] = useState<TimeBlock>({ id: '08b61182-86a9-4141-8ae3-69c0c3bff440', name: 'Default' })
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -63,7 +63,7 @@ export default function MainTabScreen() {
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate()
   
-  const filterTasksByStatusAndPriority = useCallback((priority : string, status : string, timeBlockId : string) => {
+  const filterTasksByStatusAndPriority = useCallback((priority : string, status : string, timeBlock : TimeBlock) => {
     return todos?.filter(todo => {
       const do_date = new Date(todo.do_date!);
       const due_date = new Date(todo.due_date!);
@@ -71,17 +71,32 @@ export default function MainTabScreen() {
       const isDoDateToday = datesAreEqual(do_date, today)
       const isDueDateToday = datesAreEqual(due_date, today)
 
+      const timeBlockId = timeBlock.id
+
       if(status === 'overdue') {
         // console.log(`todo status : ${todo.status} ${todo.status !== t('done')}`)
-        return (todo.status !== 'Done' && todo.status !== 'Cancelled') && (do_date < today || due_date < today) && todo.priority === priority /**&& todo.time_block_id === timeBlockId */ /** if a task as a time block id other than all then it appears only in its category */
+        return (
+          (todo.status !== 'Done' && todo.status !== 'Cancelled') &&
+          (do_date < today || due_date < today) &&
+          todo.priority === priority &&
+          (timeBlock.name === 'Default' || todo.time_block_id === timeBlockId)        
+        )
       }
 
       if (status === 'completed') {
-        return todo.status === 'Done' && (isDoDateToday || isDueDateToday)
+        return (
+          todo.status === 'Done' &&
+          (isDoDateToday || isDueDateToday)
+        ) 
       }
 
       if(status === 'default') {
-        return (todo.status !== 'Done' && todo.status !== 'Cancelled') && (isDoDateToday || isDueDateToday) && todo.priority === priority && todo.time_block_id === timeBlockId
+        return (
+          (todo.status !== 'Done' && todo.status !== 'Cancelled') &&
+          (isDoDateToday || isDueDateToday) &&
+          todo.priority === priority &&
+          (timeBlock.name === 'Default' || todo.time_block_id === timeBlockId)
+        )
       }
     })
   }, [todos, timeBlock])
@@ -179,10 +194,10 @@ export default function MainTabScreen() {
           <Header t={t} progress={tasksCompletionProgress()} tasksLeft={tasksLeft()}/>
           <View className='flex-row justify-center space-x-4 mb-5'>
             <Pressable
-              onPress={() => handleTimeBlock('All', '08b61182-86a9-4141-8ae3-69c0c3bff440')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'All' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+              onPress={() => handleTimeBlock('Default', '08b61182-86a9-4141-8ae3-69c0c3bff440')} 
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Default' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
             >
-              <Text className={` ${timeBlock.name === 'All' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
+              <Text className={` ${timeBlock.name === 'Default' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
             </Pressable> 
             <Pressable
               onPress={() => handleTimeBlock('Morning', 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')} 
@@ -203,18 +218,18 @@ export default function MainTabScreen() {
                     <OverdueTaskList 
                       t={t} 
                       timeBlock={timeBlock}
-                      overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock.id)} 
-                      overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock.id)} 
-                      overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock.id)}/>
+                      overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock)} 
+                      overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock)} 
+                      overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}/>
                 }
 
                 {tasks?.length > 0 && 
                   <TaskList 
                     t={t}
                     timeBlock={timeBlock}
-                    tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock.id)} 
-                    tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock.id)} 
-                    tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock.id)} 
+                    tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock)} 
+                    tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock)} 
+                    tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock)} 
                   />
                 }
 
@@ -222,7 +237,7 @@ export default function MainTabScreen() {
                   <CompletedTaskList 
                     t={t} 
                     timeBlock={timeBlock}
-                    completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock.id)} 
+                    completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock)} 
                   />
                 }
 
