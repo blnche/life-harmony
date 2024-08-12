@@ -8,11 +8,11 @@ type Todo = Database['public']['Tables']['todos']['Row']
 
 const CompletedTaskList = ({ t, completedTasks } : {t: (key: string) => string, completedTasks : Todo[] }) => {
     const [completedOpen, setCompletedOpen] = useState(false)
-console.log(completedTasks)
+
     const handleCompletedPressed = () => {
         setCompletedOpen(prevState => !prevState)
     }
-
+    
     return (
         <View className='pb-4 mb-4'>
             <Pressable 

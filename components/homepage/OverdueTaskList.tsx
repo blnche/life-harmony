@@ -23,7 +23,7 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
     const handleOverduePressed = () => {
         setOverdueOpen(prevState => !prevState)
     }
-    console.log(overdueTasksHigh)
+    // console.log(overdueTasksHigh)
     
     if((overdueTasksHigh.length + overdueTasksMedium.length + overdueTasksLow.length) === 0) {
         return (

@@ -65,11 +65,14 @@ export default function MainTabScreen() {
   
   const filterTasksByStatusAndPriority = useCallback((priority : string, status : string, timeBlock : TimeBlock) => {
     return todos?.filter(todo => {
-      const do_date = new Date(todo.do_date!);
-      const due_date = new Date(todo.due_date!);
+      const do_date = new Date(todo.do_date!)
+      const due_date = new Date(todo.due_date!)
+      const markedDone = new Date(todo.marked_done_at!)
 
       const isDoDateToday = datesAreEqual(do_date, today)
       const isDueDateToday = datesAreEqual(due_date, today)
+      const isMarkedDoneToday = datesAreEqual(markedDone, today)
+
 
       const timeBlockId = timeBlock.id
 
@@ -86,7 +89,7 @@ export default function MainTabScreen() {
       if (status === 'completed') {
         return (
           todo.status === 'Done' &&
-          (isDoDateToday || isDueDateToday)
+          (isDoDateToday || isDueDateToday || isMarkedDoneToday)
         ) 
       }
 
@@ -137,9 +140,8 @@ export default function MainTabScreen() {
 
     return (do_date < today || due_date < today) && todo.status !== 'Done' //maybe not working
   })
-  console.log(overdueTasks?.length)
+  // console.log(overdueTasks?.length)
 
-  const test = []
   const completedTasks = todos?.filter(todo => {
     const do_date = new Date(todo.do_date)
     const due_date = new Date(todo.due_date)
@@ -148,9 +150,11 @@ export default function MainTabScreen() {
     const isDueDateToday = datesAreEqual(due_date, today)
     const isMarkedDoneToday = datesAreEqual(markedDone, today)
 
-    return (isDoDateToday || isDueDateToday || isMarkedDoneToday) && todo.status === 'Done'
+    return (
+      (isDoDateToday || isDueDateToday || isMarkedDoneToday) &&
+      todo.status === 'Done'
+    )
   })
-  // console.log(test.length)
   
   // NEW TASK BOTTOM SHEET
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
