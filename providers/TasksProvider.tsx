@@ -31,7 +31,7 @@ export default function TasksProvider({ children } : PropsWithChildren) {
                 .from('todos')
                 .select('*')
                 .eq('user_id', user?.id)
-                .order('is_complete', { ascending: false })
+                // .order('is_complete', { ascending: false })
                 .returns<Todo[]>()
         
         if(error) {

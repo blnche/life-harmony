@@ -195,7 +195,7 @@ export default function MainTabScreen() {
               }
             }
             else {
-
+              // UPDATE TASK
               const rowLH_id = row.properties.LH_id.number
 
               const todo = todos?.find(todo => 
@@ -211,7 +211,7 @@ export default function MainTabScreen() {
               // let title
               // rowProperties.Name.title.map((item : any) => {
               //   title = item.plain_text
-              // }) 
+              // })
               
               // console.log(` notion rows with id : ${title}`)
               

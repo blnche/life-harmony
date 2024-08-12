@@ -73,15 +73,15 @@ export default function MainTabScreen() {
 
       if(status === 'overdue') {
         // console.log(`todo status : ${todo.status} ${todo.status !== t('done')}`)
-        return todo.status !== t('done') && (do_date < today || due_date < today) && todo.priority === priority && todo.time_block_id === timeBlockId
+        return (todo.status !== 'Done' && todo.status !== 'Cancelled') && (do_date < today || due_date < today) && todo.priority === priority /**&& todo.time_block_id === timeBlockId */ /** if a task as a time block id other than all then it appears only in its category */
       }
 
       if (status === 'completed') {
-        return todo.status === t('done') && (isDoDateToday || isDueDateToday)
+        return todo.status === 'Done' && (isDoDateToday || isDueDateToday)
       }
 
       if(status === 'default') {
-        return todo.status !== t('done') && (isDoDateToday || isDueDateToday) && todo.priority === priority && todo.time_block_id === timeBlockId
+        return (todo.status !== 'Done' && todo.status !== 'Cancelled') && (isDoDateToday || isDueDateToday) && todo.priority === priority && todo.time_block_id === timeBlockId
       }
     })
   }, [todos, timeBlock])
@@ -111,7 +111,7 @@ export default function MainTabScreen() {
     const isDoDateToday = datesAreEqual(do_date, today)
     const isDueDateToday = datesAreEqual(due_date, today)
 
-    return (isDoDateToday || isDueDateToday) && todo.status !== t('done')
+    return (isDoDateToday || isDueDateToday) && todo.status !== 'Done'
   })
 
   
@@ -120,7 +120,7 @@ export default function MainTabScreen() {
     const do_date = new Date(todo.do_date!)
     const due_date = new Date(todo.due_date!)
 
-    return (do_date < today || due_date < today) && todo.status !== t('done') //maybe not working
+    return (do_date < today || due_date < today) && todo.status !== 'Done' //maybe not working
   })
   console.log(overdueTasks?.length)
 
@@ -133,7 +133,7 @@ export default function MainTabScreen() {
     const isDueDateToday = datesAreEqual(due_date, today)
     const isMarkedDoneToday = datesAreEqual(markedDone, today)
 
-    return (isDoDateToday || isDueDateToday || isMarkedDoneToday) && todo.status === t('done') && todo.is_complete
+    return (isDoDateToday || isDueDateToday || isMarkedDoneToday) && todo.status === 'Done'
   })
   // console.log(test.length)
   
@@ -203,18 +203,18 @@ export default function MainTabScreen() {
                     <OverdueTaskList 
                       t={t} 
                       timeBlock={timeBlock}
-                      overdueTasksHigh={filterTasksByStatusAndPriority(t('high'), 'overdue', timeBlock.id)} 
-                      overdueTasksMedium={filterTasksByStatusAndPriority(t('medium'), 'overdue', timeBlock.id)} 
-                      overdueTasksLow={filterTasksByStatusAndPriority(t('low'), 'overdue', timeBlock.id)}/>
+                      overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock.id)} 
+                      overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock.id)} 
+                      overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock.id)}/>
                 }
 
                 {tasks?.length > 0 && 
                   <TaskList 
                     t={t}
                     timeBlock={timeBlock}
-                    tasksHigh={filterTasksByStatusAndPriority(t('high'), 'default', timeBlock.id)} 
-                    tasksMedium={filterTasksByStatusAndPriority(t('medium'), 'default', timeBlock.id)} 
-                    tasksLow={filterTasksByStatusAndPriority(t('low'), 'default', timeBlock.id)} 
+                    tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock.id)} 
+                    tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock.id)} 
+                    tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock.id)} 
                   />
                 }
 

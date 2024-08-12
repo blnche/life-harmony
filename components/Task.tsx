@@ -81,17 +81,15 @@ export default function Task ( task : Todo) {
     const toggleTodoStatus = async (id: number) => {
         // console.log(id)
         const now = new Date().toISOString();
-        const done = t('done')
 
         try {
 
             const { data: updatedTodo, error: todoError } = await supabase  
                 .from('todos')
                 .update({ 
-                    is_complete: true,
                     last_edited_at: now,
                     marked_down_at: now,
-                    status: done
+                    status: 'Done'
                 })
                 .eq('id', id)
                 .select('*')
@@ -261,14 +259,14 @@ export default function Task ( task : Todo) {
             >
                 <View className="max-w-[360] min-h-[55] rounded-[18px] mb-5 px-5 bg-white flex-row justify-between items-center shadow-sm border">
                     <View className="flex-row items-center">
-                        {task && task.is_complete && 
+                        {task && task.status === 'Done' && 
                             <Pressable 
                             disabled
                             >
                                 <Ionicons name="checkmark-circle" size={24} color="black" /> 
                             </Pressable>
                         }
-                        {task && !task.is_complete && 
+                        {task && task.status !== 'Done' && 
                             <Pressable 
                                 onPress={() => toggleTodoStatus(task.id)}
                             >
@@ -283,7 +281,7 @@ export default function Task ( task : Todo) {
                             <Text className="text-base w-[245]">{task.task}</Text>
                         </View>
                     </View>
-                    {!task.is_complete && 
+                    {task.status !== 'Done' && 
                         <BottomSheetModalProvider>
                             <Pressable
                                 onPress={handlePresentModalPress}                            
