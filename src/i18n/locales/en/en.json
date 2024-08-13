@@ -39,6 +39,22 @@
     },
     "newTask" : {
         "done" : "Done",
-        "title_placeholder" : "Title..."
+        "title_placeholder" : "Title...",
+        "schedule" : "Schedule",
+        "reminder" : "Reminder",
+        "priorities" : {
+            "priority" :"Priority",
+            "low" :"Low",
+            "medium" :"Medium",
+            "high" :"High"
+        },
+        "difficulty_levels" : {
+            "difficulty" : "Difficulty Level",
+            "easy": "Easy",
+            "medium":"Medium",
+            "hard": "Hard",
+            "very_hard":"Very Hard"
+        }
     }
+
 }

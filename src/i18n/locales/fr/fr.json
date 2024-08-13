@@ -35,7 +35,25 @@
             "overdue": "En retard",
             "completed": "Terminées",
             "no_task_left": "Aucune tâche restante pour aujourd'hui."
-
+        }
+    },
+    "newTask": {
+        "done": "Fait",
+        "title_placeholder": "Titre...",
+        "schedule": "Planifier",
+        "reminder": "Rappel",
+        "priorities": {
+            "priority": "Priorité",
+            "low": "Faible",
+            "medium": "Moyenne",
+            "high": "Haute"
+        },
+        "difficulty_levels": {
+            "difficulty": "Niveau de difficulté",
+            "easy": "Facile",
+            "medium": "Moyenne",
+            "hard": "Difficile",
+            "very_hard": "Très difficile"
         }
     }
 }
