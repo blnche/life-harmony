@@ -1,15 +1,15 @@
 import { Link, Stack } from "expo-router";
-import { Text, View, Button, TextInput, Pressable } from "react-native";
+import { Text, View, Button, TextInput, Pressable, SafeAreaView } from "react-native";
 import { Database } from "~/utils/supabase-types";
 import { supabase } from "~/utils/supabase";
 import { useUserProfile } from "~/providers/UserProfileProvider";
 import { useEffect, useState } from "react";
-// import { XStack, YStack, Button, Label, RadioGroup, Input } from "tamagui";
-// import { Plus } from '@tamagui/lucide-icons'
 import { notion } from '~/utils/notion';
 
 import DateTimePicker from 'react-native-ui-datepicker'
 import { useTasks } from "~/providers/TasksProvider";
+import { useTranslation } from "react-i18next";
+import { usePostHog } from "posthog-react-native";
 
 
 type Todo = Database['public']['Tables']['todos']['Row']
@@ -17,8 +17,13 @@ type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['R
 
 
 export default function NewTodo () {
+    // PROVIDERS
     const { userProfile } = useUserProfile()
     const { todos, setTodos } = useTasks()
+
+    // TOOLS  
+    const posthog = usePostHog()
+    const {t} = useTranslation()
 
     const [newTodo, setNewTodo] = useState<Todo | null>(null)
     const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
@@ -186,15 +191,25 @@ export default function NewTodo () {
     return (
         <>
         <Stack.Screen options={{ title: 'Create a new task'}}/>
+        <View className="p-[15px] h-full flex items-center bg-white">
+
+        <Pressable className="mb-5 self-end">
+            <Text>{t('newTask.done')}</Text>
+        </Pressable>
+        <View className="w-full">
+            <TextInput
+            id="new-todo"
+            onChangeText={(text) => setNewTodo({...newTodo as Todo, task : text})}
+            value={newTodo?.task!}
+            placeholder={t('newTask.title_placeholder')}
+            className="border p-5 rounded-[18px]"
+            />
+        </View>
+        <View className="w-full border p-5 rounded-[18px] min-h-16">
+            
+        </View>
         
             
-                <Text>Title : </Text>
-                <TextInput
-                id="new-todo"
-                onChangeText={(text) => setNewTodo({...newTodo as Todo, task : text})}
-                value={newTodo?.task!}
-                placeholder='New task...'
-                />
             
                 <Text>How difficult for you this task is going to be ?</Text>
                 
@@ -259,6 +274,7 @@ export default function NewTodo () {
               onPress={() => addTodo(newTodo!)} 
               title="Validate"
             />
+        </View>
         </>
     )
 }

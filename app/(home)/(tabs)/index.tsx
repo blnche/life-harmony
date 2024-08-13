@@ -50,11 +50,29 @@ export default function MainTabScreen() {
   const posthog = usePostHog()
   const {t} = useTranslation()
 
-
-  
-  // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
+  // TIMEBLOCK
   const [timeBlock, setTimeBlock] = useState<TimeBlock>({ id: '08b61182-86a9-4141-8ae3-69c0c3bff440', name: 'Default' })
 
+  const handleTimeBlock = (timeBlockName : string, timeBlockId : string) => {
+    setTimeBlock({id : timeBlockId, name : timeBlockName})
+  }
+   
+  // const fetchTimeBlocks = async () => {
+  //   try {
+  //     const timeBlocks = await supabase
+  //       .from('user_time_blocks')
+  //       .select('*')
+  //       .eq('user_id', userProfile?.id!)
+
+  //     console.log(timeBlocks.data)
+
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+  // fetchTimeBlocks()
+  
+  // RENDERING TASKS - OVERDUE, TODAY, COMPLETED
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -72,7 +90,6 @@ export default function MainTabScreen() {
       const isDoDateToday = datesAreEqual(do_date, today)
       const isDueDateToday = datesAreEqual(due_date, today)
       const isMarkedDoneToday = datesAreEqual(markedDone, today)
-
 
       const timeBlockId = timeBlock.id
 
@@ -104,48 +121,33 @@ export default function MainTabScreen() {
     })
   }, [todos, timeBlock])
 
-  const handleTimeBlock = (timeBlockName : string, timeBlockId : string) => {
-    setTimeBlock({id : timeBlockId, name : timeBlockName})
-  }
-  
-  // const fetchTimeBlocks = async () => {
-  //   try {
-  //     const timeBlocks = await supabase
-  //       .from('user_time_blocks')
-  //       .select('*')
-  //       .eq('user_id', userProfile?.id!)
-
-  //     console.log(timeBlocks.data)
-
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
-  // fetchTimeBlocks()
-
+  // PROGRESS BAR
   const tasks = todos?.filter(todo => {
     const do_date = new Date(todo.do_date!)
     const due_date = new Date(todo.due_date!)
     const isDoDateToday = datesAreEqual(do_date, today)
     const isDueDateToday = datesAreEqual(due_date, today)
 
-    return (isDoDateToday || isDueDateToday) && todo.status !== 'Done'
+    return (
+      (isDoDateToday || isDueDateToday) &&
+      todo.status !== 'Done'
+    )
   })
-
-  
   
   const overdueTasks = todos?.filter(todo => {
     const do_date = new Date(todo.do_date!)
     const due_date = new Date(todo.due_date!)
 
-    return (do_date < today || due_date < today) && todo.status !== 'Done' //maybe not working
+    return (
+      (do_date < today || due_date < today) &&
+      (todo.status !== 'Done' && todo.status !== 'Cancelled' && todo.status !== null)
+    )
   })
-  // console.log(overdueTasks?.length)
 
   const completedTasks = todos?.filter(todo => {
-    const do_date = new Date(todo.do_date)
-    const due_date = new Date(todo.due_date)
-    const markedDone = new Date(todo.marked_done_at)
+    const do_date = new Date(todo.do_date!)
+    const due_date = new Date(todo.due_date!)
+    const markedDone = new Date(todo.marked_done_at!)
     const isDoDateToday = datesAreEqual(do_date, today)
     const isDueDateToday = datesAreEqual(due_date, today)
     const isMarkedDoneToday = datesAreEqual(markedDone, today)
@@ -155,6 +157,23 @@ export default function MainTabScreen() {
       todo.status === 'Done'
     )
   })
+
+  const tasksCompletionProgress = () => {
+    if (tasks && completedTasks && overdueTasks) {
+      const totalTasks = tasks.length + completedTasks.length + overdueTasks.length
+      
+      if (totalTasks === 0) {
+        return 1
+      }
+      return (completedTasks.length / totalTasks)
+    }
+  }
+
+  const tasksLeft = () => {
+    if (tasks && overdueTasks) {
+      return tasks?.length + overdueTasks?.length
+    }
+  }
   
   // NEW TASK BOTTOM SHEET
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -169,23 +188,7 @@ export default function MainTabScreen() {
     console.log('handleSheetChanges', index);
   }, []);
 
-  // PROGRESS BAR
-  const tasksCompletionProgress = () => {
-  if (tasks && completedTasks && overdueTasks) {
-    const totalTasks = tasks.length + completedTasks.length + overdueTasks.length
-
-    if (totalTasks === 0) {
-      return 1
-    }
-    return (completedTasks.length / totalTasks)
-  }
-  }
-
-  const tasksLeft = () => {
-    if (tasks && overdueTasks) {
-      return tasks?.length + overdueTasks?.length
-    }
-  }
+  
 
   return (
     <>
@@ -216,40 +219,45 @@ export default function MainTabScreen() {
               <Text className={` ${timeBlock.name === 'Work' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.work')}</Text>
             </Pressable> 
           </View>
-            {todos && 
-              <ScrollView className='w-full h-[365]'>
-                {overdueTasks?.length > 0 && 
-                    <OverdueTaskList 
-                      t={t} 
-                      timeBlock={timeBlock}
-                      overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock)} 
-                      overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock)} 
-                      overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}/>
-                }
+          {todos && 
+            <ScrollView className='w-full h-[365] '>
 
-                {tasks?.length > 0 && 
-                  <TaskList 
-                    t={t}
-                    timeBlock={timeBlock}
-                    tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock)} 
-                    tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock)} 
-                    tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock)} 
-                  />
+              {tasks?.length === 0 && overdueTasks?.length === 0 && 
+                  <View className='flex-row items-center justify-around w-6/12 my-10 mx-auto'>
+                    <Text className="text-black mt-3.5 ">{t('homepage.tasks_container.no_task_left')}</Text>
+                    {/* <Ionicons name="sparkles" size={24} color="black" /> */}
+                    <Ionicons name="sparkles-outline" size={24} color="black" />
+                  </View>
                 }
-
-                {completedTasks?.length > 0 &&
-                  <CompletedTaskList 
+              {overdueTasks?.length > 0 && 
+                  <OverdueTaskList 
                     t={t} 
                     timeBlock={timeBlock}
-                    completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock)} 
-                  />
-                }
+                    overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock)} 
+                    overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock)} 
+                    overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}/>
+              }
 
-                </ScrollView>
-            }
+              {tasks?.length > 0 && 
+                <TaskList 
+                  t={t}
+                  timeBlock={timeBlock}
+                  tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock)} 
+                  tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock)} 
+                  tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock)} 
+                />
+              }
+              
+              {completedTasks?.length > 0 &&
+                <CompletedTaskList 
+                  t={t} 
+                  timeBlock={timeBlock}
+                  completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock)} 
+                />
+              }
 
-            {tasks?.length === 0 && overdueTasks?.length === 0 && <Text className="text-black mt-5">{t('homepage.tasks_container.no_task_left')}</Text>}
-
+              </ScrollView>
+          }
         <BottomSheetModalProvider>
           <Pressable 
             className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm border'

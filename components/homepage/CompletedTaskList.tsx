@@ -24,7 +24,9 @@ const CompletedTaskList = ({ t, completedTasks } : {t: (key: string) => string, 
             </Pressable>
             {completedOpen && 
                 <View>
-                    {completedTasks && completedTasks.map((todo : Todo) => {
+                    {completedTasks && completedTasks
+                    .sort((a, b) => new Date(b.marked_done_at || 0).getTime() - new Date(a.marked_done_at || 0).getTime()) //from most recent to least recent with a fallback if no marked_done_date date (should not be possible)
+                    .map((todo : Todo) => {
                         return (
                             <Task key={todo.id} {...todo} />
                         )

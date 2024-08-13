@@ -36,5 +36,9 @@
             "completed": "Completed",
             "no_task_left": "No task left for today."
         }
+    },
+    "newTask" : {
+        "done" : "Done",
+        "title_placeholder" : "Title..."
     }
 }
