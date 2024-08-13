@@ -46,14 +46,26 @@
             "priority": "Priorité",
             "low": "Faible",
             "medium": "Moyenne",
-            "high": "Haute"
+            "high": "Haute",
+            "info": {
+                "high": "Élevé : Tâches critiques nécessitant une action immédiate.",
+                "medium": "Moyenne : Tâches importantes mais non urgentes.",
+                "low": "Faible : Tâches non urgentes à réaliser plus tard."
+            }
         },
         "difficulty_levels": {
-            "difficulty": "Niveau de difficulté",
+            "difficulty": "Difficulté",
             "easy": "Facile",
             "medium": "Moyenne",
             "hard": "Difficile",
-            "very_hard": "Très difficile"
+            "very_hard": "Très difficile",
+            "info": "Si une tâche est redoutée, augmentez son niveau d'un cran."
+        },
+        "timeblocks": {
+            "timeblock": "Bloc de temps",
+            "all": "Tous",
+            "morning": "Matin",
+            "work": "Travail"
         }
     }
 }

@@ -46,14 +46,26 @@
             "priority" :"Priority",
             "low" :"Low",
             "medium" :"Medium",
-            "high" :"High"
+            "high" :"High",
+            "info" : {
+                "high" : "High: Critical tasks requiring immediate action.",
+                "medium" : "Medium: Important but not urgent tasks.",
+                "low" : "Low: Non-urgent tasks to be done later."
+            }
         },
         "difficulty_levels" : {
             "difficulty" : "Difficulty Level",
             "easy": "Easy",
             "medium":"Medium",
             "hard": "Hard",
-            "very_hard":"Very Hard"
+            "very_hard":"Very Hard",
+            "info" : "If task is dreaded, up level by one."
+        },
+        "timeblocks" : {
+            "timeblock" : "Time Block",
+            "all": "All",
+            "morning":"Morning",
+            "work": "Work"
         }
     }
 
