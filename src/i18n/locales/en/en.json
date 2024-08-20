@@ -38,9 +38,19 @@
         }
     },
     "newTask" : {
+        "new_task" : "New Task",
         "done" : "Done",
         "title_placeholder" : "Title...",
-        "schedule" : "Schedule",
+        "schedule": {
+            "schedule" : "Schedule",
+            "today" : "Today",
+            "tomorrow" : "Tomorrow",
+            "later_this_week" : "Later this week",
+            "this_weekend" : "This weekend",
+            "next_week" : "Next week",
+            "someday" : "Someday",
+            "pick_date" : "Pick a date"
+        },
         "reminder" : "Reminder",
         "priorities" : {
             "priority" :"Priority",

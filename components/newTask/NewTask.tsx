@@ -6,13 +6,19 @@ import { useUserProfile } from "~/providers/UserProfileProvider";
 import { useEffect, useState } from "react";
 import { notion } from '~/utils/notion';
 
-import DateTimePicker from 'react-native-ui-datepicker'
+// import DateTimePicker from 'react-native-ui-datepicker'
 import { useTasks } from "~/providers/TasksProvider";
 import { useTranslation } from "react-i18next";
 import { usePostHog } from "posthog-react-native";
 import { Entypo } from "@expo/vector-icons";
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
+import { Drawer } from 'expo-router/drawer';
+import Schedule from "./Schedule";
+
 
 type Todo = Database['public']['Tables']['todos']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
@@ -35,8 +41,7 @@ export default function NewTodo () {
     const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
     const [difficutly, setDifficulty] = useState<number>(2)
     const [selectedTimeBlock, setSelectedTimeBlock] = useState<string>('08b61182-86a9-4141-8ae3-69c0c3bff440')
-    const [showDatePicker, setShowDatePicker] = useState(false)
-    const [showTimePicker, setShowTimePicker] = useState(false)
+    
     const [priority, setPriority] = useState("medium")
 
     const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
@@ -198,7 +203,10 @@ export default function NewTodo () {
 
     const [scheduleOpen, setScheduleOpen] = useState(false)
     const [reminderOpen, setReminderOpen] = useState(false)
+    const [priorityOpen, setPriorityOpen] = useState(false)
     const [prioritiesInfoOpen, setPrioritiesInfoOpen] = useState(false)
+    const [difficultyOpen, setDifficultyOpen] = useState(false)
+    const [timeBlockOpen, setTimeBlockOpen] = useState(false)
 
     const handleSchedulePressed = () => {
         setScheduleOpen(prevState => !prevState)
@@ -206,8 +214,17 @@ export default function NewTodo () {
     const handleReminderPressed = () => {
         setReminderOpen(prevState => !prevState)
     }
+    const handlePriorityPressed = () => {
+        setPriorityOpen(prevState => !prevState)
+    }
     const handlePrioritiesInfoPressed = () => {
         setPrioritiesInfoOpen(prevState => !prevState)
+    }
+    const handleDifficultyPressed = () => {
+        setDifficultyOpen(prevState => !prevState)
+    }
+    const handleTimeBlockPressed = () => {
+        setTimeBlockOpen(prevState => !prevState)
     }
 
     const handlePriority = (level : string) => {
@@ -223,17 +240,23 @@ export default function NewTodo () {
     const handleSubmit = () => {
         console.log(newTodo)
     }
+
+    
+
     return (
         <>
         <Stack.Screen options={{ title: 'Create a new task'}}/>
         <ScrollView>
             <View className="p-[15px] h-full flex items-center bg-white">
-                <Pressable 
-                    className="mb-5 self-end"
-                    onPress={handleSubmit}
-                >
-                    <Text className='text-base'>{t('newTask.done')}</Text>
-                </Pressable>
+                <View className="w-full flex-row justify-between">
+                    <Text className='text-base'>{t('newTask.new_task')}</Text>
+                    <Pressable 
+                        className="mb-5 self-end"
+                        onPress={handleSubmit}
+                    >
+                        <Text className='text-base'>{t('newTask.done')}</Text>
+                    </Pressable>
+                </View>
                 <View className="w-full space-y-6">
                     <View className="">
                         <TextInput
@@ -245,21 +268,20 @@ export default function NewTodo () {
                         />
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
+                        
                         <Pressable 
                             onPress={handleSchedulePressed}
                             className='flex-row justify-between'
                         >
                             <View className="flex-row">
                                 <Ionicons name="calendar" size={24} color="black" />
-                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule')}</Text>
+                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.schedule')}</Text>
                             </View>
                             <Entypo name={scheduleOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                         </Pressable>
                         {scheduleOpen && 
-                        <View>
-                            <Text>I'm open</Text>
-                        </View>
-                    }
+                            <Schedule />
+                        }
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
                         <Pressable 
@@ -279,37 +301,52 @@ export default function NewTodo () {
                     }
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
-                        <View className="flex-row">
-                            <Ionicons name="flag" size={24} color="black" />
-                            <Text className='ml-3.5 text-base font-medium mb-7'>{t('newTask.priorities.priority')}</Text>
-                        </View>
-                        <View className=" flex-row justify-center space-x-5  w-full">
-                            <Pressable 
-                                onPress={() => handlePriority('low')}
-                                className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
-                            >
-                                <Text className='text-sm'>{t('newTask.priorities.low')}</Text>
-                            </Pressable>
-                            <Pressable 
-                                onPress={() => handlePriority('medium')}
-                                className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'medium' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
-                            >
-                                <Text className='text-sm'>{t('newTask.priorities.medium')}</Text>
-                            </Pressable>
-                            <Pressable 
-                                onPress={() => handlePriority('high')}
-                                className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'high' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
-                            >
-                                <Text className='text-sm'>{t('newTask.priorities.high')}</Text>    
-                            </Pressable>
-                        </View>
+                        <Pressable 
+                            onPress={handlePriorityPressed}
+                            className="flex-row justify-between"
+                        >
+                            <View className="flex-row ">
+                                <Ionicons name="flag" size={24} color="black" />
+                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.priorities.priority')}</Text>
+                            </View>
+                            <View className="flex-row items-center">
+                                {priority &&
+                                    <Text>{priority}</Text>
+                                }
+                            <Entypo name={priorityOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                                
+                            </View>
+                        </Pressable>
+                        {priorityOpen &&
+                        
+                            <View className="mt-7 flex-row justify-center space-x-5  w-full">
+                                <Pressable 
+                                    onPress={() => handlePriority('low')}
+                                    className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                >
+                                    <Text className='text-sm'>{t('newTask.priorities.low')}</Text>
+                                </Pressable>
+                                <Pressable 
+                                    onPress={() => handlePriority('medium')}
+                                    className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'medium' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                >
+                                    <Text className='text-sm'>{t('newTask.priorities.medium')}</Text>
+                                </Pressable>
+                                <Pressable 
+                                    onPress={() => handlePriority('high')}
+                                    className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'high' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                >
+                                    <Text className='text-sm'>{t('newTask.priorities.high')}</Text>    
+                                </Pressable>
+                            </View>
+                        }
                         <Pressable 
                             onPress={handlePrioritiesInfoPressed}
                             className=" items-start mt-6"
                         >
                             <Ionicons name="information-circle-outline" size={24} color="black"/>
                             {prioritiesInfoOpen && 
-                                <View className="mt-2.5 w-4/5 self-center">
+                                <View className=" mt-2.5 w-4/5 self-center">
                                     <Text className="text-sm">{t('newTask.priorities.info.high')}</Text>
                                     <Text className="text-sm">{t('newTask.priorities.info.medium')}</Text>
                                     <Text className="text-sm">{t('newTask.priorities.info.low')}</Text>
@@ -319,91 +356,92 @@ export default function NewTodo () {
                         </Pressable>
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
-                        <View className="flex-row">
-                            <Ionicons name="warning" size={24} color="black" />
-                            <Text className='ml-3.5 text-base font-medium mb-7'>{t('newTask.difficulty_levels.difficulty')}</Text>
-                        </View>
-                        <View className=" flex-row flex-wrap justify-center  space-y-5 items-center mx-auto">
-                            <Pressable 
-                                onPress={() => handleDifficulty(1)}
-                                className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 mr-5 ${difficutly === 1 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
-                                >
-                                <Text className='text-sm	'>{t('newTask.difficulty_levels.easy')}</Text>
-                            </Pressable>
-                            <Pressable 
-                                onPress={() => handleDifficulty(2)}
-                                className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 ${difficutly === 2 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
-                                >
-                                <Text className='text-sm	'>{t('newTask.difficulty_levels.medium')}</Text>
-                            </Pressable>
-                            <Pressable 
-                                onPress={() => handleDifficulty(3)}
-                                className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 mr-5 ${difficutly === 3 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
-                                >
-                                <Text className='text-sm'>{t('newTask.difficulty_levels.hard')}</Text>    
-                            </Pressable>
-                            <Pressable 
-                                onPress={() => handleDifficulty(4)}
-                                className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 ${difficutly === 4 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
-                                >
-                                <Text className='text-sm'>{t('newTask.difficulty_levels.very_hard')}</Text>    
-                            </Pressable>
-                        </View>
+                        <Pressable 
+                            onPress={handleDifficultyPressed}
+                            className="flex-row justify-between"
+                        >
+                            <View className="flex-row ">
+                                <Ionicons name="warning" size={24} color="black" />
+                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.difficulty_levels.difficulty')}</Text>
+                            </View>
+                            <Entypo name={difficultyOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                        </Pressable>
+                        {difficultyOpen && 
+                            <View className="mt-7 flex-row flex-wrap justify-center  space-y-5 items-center mx-auto">
+                                <Pressable 
+                                    onPress={() => handleDifficulty(1)}
+                                    className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 mr-5 ${difficutly === 1 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                    <Text className='text-sm	'>{t('newTask.difficulty_levels.easy')}</Text>
+                                </Pressable>
+                                <Pressable 
+                                    onPress={() => handleDifficulty(2)}
+                                    className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 ${difficutly === 2 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                    <Text className='text-sm	'>{t('newTask.difficulty_levels.medium')}</Text>
+                                </Pressable>
+                                <Pressable 
+                                    onPress={() => handleDifficulty(3)}
+                                    className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 mr-5 ${difficutly === 3 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                    <Text className='text-sm'>{t('newTask.difficulty_levels.hard')}</Text>    
+                                </Pressable>
+                                <Pressable 
+                                    onPress={() => handleDifficulty(4)}
+                                    className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 ${difficutly === 4 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                    <Text className='text-sm'>{t('newTask.difficulty_levels.very_hard')}</Text>    
+                                </Pressable>
+                            </View>
+                        }
                         <View className=" flex-row items-center justify-start mt-6">
                             <Ionicons name="information-circle-outline" size={24} color="black"  />
                             <Text className="ml-2.5">{t("newTask.difficulty_levels.info")}</Text>
                         </View>
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
-                        <View className="flex-row">
-                            <Ionicons name="time" size={24} color="black" />
-                            <Text className='ml-3.5 text-base font-medium mb-7'>{t('newTask.timeblocks.timeblock')}</Text>
-                        </View>
-                        <View className=" flex-row flex-wrap justify-center  space-y-5 items-center mx-auto">
-                            <Pressable
-                                onPress={() => handleTimeBlock('08b61182-86a9-4141-8ae3-69c0c3bff440')}
-                                className={`py-5 px-3.5 w-2/5 mr-5 rounded-[18px] flex justify-center items-center  border ${selectedTimeBlock === '08b61182-86a9-4141-8ae3-69c0c3bff440' ? 'border-[#548164] bg-[#EEF3ED]' : ''} `}
-                            >
-                                <Text>{t('newTask.timeblocks.all')}</Text>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => handleTimeBlock('f0381068-50ee-4f3f-8763-bbf9e0cdd146')}
-                                className={`py-5 px-3.5 w-2/5  rounded-[18px] flex justify-center items-center  border ${selectedTimeBlock === 'f0381068-50ee-4f3f-8763-bbf9e0cdd146' ? 'border-[#548164] bg-[#EEF3ED]' : ''} `}
-                            >
-                                <Text>{t('newTask.timeblocks.work')}</Text>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => handleTimeBlock('f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')}
-                                className={`py-5 px-3.5 w-2/5 mr-5 rounded-[18px] flex justify-center items-center  border ${selectedTimeBlock === 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b' ? 'border-[#548164] bg-[#EEF3ED]' : ''} `}
-                            >
-                                <Text>{t('newTask.timeblocks.morning')}</Text>
-                            </Pressable>
-                        </View>
+                        <Pressable 
+                            onPress={handleTimeBlockPressed}
+                            className="flex-row justify-between"
+                        >
+                            <View className="flex-row">
+                                <Ionicons name="time" size={24} color="black" />
+                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.timeblocks.timeblock')}</Text>
+                            </View>
+                            <Entypo name={timeBlockOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                        </Pressable>
+                        {timeBlockOpen && 
+                            <View className="mt-7 flex-row flex-wrap justify-center  space-y-5 items-center mx-auto">
+                                <Pressable
+                                    onPress={() => handleTimeBlock('08b61182-86a9-4141-8ae3-69c0c3bff440')}
+                                    className={`py-5 px-3.5 w-2/5 mr-5 rounded-[18px] flex justify-center items-center  border ${selectedTimeBlock === '08b61182-86a9-4141-8ae3-69c0c3bff440' ? 'border-[#548164] bg-[#EEF3ED]' : ''} `}
+                                >
+                                    <Text>{t('newTask.timeblocks.all')}</Text>
+                                </Pressable>
+                                <Pressable
+                                    onPress={() => handleTimeBlock('f0381068-50ee-4f3f-8763-bbf9e0cdd146')}
+                                    className={`py-5 px-3.5 w-2/5  rounded-[18px] flex justify-center items-center  border ${selectedTimeBlock === 'f0381068-50ee-4f3f-8763-bbf9e0cdd146' ? 'border-[#548164] bg-[#EEF3ED]' : ''} `}
+                                >
+                                    <Text>{t('newTask.timeblocks.work')}</Text>
+                                </Pressable>
+                                <Pressable
+                                    onPress={() => handleTimeBlock('f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')}
+                                    className={`py-5 px-3.5 w-2/5 mr-5 rounded-[18px] flex justify-center items-center  border ${selectedTimeBlock === 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b' ? 'border-[#548164] bg-[#EEF3ED]' : ''} `}
+                                >
+                                    <Text>{t('newTask.timeblocks.morning')}</Text>
+                                </Pressable>
+                            </View>
+                        }
                     </View>
                 </View>
             
-                
-                
-                    <Text>How difficult for you this task is going to be ?</Text>
-                    
-                        {difficultyLevels && difficultyLevels.map((difficulty, index) => {
-                            return (
 
-                                <Button 
-                                    key={difficulty.id}
-                                    onPress={() => setSelectedDifficulty(difficulty.id)}
-                                    title={difficulty.name}
-                                />
-                            )
-                        })}
-
-    
-                    <Button 
+                    {/* <Button 
                         onPress={() => setShowDatePicker(!showDatePicker)}
                         title="Pick a date"
                     />
-                        
-                    {showDatePicker && (
+                         */}
+                    {/* {showDatePicker && (
                         <>
                             <Button 
                                 onPress={() => setShowTimePicker(!showTimePicker)}
@@ -416,33 +454,14 @@ export default function NewTodo () {
                                 onChange={(params) => handleDate(params)}
                             />
                         </>
-                    )}
+                    )} */}
                 
                 <Link
                     href={'../'}
                 >
                     Cancel
                 </Link>
-                <View>
-                    <Pressable
-                        onPress={() => handleTimeBlock('08b61182-86a9-4141-8ae3-69c0c3bff440')}
-                        className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${selectedTimeBlock === '08b61182-86a9-4141-8ae3-69c0c3bff440' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
-                    >
-                        <Text>All</Text>
-                    </Pressable>
-                    <Pressable
-                        onPress={() => handleTimeBlock('f0381068-50ee-4f3f-8763-bbf9e0cdd146')}
-                        className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${selectedTimeBlock === 'f0381068-50ee-4f3f-8763-bbf9e0cdd146' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
-                    >
-                        <Text>Work</Text>
-                    </Pressable>
-                    <Pressable
-                        onPress={() => handleTimeBlock('f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')}
-                        className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${selectedTimeBlock === 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
-                    >
-                        <Text>Morning</Text>
-                    </Pressable>
-                </View>
+                
                 <Button  
                 onPress={() => addTodo(newTodo!)} 
                 title="Validate"

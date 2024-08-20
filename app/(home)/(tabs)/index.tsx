@@ -25,10 +25,13 @@ import {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 
+import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
 import OverdueTaskList from '~/components/homepage/OverdueTaskList';
 import CompletedTaskList from '~/components/homepage/CompletedTaskList';
 import TaskList from '~/components/homepage/TaskList';
-import NewTodo from '~/components/NewTask';
+import NewTodo from '~/components/newTask/NewTask';
 import { supabase } from '~/utils/supabase';
 
 type Todo = Database['public']['Tables']['todos']['Row']
@@ -38,6 +41,15 @@ type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['R
 interface TimeBlock {
   id: string;
   name: string;
+}
+
+const Drawer = createDrawerNavigator();
+function DrawerContent() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>This is the Drawer Content</Text>
+    </View>
+  );
 }
 
 export default function MainTabScreen() {

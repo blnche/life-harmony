@@ -38,9 +38,19 @@
         }
     },
     "newTask": {
+        "new_task" : "Nouvelle Tâche",
         "done": "Fait",
         "title_placeholder": "Titre...",
-        "schedule": "Planifier",
+        "schedule": {
+            "schedule" : "Planifier",
+            "today" : "Aujourd'hui",
+            "tomorrow" : "Demain",
+            "later_this_week" : "Plus tard cette semaine",
+            "this_weekend" : "Ce week-end",
+            "next_week" : "La semaine prochaine",
+            "someday" : "Un jour",
+            "pick_date" : "Choisir la date"
+        },
         "reminder": "Rappel",
         "priorities": {
             "priority": "Priorité",
