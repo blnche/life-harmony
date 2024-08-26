@@ -1,6 +1,8 @@
 {
     "greet": "Welcome, ",
+    "name": "Name",
     "priority": "Priority",
+    "difficulty": "Difficulty",
     "high": "High",
     "medium": "Medium",
     "low": "Low",

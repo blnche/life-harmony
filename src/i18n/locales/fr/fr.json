@@ -1,6 +1,8 @@
 {
     "greet": "Bienvenue, ",
+    "name": "Titre",
     "priority": "Priorité",
+    "difficulty": "Difficulté",
     "high": "Haute",
     "medium": "Moyenne",
     "low": "Basse",

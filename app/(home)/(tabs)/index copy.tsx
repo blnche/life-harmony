@@ -76,95 +76,95 @@ export default function MainTabScreen() {
 
           const tasksToUpdate : Todo[] = []
           const rowsId : number[] = []
-
           
           for(const row of response.results) {
 
-            
-            
             // CHECK IF ALREADY IN APP DATABASE
             if(!row.properties.LH_id.number) {
-              console.log(`This row doesnt have an LH id : ${row.properties.Name.title[0].plain_text}`)
+              console.log(`This row doesnt have an LH id : ${row.properties[t('name')].title[0].plain_text}`)
               const pageId = row.id
               const properties = row.properties
               
+              const task : Partial<Todo> = {}
+              task.user_id = userProfile?.id
+
               // GET TITLE
               let title
-              properties.Name.title.map((item : any) => {
+
+              properties[t('name')].title.map((item : any) => {
                 title = item.plain_text
               }) 
+              task.task = title
+              console.log(title)
+
+              // GET STATUS
+              let status 
+                // if not do or due date status should be someday or backlog
+              if(properties[t('status')].status) {
+                status = properties[t('status')].status.name
+                task.status = status
+              }
 
               // GET DIFFICULTY LEVEL
-              const difficultyLevel = difficultyLevels.find((level) => {
-                if(!properties.Difficulty.select) {
-                  return 2
-                }
-                if(level.name.toUpperCase() === properties.Difficulty.select.name.toUpperCase()) {
-                  return level
-                }
-              }) ?.id
+              let difficultyLevel = 2
+
+              if(properties[t('difficulty')].select) {
+                const foundLevel = difficultyLevels.find((level) => {
+                  return level.name.toUpperCase() === properties[t('difficulty')].select.name.toUpperCase()
+                })
+                difficultyLevel = foundLevel?.id!
+              }
+              task.difficulty_level = difficultyLevel
+              console.log(difficultyLevel)
 
               // GET PRIORITY
-              const priority = response.results[0].properties[t('priority')].select.name
+              let priority = t('medium')
+
+              if(properties[t('priority')].select) {
+                priority = properties[t('priority')].select.name
+              }
+              task.priority = priority
               console.log(priority)
               
               // CHECK DO DATE
               let doDate
-              if(!properties.Do.date) {
-                doDate = null
-              } else {
-                if(properties.Do.date.start.length <= 10) {
-                  doDate = new Date(properties.Do.date.start)
+              
+              if(properties[t('do_date')].date) {
+                if(properties[t('do_date')].date.start.length <= 10) {
+                  doDate = new Date(properties[t('do_date')].date.start)
                 } else {
-                  doDate = properties.Do.date.start
+                  doDate = properties[t('do_date')].date.start
                 }
+                task.do_date = doDate
               }
+              console.log(doDate)
               
               // CHECK DUE DATE
               let dueDate
-              if(!properties.Due.date) {
-                dueDate = null
-              } else {
-                if(properties.Due.date.start.length <= 10) {
-                  dueDate = new Date(properties.Due.date.start)
+
+              if(properties[t('due_date')].date) {
+                if(properties[t('due_date')].date.start.length <= 10) {
+                  dueDate = new Date(properties[t('due_date')].date.start)
                 } else {
-                  dueDate = properties.Due.date.start
+                  dueDate = properties[t('due_date')].date.start
                 }
+                task.due_date = dueDate
               }
+              console.log(dueDate)
               
-              const task = {
-                difficulty_level: difficultyLevel,
-                do_date: doDate,
-                due_date: dueDate,
-                is_complete: properties.is_complete.checkbox,
-                profile_user_id: userProfile?.id,
-                task: title,
-                priority: priority
-              }
               console.log(task);
               
               // ADD TASK TO SUPABASE DB
               if(task) {
                 
-                (async (task : Todo) => {
+                (async (task : Partial<Todo>) => {
                   
                   const text = task.task?.trim()
                   
                   if(text?.length) {
                     const { data: todo, error } = await supabase
                     .from('todos')
-                    .insert([
-                      { 
-                        task : text, 
-                        profile_user_id : task.profile_user_id,
-                        difficulty_level : task.difficulty_level,
-                        do_date : task.do_date,
-                        due_date : task.due_date,
-                        is_complete : task.is_complete,
-                        priority : task.priority
-                        
-                      },
-                    ])
+                    .insert(task)
                     .select('*')
                     .single()
                     
@@ -192,7 +192,7 @@ export default function MainTabScreen() {
                   }
                 })(task);
                 
-              }
+              } 
             }
             else {
               // UPDATE TASK
