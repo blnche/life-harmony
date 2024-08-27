@@ -42,6 +42,7 @@
     "expo-web-browser": "~13.0.3",
     "i18next": "^23.11.5",
     "i18next-http-backend": "^2.5.2",
+    "i18next-icu": "^2.3.0",
     "i18next-react-native-async-storage": "^1.0.4",
     "intl-pluralrules": "^2.0.1",
     "nativewind": "^2.0.11",

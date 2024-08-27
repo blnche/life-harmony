@@ -16,6 +16,11 @@
     "done": "Done",
     "do_date": "Do Date",
     "due_date": "Due Date",
+    "due_in": "Due in",
+    "icu": "{numPersons, plural, =0 {no persons} =1 {one person} other {# persons}}",
+    "test": "{count, plural, one {You have 1 message.} other {You have # messages.}}",
+    "due_in_days": "{days, plural, =0 {Due today} =1 {Due tomorrow} other {Due in {days} days}}",
+    "due_in_month": "{months, plural, =0 {Due this month} =1 {Due next month} other {Due in {months} month}}",
     "changeLanguage": "Change Language",
     "homepage" : {
         "today": "Today",

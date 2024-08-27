@@ -2,21 +2,9 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import 'intl-pluralrules'
 import AsyncStoragePlugin from 'i18next-react-native-async-storage'
+import ICU from 'i18next-icu'
 
 import { en, fr } from './locales';
-
-// export const defaultNS = 'ns1';
-
-// i18next
-//   .use(initReactI18next)
-//   .init({
-//     debug: true,
-//     fallbackLng: 'en',
-//     defaultNS,
-//   });
-
-// export default i18next;
-
 
 const resources = {
   en: {
@@ -27,10 +15,10 @@ const resources = {
   }
 }
 
-
 i18next
   .use(initReactI18next)
   .use(AsyncStoragePlugin('en'))
+  .use(ICU)
   .init({
     debug: true,
     fallbackLng: 'en',

@@ -219,20 +219,24 @@ export default function Task ( task : Todo) {
     
     const RightActions = (progress, dragX) => {
         return (
-            <View style={styles.rightActionContainer}>
-                <View style={styles.rightAction}>
+            <View >
+                <View>
                     <Button 
                     color={'red'}
                     onPress={() => deleteButtonsAlert()}
                     title="Delete"
                     />
                 </View>
-                <View style={styles.rightAction}>
-                    <Text style={styles.actionText}>Action 2</Text>
+                <View>
+                    <Text>Action 2</Text>
                 </View>
             </View>
         );
     };
+
+    const dueTime = () => {
+        console.log(task.do_date)
+    }
 
     // POMO BOTTOM SHEET
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -279,6 +283,16 @@ export default function Task ( task : Todo) {
                                 <Text className="text-xs">{task.do_date}</Text>
                             }
                             <Text className="text-base w-[245]">{task.task}</Text>
+                            <Text className="text-base w-[245]">{t('due_in')}</Text>
+                            <Text className="text-base w-[245]">{t('test', { count: 9 })}</Text>
+                            <Text className="text-base w-[245]">{t('test', { count: 1 })}</Text>
+                            <Text className="text-base w-[245]">{t('icu', { numPersons: 500 })}</Text>
+                            <Text className="text-base w-[245]">{t('due_in_days', { days: 0 })}</Text>
+                            <Text className="text-base w-[245]">{t('due_in_days', { days: 1 })}</Text>
+                            <Text className="text-base w-[245]">{t('due_in_days', { days: 5 })}</Text>
+                            <Text className="text-base w-[245]">{t('due_in_month', { months: 0 })}</Text>
+                            <Text className="text-base w-[245]">{t('due_in_month', { months: 1 })}</Text>
+                            <Text className="text-base w-[245]">{t('due_in_month', { months: 2 })}</Text>
                         </View>
                     </View>
                     {task.status !== 'Done' && 
@@ -294,7 +308,7 @@ export default function Task ( task : Todo) {
                             snapPoints={snapPoints}
                             onChange={handleSheetChanges}
                             >
-                                <BottomSheetView style={styles.contentContainer}>
+                                <BottomSheetView>
                                     <Text>Pomodoro</Text>
                                 </BottomSheetView>
                             </BottomSheetModal>
@@ -306,76 +320,8 @@ export default function Task ( task : Todo) {
     };
 
     return (
-        <GestureHandlerRootView style={styles.container}>
+        <GestureHandlerRootView>
             <SwipeableRow />
         </GestureHandlerRootView>
     );
 };
-
-const styles = StyleSheet.create({
-    // container: {
-    //     width: 350
-    // },
-    // rightActionContainer: {
-    //     flexDirection: 'row',
-    //     marginLeft: 10,
-    // },
-    // rightAction: {
-    //     backgroundColor: 'lightblue',
-    //     borderRadius: 25,
-    //     marginHorizontal: 5,
-    //     marginBottom: 10,
-    //     paddingHorizontal: 10,
-    //     paddingVertical: 5,
-    //     shadowColor: '#000000',
-    //     shadowOpacity: 0.1,
-    //     shadowRadius: 3,
-    //     shadowOffset: {
-    //       width: 0,
-    //       height: 4,
-    //     },
-    //     justifyContent: 'center',
-    //     alignItems: 'center'
-    // },
-    // actionText: {
-    //     color: 'white',
-    //     fontWeight: 'bold',
-    //     fontSize: 16,
-    // },
-    // cardContainer: {
-    //     backgroundColor: '#FFFFFF',
-    //     borderRadius: 25,
-    //     padding: 15,
-    //     marginBottom: 10,
-    //     shadowColor: '#000000',
-    //     shadowOpacity: 0.1,
-    //     shadowRadius: 3,
-    //     shadowOffset: {
-    //       width: 0,
-    //       height: 4,
-    //     },
-    //     elevation: 3, // for Android
-    //     minHeight: 100,
-    //     flexDirection: 'row',
-    //     justifyContent:'space-between',
-    //     alignItems: 'center'
-    // },
-    // cardContent: {
-
-    // },
-    // title: {
-    //     fontSize: 18,
-    //     fontWeight: 'bold',
-    //     marginBottom: 5,
-    //     color: '#333333',
-    // },
-    // description: {
-    //     fontSize: 16,
-    //     color: '#666666',
-    // },
-    // dueDate: {
-    //     fontSize: 14,
-    //     marginTop: 10,
-    //     color: '#999999',
-    // },
-  });
