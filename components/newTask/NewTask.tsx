@@ -24,7 +24,7 @@ type Todo = Database['public']['Tables']['todos']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
 
 
-export default function NewTodo () {
+export default function NewTodo ({ onClose }) {
     // PROVIDERS
     const { userProfile } = useUserProfile()
     const { todos, setTodos } = useTasks()
@@ -35,8 +35,10 @@ export default function NewTodo () {
 
     const [newTodo, setNewTodo] = useState<Partial<Todo>>({
         difficulty_level: 2,
-        priority: 'medium',
-        time_block_id: '08b61182-86a9-4141-8ae3-69c0c3bff440'
+        priority: t('medium'),
+        time_block_id: '08b61182-86a9-4141-8ae3-69c0c3bff440',
+        user_id: userProfile?.id,
+        status: t('backlog')
     })
     const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
     const [difficutly, setDifficulty] = useState<number>(2)
@@ -68,21 +70,11 @@ export default function NewTodo () {
 
     const addTodo = async (task : Todo) => {
         const text = task.task?.trim()
-    
+        console.log(newTodo)
         if(text?.length) {
           const { data: todo, error } = await supabase
             .from('todos')
-            .insert([
-              { 
-                task : text, 
-                profile_user_id : userProfile!.id,
-                difficulty_level : task.difficulty_level,
-                do_date : task.do_date,
-                priority: task.priority,
-                time_block_id: task.time_block_id
-    
-              },
-            ])
+            .insert(newTodo)
             .select('*')
             .single()
     
@@ -93,89 +85,68 @@ export default function NewTodo () {
           else {
 
             setTodos(prevTodos => (prevTodos ? [...prevTodos, todo as Todo] : [todo as Todo]))
+            onClose() // Dismiss the bottom modal sheet
 
-            // add newTodo to NOTION TASK DB
-            // if(databaseId) {
-            //     (async () => {
-            //         console.log(todo)
-            //         const properties : {[key: string] : any} = {
-            //             'Name': {
-            //                 type: 'title',
-            //                 title: [
-            //                   {
-            //                     text: {
-            //                       content: todo.task!
-            //                     },
-            //                   }
-            //                 ],
-            //             },
-            //             'LH_id': {
-            //                 number: todo.id,
-            //             },
-            //             'is_complete': {
-            //                 checkbox : todo.is_complete
-            //             },
-            //             'Status': {
-            //                 status: {
-            //                     'name' : 'Not started'
-            //                 },
-            //             },
-            //             'Priority': {
-            //                 select:{
-            //                     'name' : 'Medium'
-            //                 }
-            //             }
-            //         }
+            // ADD TASK TO NOTION TASK DB
+            if(databaseId) {
+                (async () => {
+                    console.log(todo)
+
+                    const properties : {[key: string] : any} = {
+                        [t('name')]: {
+                            type: 'title',
+                            title: [
+                              {
+                                text: {
+                                  content: todo.task
+                                },
+                              }
+                            ],
+                        },
+                        'LH_id': {
+                            number: todo.id,
+                        },
+                        'is_complete': {
+                            checkbox : todo.is_complete
+                        },
+                        [t('status')]: {
+                            status: {
+                                'name' : todo.status
+                            },
+                        },
+                        [t('priority')]: {
+                            select:{
+                                'name' : todo.priority
+                            }
+                        }
+                    }
   
-            //         if(todo.do_date) {
-            //             properties['Do'] = {
-            //                 date: {
-            //                     'start' : todo.do_date!,
-            //                 },
-            //             }
-            //         }
+                    if(todo.do_date) {
+                        properties[t('do_date')] = {
+                            date: {
+                                'start' : todo.do_date!,
+                            },
+                        }
+                    }
 
-            //         if(todo.due_date) {
-            //             properties['Due'] = {
+                    if(todo.due_date) {
+                        properties[t('due_date')] = {
+                            date: {
+                                'start' : todo.due_date!,
+                            },
+                        }
+                    }
 
-            //                 date: {
-            //                     'start' : todo.due_date!,
-            //                 },
-            //             }
-            //         }
-
-            //         const response = await notion.pages.create({
-            //             parent: {
-            //                 type: 'database_id',
-            //                 database_id: databaseId,
-            //             },
-            //             properties: properties,
-            //         });
-            //         console.log(response);
-            //     })();
-            // }
-
-            // const pointsUpdated = todo.point_value * todo.difficulty_level
-            // const { data, error } = await supabase
-            // .from('todos')
-            // .update({ point_value : pointsUpdated})
-            // .eq('id', todo.id)
-            // .select('*')
-            // .single()
-            
-            // if (error) {
-            //   console.log(error)
-            // } else {
-            //   todo.point_value = pointsUpdated
-            // //   setTodos([todo!, ...todos])
-            //   setNewTodo(null)
-            //   setSelectedDifficulty(null)
-            //   if(showDatePicker === true) {
-
-            //     setShowDatePicker(!showDatePicker)
-            //   }
-    
-            // }
+                    const response = await notion.pages.create({
+                        parent: {
+                            type: 'database_id',
+                            database_id: databaseId,
+                        },
+                        properties: properties,
+                    });
+                    console.log(response);
+                })();
+            }
           }
         }
     }
@@ -321,19 +292,19 @@ export default function NewTodo () {
                         
                             <View className="mt-7 flex-row justify-center space-x-5  w-full">
                                 <Pressable 
-                                    onPress={() => handlePriority('low')}
+                                    onPress={() => handlePriority(t('low'))}
                                     className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                                 >
                                     <Text className='text-sm'>{t('newTask.priorities.low')}</Text>
                                 </Pressable>
                                 <Pressable 
-                                    onPress={() => handlePriority('medium')}
+                                    onPress={() => handlePriority(t('medium'))}
                                     className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'medium' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                                 >
                                     <Text className='text-sm'>{t('newTask.priorities.medium')}</Text>
                                 </Pressable>
                                 <Pressable 
-                                    onPress={() => handlePriority('high')}
+                                    onPress={() => handlePriority(t('high'))}
                                     className={`border py-5 px-3.5 rounded-[18px]  items-center w-24 ${priority === 'high' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                                 >
                                     <Text className='text-sm'>{t('newTask.priorities.high')}</Text>    

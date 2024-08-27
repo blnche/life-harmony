@@ -200,7 +200,9 @@ export default function MainTabScreen() {
     console.log('handleSheetChanges', index);
   }, []);
 
-  
+  const handleDismissModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.dismiss()
+  }, [])
 
   return (
     <>
@@ -285,7 +287,7 @@ export default function MainTabScreen() {
                 onChange={handleSheetChanges}
               >
                 <BottomSheetView style={styles.contentContainer}>
-                  <NewTodo/>
+                  <NewTodo onClose={handleDismissModalPress} />
                 </BottomSheetView>
               </BottomSheetModal>
           </BottomSheetModalProvider>
