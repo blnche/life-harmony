@@ -234,8 +234,31 @@ export default function Task ( task : Todo) {
         );
     };
 
+    // DUE DATES RENDERING
     const dueTime = () => {
-        console.log(task.do_date)
+        if(task.due_date) {
+            const dueDate = new Date(task.due_date)
+            const today = new Date()
+            const tomorrow = new Date()
+            tomorrow.setDate(today.getDate() + 1)
+            console.log(`due date : ${dueDate} | today : ${today} | tomorrow : ${tomorrow}`)
+
+            let dueMessage = ''
+            const diffTime = dueDate.getTime() - today.getTime()
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+            if(dueDate.toDateString() === today.toDateString()) {
+                return dueMessage = t('task.due_in_days', { days: 0 })
+            } else if (dueDate.toDateString() === tomorrow.toDateString()) {
+                return dueMessage = t('task.due_in_days', { days: 1 })
+            } else if (diffDays <= 30) {
+                return dueMessage = t('task.due_in_days', { days: diffDays })
+            } else {
+                const diffMonths = Math.ceil(diffDays / 30)
+                return dueMessage = t('due_in_months', { months: diffMonths })
+            }
+        } 
+        return null 
     }
 
     // POMO BOTTOM SHEET
@@ -279,20 +302,14 @@ export default function Task ( task : Todo) {
                             </Pressable>
                         }
                         <View className="ml-3">
-                            {task.do_date && 
+                            {/* {task.do_date && 
                                 <Text className="text-xs">{task.do_date}</Text>
+                            } */}
+                            {dueTime() && 
+                            
+                                <Text className="text-sm w-[245]">{dueTime()}</Text>
                             }
                             <Text className="text-base w-[245]">{task.task}</Text>
-                            <Text className="text-base w-[245]">{t('due_in')}</Text>
-                            <Text className="text-base w-[245]">{t('test', { count: 9 })}</Text>
-                            <Text className="text-base w-[245]">{t('test', { count: 1 })}</Text>
-                            <Text className="text-base w-[245]">{t('icu', { numPersons: 500 })}</Text>
-                            <Text className="text-base w-[245]">{t('due_in_days', { days: 0 })}</Text>
-                            <Text className="text-base w-[245]">{t('due_in_days', { days: 1 })}</Text>
-                            <Text className="text-base w-[245]">{t('due_in_days', { days: 5 })}</Text>
-                            <Text className="text-base w-[245]">{t('due_in_month', { months: 0 })}</Text>
-                            <Text className="text-base w-[245]">{t('due_in_month', { months: 1 })}</Text>
-                            <Text className="text-base w-[245]">{t('due_in_month', { months: 2 })}</Text>
                         </View>
                     </View>
                     {task.status !== 'Done' && 

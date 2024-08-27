@@ -315,32 +315,32 @@ export default function MainTabScreen() {
                   }
                   console.log('______________')
 
-                  // if(Object.keys(propertiesToUpdate).length !== 0) {
+                  if(Object.keys(propertiesToUpdate).length !== 0) {
 
-                  //   const updateDatabase = async () => {
-                  //     try {
-                  //       const response = await supabase  
-                  //       .from('todos')
-                  //       .update(propertiesToUpdate)
-                  //       .eq('id', task.id)
-                  //       .select('*')
-                  //       .single()
+                    const updateDatabase = async () => {
+                      try {
+                        const response = await supabase  
+                        .from('todos')
+                        .update(propertiesToUpdate)
+                        .eq('id', task.id)
+                        .select('*')
+                        .single()
 
-                  //       // console.log(response.data)
-                  //       console.log(`Row ${response.data?.task} was updated.`)
-                  //       for(const key in propertiesToUpdate) {
-                  //         console.log(`Updated ${key}`)
-                  //       }
-                  //       setTodos((todos ?? []).map(todo => (todo.id === task.id ? response.data as Todo : todo as Todo)))
-                  //     } catch (error) {
-                  //       console.log(error)
-                  //     }
-                  //   }
-                  //   updateDatabase()
+                        // console.log(response.data)
+                        console.log(`Row ${response.data?.task} was updated.`)
+                        for(const key in propertiesToUpdate) {
+                          console.log(`Updated ${key}`)
+                        }
+                        setTodos((todos ?? []).map(todo => (todo.id === task.id ? response.data as Todo : todo as Todo)))
+                      } catch (error) {
+                        console.log(error)
+                      }
+                    }
+                    updateDatabase()
                     
-                  // } else {
-                  //   console.log(`Error : no properties were found to update.`)
-                  // }
+                  } else {
+                    console.log(`Error : no properties were found to update.`)
+                  }
                 } else {
                   console.log('app is most recent')
                 }
