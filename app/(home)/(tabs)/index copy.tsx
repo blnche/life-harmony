@@ -84,18 +84,20 @@ export default function MainTabScreen() {
               console.log(`This row doesnt have an LH id : ${row.properties[t('name')].title[0].plain_text}`)
               const pageId = row.id
               const properties = row.properties
-              
+              console.log(properties[t('name')].title)
               const task : Partial<Todo> = {}
               task.user_id = userProfile?.id
 
               // GET TITLE
-              let title
+              let title = properties[t('name')].title[0].plain_text
 
-              properties[t('name')].title.map((item : any) => {
-                title = item.plain_text
-              }) 
+              // properties[t('name')].title.map((item : any) => {
+              //   // title = item.plain_text
+              //   console.log(item)
+              // }) 
               task.task = title
-              console.log(title)
+              console.log(`title 1: ${title}`)
+              console.log(`title 2: ${properties[t('name')].title[0].plain_text}`)
 
               // GET STATUS
               let status 
@@ -156,10 +158,10 @@ export default function MainTabScreen() {
               
               // ADD TASK TO SUPABASE DB
               if(task) {
-                
                 (async (task : Partial<Todo>) => {
                   
                   const text = task.task?.trim()
+                  console.log(`title problem : ${text} | ${task.task} `);
                   
                   if(text?.length) {
                     const { data: todo, error } = await supabase
@@ -192,7 +194,9 @@ export default function MainTabScreen() {
                   }
                 })(task);
                 
-              } 
+              } else {
+                console.log(`no task ?`)
+              }
             }
             else {
               // UPDATE TASK

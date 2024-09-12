@@ -243,7 +243,7 @@ export default function MainTabScreen() {
                     <Ionicons name="sparkles-outline" size={24} color="black" />
                   </View>
                 }
-              {overdueTasks?.length > 0 && 
+              {overdueTasks && overdueTasks?.length > 0 && 
                   <OverdueTaskList 
                     t={t} 
                     timeBlock={timeBlock}
@@ -252,7 +252,7 @@ export default function MainTabScreen() {
                     overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}/>
               }
 
-              {tasks?.length > 0 && 
+              {tasks && tasks?.length > 0 && 
                 <TaskList 
                   t={t}
                   timeBlock={timeBlock}
@@ -262,7 +262,7 @@ export default function MainTabScreen() {
                 />
               }
               
-              {completedTasks?.length > 0 &&
+              {completedTasks && completedTasks?.length > 0 &&
                 <CompletedTaskList 
                   t={t} 
                   timeBlock={timeBlock}
