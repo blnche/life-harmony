@@ -1,21 +1,33 @@
-import { View, Text } from "react-native"
+import { View, Text, Pressable } from "react-native"
 import EventsReminders from "./EventsReminders"
-import { Database } from '~/utils/supabase-types';
+import { Database } from '~/utils/supabase-types'
+import { useNavigation } from '@react-navigation/native';
+
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { Entypo } from '@expo/vector-icons';
 
 import * as Progress from 'react-native-progress'
+import { Link } from "expo-router";
 
 type Todo = Database['public']['Tables']['todos']['Row']
 
 
 
 const Header = ({ t, progress, tasksLeft } : {t: (key: string) => string, progress : Number, tasksLeft : Todo[] }) => {
+    const navigation = useNavigation();
 
     return (
         <View className="border-b pb-4 mb-[15px]">
             <View className="flex-row justify-between items-center mb-6">
+                <View className="absolute top-0 right-0 z-50">
+                    {/* <Link href="/all_todos" asChild>
+                        <Entypo name="archive" size={24} color="black" />
+                    </Link> */}
+                    <Pressable onPress={() => navigation.navigate('tasks_dashboards')}>
+                        <Entypo name="archive" size={24} color="black" />
+                    </Pressable>
+                </View>
                 <View className="w-52">
                     <View className="flex-row items-end">
                         <Text className="text-xl font-black mr-2">{t('homepage.today')}</Text>

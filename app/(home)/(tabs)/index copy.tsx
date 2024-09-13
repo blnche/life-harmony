@@ -96,8 +96,8 @@ export default function MainTabScreen() {
               //   console.log(item)
               // }) 
               task.task = title
-              console.log(`title 1: ${title}`)
-              console.log(`title 2: ${properties[t('name')].title[0].plain_text}`)
+              // console.log(`title 1: ${title}`)
+              // console.log(`title 2: ${properties[t('name')].title[0].plain_text}`)
 
               // GET STATUS
               let status 
