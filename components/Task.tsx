@@ -24,8 +24,7 @@ import { useCallback, useMemo, useRef } from "react";
 
 type Todo = Database['public']['Tables']['todos']['Row'];
 
-export default function Task ( task : Todo) {
-
+export default function Task ( {task, openModal} : {task : Todo, openModal: (task:Todo) => void}) {
     const {t} = useTranslation()
 
     // NOTIFICATIONS
@@ -267,7 +266,7 @@ export default function Task ( task : Todo) {
     const snapPoints = useMemo(() => ['50%', '93%'], []);
 
     const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
+        bottomSheetModalRef.current?.present();
     }, []);
 
     const handleSheetChanges = useCallback((index: number) => {
@@ -313,23 +312,24 @@ export default function Task ( task : Todo) {
                         </View>
                     </View>
                     {task.status !== 'Done' && 
-                        <BottomSheetModalProvider>
+                        // <BottomSheetModalProvider>
                             <Pressable
-                                onPress={handlePresentModalPress}                            
+                                // onPress={handlePresentModalPress}                            
+                                onPress={() => openModal(task)}                            
                             >
                                 <Entypo name="controller-play" size={24} color="black" />
                             </Pressable>
-                            <BottomSheetModal
-                            ref={bottomSheetModalRef}
-                            index={1}
-                            snapPoints={snapPoints}
-                            onChange={handleSheetChanges}
-                            >
-                                <BottomSheetView>
-                                    <Text>Pomodoro</Text>
-                                </BottomSheetView>
-                            </BottomSheetModal>
-                        </BottomSheetModalProvider>
+                        //     <BottomSheetModal
+                        //     ref={bottomSheetModalRef}
+                        //     index={1}
+                        //     snapPoints={snapPoints}
+                        //     onChange={handleSheetChanges}
+                        //     >
+                        //         <BottomSheetView>
+                        //             <Text>Pomodoro</Text>
+                        //         </BottomSheetView>
+                        //     </BottomSheetModal>
+                        // </BottomSheetModalProvider>
                     }
                 </View>
             </Swipeable>

@@ -12,11 +12,10 @@ interface TimeBlock {
     name: string;
 }
 
-const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key: string) => string, timeBlock : TimeBlock, tasksHigh : Todo[], tasksMedium : Todo[], tasksLow : Todo[] }) => {
+const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow, openModal } : {t: (key: string) => string, timeBlock : TimeBlock, tasksHigh : Todo[], tasksMedium : Todo[], tasksLow : Todo[], openModal: (task:Todo) => void }) => {
   
     // TOOLS  
     const posthog = usePostHog()
-
 
     if((tasksHigh.length + tasksMedium.length + tasksLow.length) === 0) {
         return (
@@ -34,7 +33,7 @@ const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key:
                     </View>
                     {tasksHigh.map((todo : Todo) => {
                             return (
-                                <Task key={todo.id} {...todo} />
+                                <Task key={todo.id} task={todo} openModal={openModal} />
                             )
                         
                     })}
@@ -47,7 +46,7 @@ const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key:
                     </View>
                     {tasksMedium.map((todo : Todo) => {
                             return (
-                                <Task key={todo.id} {...todo} />
+                                <Task key={todo.id} task={todo} openModal={openModal} />
                             )
                         
                     })}
@@ -60,7 +59,7 @@ const TaskList = ({ t, timeBlock, tasksHigh, tasksMedium, tasksLow } : {t: (key:
                     </View>
                     {tasksLow.map((todo : Todo) => {
                             return (
-                                <Task key={todo.id} {...todo} />
+                                <Task key={todo.id} task={todo} openModal={openModal}/>
                             )
                         
                     })}

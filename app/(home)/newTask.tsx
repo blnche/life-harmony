@@ -220,7 +220,7 @@ export default function NewTodo ({ onClose }) {
 
     return (
         <>
-        <Stack.Screen options={{ title: 'Create a new task'}}/>
+        <Stack.Screen />
         <ScrollView>
             <View className="p-[15px] h-full flex items-center bg-white">
                 <View className="w-full flex-row justify-between">

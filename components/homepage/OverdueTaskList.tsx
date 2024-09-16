@@ -14,7 +14,7 @@ interface TimeBlock {
     name: string;
 }
 
-const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, overdueTasksLow  } : {t: (key: string) => string, timeBlock : TimeBlock, overdueTasksHigh : Todo[], overdueTasksMedium : Todo[], overdueTasksLow : Todo[] }) => {
+const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, overdueTasksLow, openModal  } : {t: (key: string) => string, timeBlock : TimeBlock, overdueTasksHigh : Todo[], overdueTasksMedium : Todo[], overdueTasksLow : Todo[], openModal: (task:Todo) => void }) => {
     // TOOLS  
     const posthog = usePostHog()
     
@@ -50,7 +50,7 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
                                 </View>
                                 {overdueTasksHigh.map((todo : Todo) => {
                                         return (
-                                            <Task key={todo.id} {...todo} />
+                                            <Task key={todo.id} task={todo} openModal={openModal} />
                                         )
                                     
                                 })}
@@ -63,7 +63,7 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
                                 </View>
                                 {overdueTasksMedium.map((todo : Todo) => {
                                         return (
-                                            <Task key={todo.id} {...todo} />
+                                            <Task key={todo.id} task={todo} openModal={openModal} />
                                         )
                                     
                                 })}
@@ -76,7 +76,7 @@ const OverdueTaskList = ({ t, timeBlock, overdueTasksHigh, overdueTasksMedium, o
                                 </View>
                                 {overdueTasksLow.map((todo : Todo) => {
                                         return (
-                                            <Task key={todo.id} {...todo} />
+                                            <Task key={todo.id} task={todo} openModal={openModal} />
                                         )
                                     
                                 })}

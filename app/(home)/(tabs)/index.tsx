@@ -187,21 +187,30 @@ export default function MainTabScreen() {
     }
   }
   
-  // NEW TASK BOTTOM SHEET
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  // NEW TASK & VIEW TASK TIMER BOTTOM SHEET
+  const newTaskBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const viewTaskTimerBottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const snapPoints = useMemo(() => ['50%', '93%'], []);
+  const [selectedTask, setSelectedTask] = useState<Todo | null>(null)
 
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
+  const handlePresentNewTaskModalPress = useCallback(() => {
+    newTaskBottomSheetModalRef.current?.present();
+  }, []);
+  const handlePresentTaskTimerModalPress = useCallback((task : Todo) => {
+    setSelectedTask(task)
+    viewTaskTimerBottomSheetModalRef.current?.present();
   }, []);
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
 
-  const handleDismissModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.dismiss()
+  const handleDismissNewTaskModalPress = useCallback(() => {
+    newTaskBottomSheetModalRef.current?.dismiss()
+  }, [])
+  const handleDismissTaskTimerModalPress = useCallback(() => {
+    viewTaskTimerBottomSheetModalRef.current?.dismiss()
   }, [])
 
   return (
@@ -249,7 +258,9 @@ export default function MainTabScreen() {
                     timeBlock={timeBlock}
                     overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock)} 
                     overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock)} 
-                    overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}/>
+                    overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}
+                    openModal={handlePresentTaskTimerModalPress} 
+                  />
               }
 
               {tasks && tasks?.length > 0 && 
@@ -258,7 +269,8 @@ export default function MainTabScreen() {
                   timeBlock={timeBlock}
                   tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock)} 
                   tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock)} 
-                  tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock)} 
+                  tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock)}
+                  openModal={handlePresentTaskTimerModalPress} 
                 />
               }
               
@@ -270,31 +282,51 @@ export default function MainTabScreen() {
                 />
               }
 
-              </ScrollView>
+            </ScrollView>
           }
-        <BottomSheetModalProvider>
           <Pressable 
             className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm border'
-            onPress={handlePresentModalPress}
+            onPress={handlePresentNewTaskModalPress}
           >
             <Entypo name="plus" size={24} color="black" />
             <Text className='text-xl text-black ml-1.5'>New Task</Text>
           </Pressable>
-              <BottomSheetModal
-                ref={bottomSheetModalRef}
-                index={1}
-                snapPoints={snapPoints}
-                onChange={handleSheetChanges}
-              >
-                <BottomSheetView style={styles.contentContainer}>
-                  <NewTodo onClose={handleDismissModalPress} />
-                </BottomSheetView>
-              </BottomSheetModal>
+          <BottomSheetModalProvider>
+            <BottomSheetModal
+              ref={newTaskBottomSheetModalRef}
+              index={1}
+              snapPoints={snapPoints}
+              onChange={handleSheetChanges}
+            >
+              <BottomSheetView>
+                <NewTodo onClose={handleDismissNewTaskModalPress} />
+              </BottomSheetView>
+            </BottomSheetModal>
+
+            <BottomSheetModal
+              ref={viewTaskTimerBottomSheetModalRef}
+              index={1}
+              snapPoints={snapPoints}
+              onChange={handleSheetChanges}
+            >
+              <BottomSheetView>
+                {selectedTask ? (
+                  <View>
+                    <Text>{selectedTask.task}</Text>
+                    <Pressable 
+                      className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm border'
+                      onPress={handleDismissTaskTimerModalPress}
+                    >
+                      <Text className='text-xl text-black ml-1.5'>Close</Text>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <><Text>Loading...</Text></>
+                )}
+              </BottomSheetView>
+            </BottomSheetModal>
           </BottomSheetModalProvider>
       </SafeAreaView>
     </>
   );
 }
-const styles = StyleSheet.create({
-  
-});
