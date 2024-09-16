@@ -41,7 +41,7 @@
         }
     },
     "newTask": {
-        "new_task" : "Nouvelle Tâche",
+        "cancel" : "Cancel",
         "done": "Fait",
         "title_placeholder": "Titre...",
         "schedule": {

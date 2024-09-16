@@ -31,7 +31,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import OverdueTaskList from '~/components/homepage/OverdueTaskList';
 import CompletedTaskList from '~/components/homepage/CompletedTaskList';
 import TaskList from '~/components/homepage/TaskList';
-import NewTodo from '~/components/newTask/NewTask';
+import NewTodo from '~/app/(home)/newTask'
 import { supabase } from '~/utils/supabase';
 
 type Todo = Database['public']['Tables']['todos']['Row']

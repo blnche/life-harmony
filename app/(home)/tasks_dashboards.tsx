@@ -1,16 +1,18 @@
-import { View, Alert, Button, Text, TextInput, SafeAreaView, ScrollView } from 'react-native'
+import { View, Alert, Button, Text, TextInput, SafeAreaView, ScrollView, Pressable } from 'react-native'
 import { useTasks } from '~/providers/TasksProvider';
 import { usePostHog } from 'posthog-react-native';
 import { useTranslation } from "react-i18next";
 import { useCallback } from 'react'
-import { Stack } from 'expo-router';
+import { Stack, useNavigation } from 'expo-router';
 
 
-export default function ProfileScreen() {
+export default function TasksDashboards() {
 
     const { todos, setTodos } = useTasks()
     const posthog = usePostHog()
     const {t} = useTranslation()
+    const navigation = useNavigation();
+
 
     const filterTasksByStatus = useCallback((status : string) => {
         return todos?.filter(todo => {
@@ -86,42 +88,62 @@ export default function ProfileScreen() {
                 <ScrollView className='bg-white min-h-full'>
                     <Text>Total : {todos.length}</Text>
                     <View className='border flex-row flex-wrap items-center justify-center space-y-3 space-x-3'>
-                        <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total Someday :</Text>
+                    {[
+                                { label: t('someday'), status: t('someday') },
+                                { label: t('backlog'), status: t('backlog') },
+                                { label: t('in_progress'), status: t('in_progress') },
+                                { label: t('in_review'), status: t('in_review') },
+                                { label: t('waiting'), status: t('waiting') },
+                                { label: t('cancelled'), status: t('cancelled') },
+                                { label: t('done'), status: t('done') },
+                                { label: 'No status', status: '' },
+                                { label: 'Problem', status: 'problem' }
+                            ].map((item, index) => (
+                                <Pressable
+                                    key={index}
+                                    onPress={() => navigation.navigate('tasks_dashboards_child', { status: item.status })}
+                                    className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'
+                                >
+                                    <Text>{item.label}</Text>
+                                    <Text className='text-lg font-bold'>{filterTasksByStatus(item.status)?.length}</Text>
+                                </Pressable>
+                            ))}
+                        {/* <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
+                            <Text>Someday</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus(t('someday'))?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total Backlog :</Text>
+                            <Text>Backlog</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus(t('backlog'))?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total In progress :</Text>
+                            <Text>In progress</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus(t('in_progress'))?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total In review :</Text>
+                            <Text>In review</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus(t('in_review'))?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total Waiting :</Text>
+                            <Text>Waiting</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus(t('waiting'))?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total Cancelled :</Text>
+                            <Text>Cancelled</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus(t('cancelled'))?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total Done :</Text>
+                            <Text>Done</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus(t('done'))?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total No status :</Text>
+                            <Text>No status</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus('')?.length}</Text>
                         </View>
                         <View className='h-36 w-36 space-y-3 border rounded-[18px] justify-center items-center shadow-sm'>
-                            <Text>Total Problem :</Text>
+                            <Text>Problem</Text>
                             <Text className='text-lg font-bold'>{filterTasksByStatus('problem')?.length}</Text>
-                        </View>
+                        </View> */}
                     </View>
                 </ScrollView>
             </>
