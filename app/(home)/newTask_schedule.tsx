@@ -10,18 +10,27 @@ import { useTranslation } from "react-i18next";
 import { Stack } from "expo-router";
 import { Entypo } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
+import { useRoute } from '@react-navigation/native'
+
 
 export default function Schedule () {
 
     // TOOLS  
     const posthog = usePostHog()
     const {t} = useTranslation()
+    const route = useRoute()
+
+    const { dateData } = route.params || {}
+    console.log(dateData)
+
 
     // DATE TIME PICKER 
-    const [date, setDate] = useState(new Date(1598051730000));
-    const [mode, setMode] = useState('date');
-    const [show, setShow] = useState(false);
-    const [dateSelected, setDateSelected] = useState('today')
+    const [date, setDate] = useState(new Date());
+    date.setHours(0, 0, 0, 0)
+    const [dueDate, setDueDate] = useState(null);
+    // const [mode, setMode] = useState('date');
+    // const [show, setShow] = useState(false);
+    const [dateSelected, setDateSelected] = useState(null)
     const [dueDateSelected, setDueDateSelected] = useState(null)
     const [timeSelected, setTimeSelected] = useState(null)
 
@@ -32,31 +41,52 @@ export default function Schedule () {
     const onChange = (event, selectedDate) => {
         console.log(event._dispatchInstances?.memoizedProps?.testID)
         const id = event._dispatchInstances?.memoizedProps?.testID
-        const currentDate = selectedDate
+        console.log(selectedDate)
+
         if(id === 'datePicker') {
             setShowDatePicker(!showDatePicker)
+            setDateSelected(selectedDate)
+            setDate(selectedDate)
         } else if(id === 'timePicker') {
             setShowTimePicker(!showTimePicker)
+            setTimeSelected(selectedDate)
+            setDate(selectedDate)
         } else if(id === 'dueDatePicker') {
             setShowDueDatePicker(!showDueDatePicker)
+            setDueDateSelected(selectedDate)
+            setDueDate(selectedDate)
         }
         // setShow(false)
-        setDate(currentDate)
-        console.log(currentDate)
+        // setDate(currentDate)
+        // console.log(date)
+        // console.log(dueDate)
+        dateData(selectedDate)
     };
+
+    const handleDueDateCleared = () => {
+        setDueDate(null)
+        setShowDueDatePicker(!showDueDatePicker)
+    }
+    const handleTimeCleared = () => {
+        const dateRemovedTime = new Date(date)
+        dateRemovedTime.setHours(0, 0, 0, 0)
+        setDate(dateRemovedTime)
+        setShowTimePicker(!showTimePicker)
+        console.log(dateRemovedTime)
+    }
     
-    const showMode = (currentMode) => {
-        setShow(true);
-        setMode(currentMode);
-    };
+    // const showMode = (currentMode) => {
+    //     setShow(true);
+    //     setMode(currentMode);
+    // };
     
-    const showDatepicker = () => {
-        showMode('date');
-    };
+    // const showDatepicker = () => {
+    //     showMode('date');
+    // };
     
-      const showTimepicker = () => {
-        showMode('time');
-    };
+    //   const showTimepicker = () => {
+    //     showMode('time');
+    // };
 
     return (
         <>
@@ -142,7 +172,7 @@ export default function Schedule () {
                                         <MaterialCommunityIcons name="calendar-search" size={24} color="black" />                                        
                                         <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.pick_date')}</Text>
                                     </View>
-                                    <Text>Selected date rendered</Text>
+                                    <Text>{dateSelected ? dateSelected.toLocaleDateString() : ''}</Text>
                                 </View>
                                 {showDatePicker && 
                                     <>
@@ -193,13 +223,13 @@ export default function Schedule () {
                             <View className="flex-row justify-between">
                                 <Text className='text-base font-medium'>Time</Text>
                                 <View className="flex-row items-center">
-                                    <Text>{timeSelected ? timeSelected : 'None'}</Text>
+                                    <Text>{timeSelected ? timeSelected.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) : 'None'}</Text>
                                     <Entypo name={showTimePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                                 </View>
                             </View>
                             {showTimePicker && 
-                                <View className="items-center space-y-4 mt-2">
-                                    <View className="mr-3">
+                                <View className="items-center space-y-4 mt-2 ">
+                                    <View className=" mr-3">
                                         <DateTimePicker
                                             testID="timePicker"
                                             value={date}
@@ -210,8 +240,8 @@ export default function Schedule () {
                                     </View>
                                     {Platform.OS === 'ios' && 
                                         <Pressable
-                                            onPress={() => console.log(`time removed`)}
-                                            className="py-2 px-3 rounded-md"
+                                            onPress={handleTimeCleared}
+                                            className=" py-2 px-3 rounded-md"
                                         >
                                             <Entypo name='cross' size={24} color="red" />
                                         </Pressable>
@@ -226,7 +256,7 @@ export default function Schedule () {
                             <View className="flex-row justify-between">
                                 <Text className='text-base font-medium'>Due date</Text>
                                 <View className="flex-row items-center">
-                                    <Text>{dueDateSelected ? dueDateSelected : 'None'}</Text>
+                                    <Text>{dueDate ? dueDateSelected.toLocaleDateString() : 'None'}</Text>
                                     <Entypo name={showDueDatePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                                 </View>
                             </View>
@@ -235,7 +265,7 @@ export default function Schedule () {
                                     <View className="mr-3">
                                         <DateTimePicker
                                             testID="dueDatePicker"
-                                            value={date}
+                                            value={dueDate ? dueDate : date}
                                             mode='date'
                                             is24Hour={true}
                                             onChange={onChange}
@@ -243,7 +273,7 @@ export default function Schedule () {
                                     </View>
                                     {Platform.OS === 'ios' &&
                                         <Pressable
-                                            onPress={() => console.log(`time removed`)}
+                                            onPress={handleDueDateCleared}
                                             className="py-2 px-3 rounded-md"
                                         >
                                             <Entypo name='cross' size={24} color="red" />

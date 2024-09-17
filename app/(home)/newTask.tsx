@@ -74,7 +74,7 @@ export default function NewTodo ({ onClose }) {
 
     const addTodo = async (task : Todo) => {
         const text = task.task?.trim()
-        console.log(newTodo)
+        console.log(`addTodo log ${newTodo}`)
         if(text?.length) {
           const { data: todo, error } = await supabase
             .from('todos')
@@ -94,7 +94,7 @@ export default function NewTodo ({ onClose }) {
             // ADD TASK TO NOTION TASK DB
             if(databaseId) {
                 (async () => {
-                    console.log(todo)
+                    console.log(`addTodo if async ${todo}`)
 
                     const properties : {[key: string] : any} = {
                         [t('name')]: {
@@ -157,18 +157,20 @@ export default function NewTodo ({ onClose }) {
 
     const handleDate = ( receivedDate : any ) => {
         console.log(receivedDate)
-        if(receivedDate.date.length < 24) {
-            console.log('with time')
-            const [datePart, timePart] = receivedDate.date.split(" ")
-            console.log(datePart, timePart)
-            const localDate = new Date(`${datePart}T${timePart}:00`)
-            console.log(localDate.toISOString())
-            setNewTodo({...newTodo as Todo, do_date : localDate.toISOString()})
-        } else {
-            console.log('no time')
-            console.log(receivedDate.date)
-            setNewTodo({...newTodo as Todo, do_date : receivedDate.date})
-        }
+        setNewTodo({...newTodo as Todo, do_date : receivedDate})
+        console.log(`handleDate ${newTodo}`)
+        // if(receivedDate.date.length < 24) {
+        //     console.log('with time')
+        //     const [datePart, timePart] = receivedDate.date.split(" ")
+        //     console.log(datePart, timePart)
+        //     const localDate = new Date(`${datePart}T${timePart}:00`)
+        //     console.log(localDate.toISOString())
+        //     setNewTodo({...newTodo as Todo, do_date : localDate.toISOString()})
+        // } else {
+        //     console.log('no time')
+        //     console.log(receivedDate.date)
+        //     setNewTodo({...newTodo as Todo, do_date : receivedDate.date})
+        // }
     }
 
     const handleTimeBlock = (blockId : string) => {
@@ -213,7 +215,7 @@ export default function NewTodo ({ onClose }) {
     }
 
     const handleSubmit = () => {
-        console.log(newTodo)
+        console.log(`submit ${newTodo}`)
     }
 
     
@@ -249,7 +251,7 @@ export default function NewTodo ({ onClose }) {
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
                         <Pressable 
-                            onPress={() => navigation.navigate('newTask_schedule')}
+                            onPress={() => navigation.navigate('newTask_schedule', {dateData: handleDate})}
                             className='flex-row justify-between'
                         >
                             <View className="flex-row">
