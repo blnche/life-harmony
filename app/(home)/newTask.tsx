@@ -220,7 +220,7 @@ export default function NewTodo ({ onClose }) {
 
     return (
         <>
-        <Stack.Screen />
+        <Stack.Screen options={{}}/>
         <ScrollView>
             <View className="p-[15px] h-full flex items-center bg-white">
                 <View className="w-full flex-row justify-between">
@@ -302,8 +302,7 @@ export default function NewTodo ({ onClose }) {
                                 {priority &&
                                     <Text>{priority}</Text>
                                 }
-                            <Entypo name={priorityOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
-                                
+                                <Entypo name={priorityOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                             </View>
                         </Pressable>
                         {priorityOpen &&

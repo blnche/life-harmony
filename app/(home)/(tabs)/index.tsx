@@ -222,67 +222,69 @@ export default function MainTabScreen() {
         />
       <SafeAreaView className='p-[15px] h-full flex items-center bg-white'>
           <Header t={t} progress={tasksCompletionProgress()} tasksLeft={tasksLeft()}/>
-          <View className='flex-row justify-center space-x-4 mb-5'>
+          <View className='rounded-md bg-slate-100 p-1 flex-row justify-center space-x-4 mb-4'>
             <Pressable
               onPress={() => handleTimeBlock('Default', '08b61182-86a9-4141-8ae3-69c0c3bff440')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Default' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'} `}
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Default' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1] bg-white'} `}
             >
               <Text className={` ${timeBlock.name === 'Default' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.all_tasks')}</Text>
             </Pressable> 
             <Pressable
               onPress={() => handleTimeBlock('Morning', 'f53bbfa2-3fc8-4cb0-8d94-8a17330a969b')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Morning' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Morning' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1] bg-white'}`}
             >
               <Text className={` ${timeBlock.name === 'Morning' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.morning')}</Text>
             </Pressable> 
             <Pressable
               onPress={() => handleTimeBlock('Work', 'f0381068-50ee-4f3f-8763-bbf9e0cdd146')} 
-              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Work' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1]'}`}
+              className={`flex justify-center items-center w-[98] h-[30] rounded-md border ${timeBlock.name === 'Work' ? 'border-[#548164] bg-[#EEF3ED]' : 'border-[#CBD5E1] bg-white'}`}
             >
               <Text className={` ${timeBlock.name === 'Work' ? 'text-[#548164]' : ''}  text-xs`}>{t('homepage.tasks_container.tasks_selector.work')}</Text>
             </Pressable> 
           </View>
           {todos && 
-            <ScrollView className='w-full h-[365] '>
+            <View className='h-[365] w-full'>
+              <ScrollView>
 
-              {tasks?.length === 0 && overdueTasks?.length === 0 && 
-                  <View className='flex-row items-center justify-around w-6/12 my-10 mx-auto'>
-                    <Text className="text-black mt-3.5 ">{t('homepage.tasks_container.no_task_left')}</Text>
-                    {/* <Ionicons name="sparkles" size={24} color="black" /> */}
-                    <Ionicons name="sparkles-outline" size={24} color="black" />
-                  </View>
+                {tasks?.length === 0 && overdueTasks?.length === 0 && 
+                    <View className='flex-row items-center justify-around w-6/12 my-10 mx-auto'>
+                      <Text className="text-black mt-3.5 ">{t('homepage.tasks_container.no_task_left')}</Text>
+                      {/* <Ionicons name="sparkles" size={24} color="black" /> */}
+                      <Ionicons name="sparkles-outline" size={24} color="black" />
+                    </View>
+                  }
+                {overdueTasks && overdueTasks?.length > 0 && 
+                    <OverdueTaskList 
+                      t={t} 
+                      timeBlock={timeBlock}
+                      overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock)} 
+                      overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock)} 
+                      overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}
+                      openModal={handlePresentTaskTimerModalPress} 
+                    />
                 }
-              {overdueTasks && overdueTasks?.length > 0 && 
-                  <OverdueTaskList 
-                    t={t} 
+
+                {tasks && tasks?.length > 0 && 
+                  <TaskList 
+                    t={t}
                     timeBlock={timeBlock}
-                    overdueTasksHigh={filterTasksByStatusAndPriority('High', 'overdue', timeBlock)} 
-                    overdueTasksMedium={filterTasksByStatusAndPriority('Medium', 'overdue', timeBlock)} 
-                    overdueTasksLow={filterTasksByStatusAndPriority('Low', 'overdue', timeBlock)}
+                    tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock)} 
+                    tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock)} 
+                    tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock)}
                     openModal={handlePresentTaskTimerModalPress} 
                   />
-              }
+                }
+                
+                {completedTasks && completedTasks?.length > 0 &&
+                  <CompletedTaskList 
+                    t={t} 
+                    timeBlock={timeBlock}
+                    completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock)} 
+                  />
+                }
 
-              {tasks && tasks?.length > 0 && 
-                <TaskList 
-                  t={t}
-                  timeBlock={timeBlock}
-                  tasksHigh={filterTasksByStatusAndPriority('High', 'default', timeBlock)} 
-                  tasksMedium={filterTasksByStatusAndPriority('Medium', 'default', timeBlock)} 
-                  tasksLow={filterTasksByStatusAndPriority('Low', 'default', timeBlock)}
-                  openModal={handlePresentTaskTimerModalPress} 
-                />
-              }
-              
-              {completedTasks && completedTasks?.length > 0 &&
-                <CompletedTaskList 
-                  t={t} 
-                  timeBlock={timeBlock}
-                  completedTasks={filterTasksByStatusAndPriority('', 'completed', timeBlock)} 
-                />
-              }
-
-            </ScrollView>
+              </ScrollView>
+            </View>
           }
           <Pressable 
             className='mt-5 flex-row items-center justify-center w-[300] h-[55] rounded-[18px] bg-white shadow-sm border'

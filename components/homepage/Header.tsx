@@ -18,7 +18,7 @@ const Header = ({ t, progress, tasksLeft } : {t: (key: string) => string, progre
     const navigation = useNavigation();
 
     return (
-        <View className="border-b pb-4 mb-[15px]">
+        <View className="border-b pb-4 mb-3.5">
             <View className="flex-row justify-between items-center mb-6">
                 <View className="absolute top-0 right-0 z-50">
                     {/* <Link href="/all_todos" asChild>
