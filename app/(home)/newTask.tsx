@@ -3,6 +3,7 @@ import { Text, View, Button, TextInput, Pressable, SafeAreaView, ScrollView } fr
 import { Database } from "~/utils/supabase-types";
 import { supabase } from "~/utils/supabase";
 import { useUserProfile } from "~/providers/UserProfileProvider";
+import { NewTaskProvider, useNewTaskContext } from "~/providers/NewTaskProvider";
 import { useEffect, useState } from "react";
 import { notion } from '~/utils/notion';
 import { useNavigation } from '@react-navigation/native';
@@ -26,7 +27,7 @@ type Todo = Database['public']['Tables']['todos']['Row']
 type DifficultyLevel = Database['public']['Tables']['todo_difficulty_levels']['Row']
 
 
-export default function NewTodo ({ onClose }) {
+export default function NewTask ({ onClose }) {
     // PROVIDERS
     const { userProfile } = useUserProfile()
     const { todos, setTodos } = useTasks()
@@ -34,16 +35,17 @@ export default function NewTodo ({ onClose }) {
     // TOOLS  
     const posthog = usePostHog()
     const {t} = useTranslation()
-    const navigation = useNavigation();
+    const navigation = useNavigation()
+    const { newTodo } = useNewTaskContext()
 
-
-    const [newTodo, setNewTodo] = useState<Partial<Todo>>({
-        difficulty_level: 2,
-        priority: t('medium'),
-        time_block_id: '08b61182-86a9-4141-8ae3-69c0c3bff440',
-        user_id: userProfile?.id,
-        status: t('backlog')
-    })
+    console.log(newTodo)
+    // const [newTodo, setNewTodo] = useState<Partial<Todo>>({
+    //     difficulty_level: 2,
+    //     priority: t('medium'),
+    //     time_block_id: '08b61182-86a9-4141-8ae3-69c0c3bff440',
+    //     user_id: userProfile?.id,
+    //     status: t('backlog')
+    // })
     const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
     const [difficutly, setDifficulty] = useState<number>(2)
     const [selectedTimeBlock, setSelectedTimeBlock] = useState<string>('08b61182-86a9-4141-8ae3-69c0c3bff440')
@@ -251,7 +253,7 @@ export default function NewTodo ({ onClose }) {
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
                         <Pressable 
-                            onPress={() => navigation.navigate('newTask_schedule', {dateData: handleDate})}
+                            onPress={() => navigation.navigate('newTask_schedule')}
                             className='flex-row justify-between'
                         >
                             <View className="flex-row">

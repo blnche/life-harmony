@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AuthProvider from '~/providers/AuthProvider';
 import UserProfileProvider from '~/providers/UserProfileProvider';
 import TasksProvider from '~/providers/TasksProvider';
+import { NewTaskProvider } from "~/providers/NewTaskProvider";
 import * as Notifications from 'expo-notifications';
 import { PostHogProvider } from 'posthog-react-native'
 
@@ -53,9 +54,11 @@ export default function RootLayout() {
         <AuthProvider>
             <UserProfileProvider>
               <TasksProvider>
-                {/* <Theme name='light'> */}
-                  <Slot />
-                {/* </Theme> */}
+                <NewTaskProvider>
+                  {/* <Theme name='light'> */}
+                    <Slot />
+                  {/* </Theme> */}
+                </NewTaskProvider>
               </TasksProvider>
             </UserProfileProvider>
         </AuthProvider>

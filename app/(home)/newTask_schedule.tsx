@@ -12,6 +12,9 @@ import { Entypo } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
 import { useRoute } from '@react-navigation/native'
 
+import { useNewTaskContext } from "~/providers/NewTaskProvider";
+
+
 
 export default function Schedule () {
 
@@ -19,9 +22,9 @@ export default function Schedule () {
     const posthog = usePostHog()
     const {t} = useTranslation()
     const route = useRoute()
+    const { handleDate } = useNewTaskContext()
 
-    const { dateData } = route.params || {}
-    console.log(dateData)
+    // console.log(dateData)
 
 
     // DATE TIME PICKER 
@@ -60,7 +63,7 @@ export default function Schedule () {
         // setDate(currentDate)
         // console.log(date)
         // console.log(dueDate)
-        dateData(selectedDate)
+        handleDate(selectedDate)
     };
 
     const handleDueDateCleared = () => {
