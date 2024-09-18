@@ -63,9 +63,9 @@
             "medium" :"Medium",
             "high" :"High",
             "info" : {
-                "high" : "High: Critical tasks requiring immediate action.",
-                "medium" : "Medium: Important but not urgent tasks.",
-                "low" : "Low: Non-urgent tasks to be done later."
+                "high" : "High: Critical, requires immediate action.",
+                "medium" : "Medium: Important but not urgent.",
+                "low" : "Low: Non-urgent, can be done later."
             }
         },
         "difficulty_levels" : {

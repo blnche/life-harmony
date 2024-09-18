@@ -423,6 +423,7 @@ export default function MainTabScreen() {
     console.log(`Notion DB id : ${response.results[0].id}`);
 
     // console.log(TestPriority)
+    console.log(`test : ${JSON.stringify(response.results[0].properties[t('priority')])}`);
     console.log(`test : ${JSON.stringify(response.results[0].properties[t('priority')].select.options)}`);
     console.log(`test : ${JSON.stringify(response.results[0].properties[t('status')].status.options)}`);
     console.log(`test : ${JSON.stringify(response.results[0].properties[t('do_date')])}`);

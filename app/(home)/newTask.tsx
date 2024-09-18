@@ -36,7 +36,7 @@ export default function NewTask ({ onClose }) {
     const posthog = usePostHog()
     const {t} = useTranslation()
     const navigation = useNavigation()
-    const { newTodo } = useNewTaskContext()
+    const { newTodo, setNewTodo } = useNewTaskContext()
 
     console.log(newTodo)
     // const [newTodo, setNewTodo] = useState<Partial<Todo>>({
@@ -47,10 +47,7 @@ export default function NewTask ({ onClose }) {
     //     status: t('backlog')
     // })
     const [difficultyLevels, setDifficultyLevels] = useState<DifficultyLevel[]>([])
-    const [difficutly, setDifficulty] = useState<number>(2)
-    const [selectedTimeBlock, setSelectedTimeBlock] = useState<string>('08b61182-86a9-4141-8ae3-69c0c3bff440')
     
-    const [priority, setPriority] = useState("medium")
 
     const databaseId = process.env.EXPO_PUBLIC_NOTION_DB_ID
     console.log('id : '+databaseId)
@@ -157,6 +154,48 @@ export default function NewTask ({ onClose }) {
         }
     }
 
+    const handleSubmit = () => {
+        console.log(`submit ${newTodo}`)
+    }
+
+    // HANDLES PRESSED OPEN/CLOSE PROPERTIES
+    const [reminderOpen, setReminderOpen] = useState(false)
+    const [priorityOpen, setPriorityOpen] = useState(false)
+    const [prioritiesInfoOpen, setPrioritiesInfoOpen] = useState(false)
+    const [difficultyOpen, setDifficultyOpen] = useState(false)
+    const [timeBlockOpen, setTimeBlockOpen] = useState(false)
+
+    const handleReminderPressed = () => {
+        setReminderOpen(prevState => !prevState)
+    }
+    const handlePriorityPressed = () => {
+        setPriorityOpen(prevState => !prevState)
+    }
+    const handlePrioritiesInfoPressed = () => {
+        setPrioritiesInfoOpen(prevState => !prevState)
+    }
+    const handleDifficultyPressed = () => {
+        setDifficultyOpen(prevState => !prevState)
+    }
+    const handleTimeBlockPressed = () => {
+        setTimeBlockOpen(prevState => !prevState)
+    }
+
+    // HANDLES SELECTED VALUE FOR PROPERTIES
+    const [difficutly, setDifficulty] = useState<number>(2)
+    const [selectedTimeBlock, setSelectedTimeBlock] = useState<string>('08b61182-86a9-4141-8ae3-69c0c3bff440')
+    const [priority, setPriority] = useState("medium")
+
+    const handlePriority = (level : string) => {
+        setPriority(level)
+        setNewTodo({...newTodo as Todo, priority : level})
+
+    }
+    const handleDifficulty = (level : number) => {
+        setDifficulty(level)
+        setNewTodo({...newTodo as Todo, difficulty_level : level})
+    }
+
     const handleDate = ( receivedDate : any ) => {
         console.log(receivedDate)
         setNewTodo({...newTodo as Todo, do_date : receivedDate})
@@ -179,48 +218,6 @@ export default function NewTask ({ onClose }) {
         setSelectedTimeBlock(blockId)
         setNewTodo({...newTodo as Todo, time_block_id : blockId})
     }
-
-    const [scheduleOpen, setScheduleOpen] = useState(false)
-    const [reminderOpen, setReminderOpen] = useState(false)
-    const [priorityOpen, setPriorityOpen] = useState(false)
-    const [prioritiesInfoOpen, setPrioritiesInfoOpen] = useState(false)
-    const [difficultyOpen, setDifficultyOpen] = useState(false)
-    const [timeBlockOpen, setTimeBlockOpen] = useState(false)
-
-    const handleSchedulePressed = () => {
-        setScheduleOpen(prevState => !prevState)
-    }
-    const handleReminderPressed = () => {
-        setReminderOpen(prevState => !prevState)
-    }
-    const handlePriorityPressed = () => {
-        setPriorityOpen(prevState => !prevState)
-    }
-    const handlePrioritiesInfoPressed = () => {
-        setPrioritiesInfoOpen(prevState => !prevState)
-    }
-    const handleDifficultyPressed = () => {
-        setDifficultyOpen(prevState => !prevState)
-    }
-    const handleTimeBlockPressed = () => {
-        setTimeBlockOpen(prevState => !prevState)
-    }
-
-    const handlePriority = (level : string) => {
-        setPriority(level)
-        setNewTodo({...newTodo as Todo, priority : level})
-
-    }
-    const handleDifficulty = (level : number) => {
-        setDifficulty(level)
-        setNewTodo({...newTodo as Todo, difficulty_level : level})
-    }
-
-    const handleSubmit = () => {
-        console.log(`submit ${newTodo}`)
-    }
-
-    
 
     return (
         <>
@@ -262,19 +259,6 @@ export default function NewTask ({ onClose }) {
                             </View>
                             <Entypo name='chevron-right' size={24} color="black" />
                         </Pressable>
-                        {/* <Pressable 
-                            onPress={handleSchedulePressed}
-                            className='flex-row justify-between'
-                        >
-                            <View className="flex-row">
-                                <Ionicons name="calendar" size={24} color="black" />
-                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.schedule')}</Text>
-                            </View>
-                            <Entypo name={scheduleOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
-                        </Pressable>
-                        {scheduleOpen && 
-                            <Schedule />
-                        } */}
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
                         <Pressable 
@@ -303,8 +287,8 @@ export default function NewTask ({ onClose }) {
                                 <Text className='ml-3.5 text-base font-medium'>{t('newTask.priorities.priority')}</Text>
                             </View>
                             <View className="flex-row items-center">
-                                {priority &&
-                                    <Text>{priority}</Text>
+                                {newTodo.priority &&
+                                    <Text>{newTodo.priority}</Text>
                                 }
                                 <Entypo name={priorityOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                             </View>
@@ -338,7 +322,7 @@ export default function NewTask ({ onClose }) {
                         >
                             <Ionicons name="information-circle-outline" size={24} color="black"/>
                             {prioritiesInfoOpen && 
-                                <View className=" mt-2.5 w-4/5 self-center">
+                                <View className="mt-2.5 w-5/6 self-center">
                                     <Text className="text-sm">{t('newTask.priorities.info.high')}</Text>
                                     <Text className="text-sm">{t('newTask.priorities.info.medium')}</Text>
                                     <Text className="text-sm">{t('newTask.priorities.info.low')}</Text>
@@ -356,7 +340,12 @@ export default function NewTask ({ onClose }) {
                                 <Ionicons name="warning" size={24} color="black" />
                                 <Text className='ml-3.5 text-base font-medium'>{t('newTask.difficulty_levels.difficulty')}</Text>
                             </View>
-                            <Entypo name={difficultyOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                            <View className="flex-row items-center">
+                                {newTodo.difficulty_level &&
+                                    <Text>{newTodo.difficulty_level}</Text>
+                                }
+                                <Entypo name={difficultyOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                            </View>
                         </Pressable>
                         {difficultyOpen && 
                             <View className="mt-7 flex-row flex-wrap justify-center  space-y-5 items-center mx-auto">

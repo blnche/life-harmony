@@ -13,7 +13,7 @@ export const NewTaskProvider = ({ children }) => {
 
     const [newTodo, setNewTodo] = useState<Partial<Todo>>({
         do_date: null,
-        difficulty_level: 2,
+        difficulty_level: t('newTask.difficulty_levels.medium'),
         priority: t('medium'),
         time_block_id: '08b61182-86a9-4141-8ae3-69c0c3bff440',
         user_id: userProfile?.id,
@@ -28,7 +28,7 @@ export const NewTaskProvider = ({ children }) => {
     }
 
     return (
-        <NewTaskContext.Provider value={{newTodo, handleDate}}>
+        <NewTaskContext.Provider value={{newTodo, setNewTodo, handleDate}}>
             {children}
         </NewTaskContext.Provider>
     )

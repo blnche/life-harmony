@@ -61,9 +61,9 @@
             "medium": "Moyenne",
             "high": "Haute",
             "info": {
-                "high": "Élevé : Tâches critiques nécessitant une action immédiate.",
-                "medium": "Moyenne : Tâches importantes mais non urgentes.",
-                "low": "Faible : Tâches non urgentes à réaliser plus tard."
+                "high": "Élevée: Critique, action immédiate requise.",
+                "medium": "Moyenne: Importante mais non urgente.",
+                "low": "Faible: Non urgente à réaliser plus tard."
             }
         },
         "difficulty_levels": {
