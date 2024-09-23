@@ -20,15 +20,18 @@ export const NewTaskProvider = ({ children }) => {
         status: t('backlog')
     })
 
-    const handleDate = (selectedDate) => {
-        setNewTodo(prevTodo => ({
-            ...prevTodo,
-            do_date: selectedDate.toISOString()
-        }))
+    const handleDoDate = (selectedDate : Date | null) => {
+        if( selectedDate !== null) {
+
+            setNewTodo(prevTodo => ({
+                ...prevTodo,
+                do_date: selectedDate.toISOString()
+            }))
+        }
     }
 
     return (
-        <NewTaskContext.Provider value={{newTodo, setNewTodo, handleDate}}>
+        <NewTaskContext.Provider value={{newTodo, setNewTodo, handleDoDate}}>
             {children}
         </NewTaskContext.Provider>
     )

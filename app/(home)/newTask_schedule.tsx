@@ -22,24 +22,40 @@ export default function Schedule () {
     const posthog = usePostHog()
     const {t} = useTranslation()
     const route = useRoute()
-    const { handleDate } = useNewTaskContext()
+    const { newTodo, handleDoDate } = useNewTaskContext()
 
-    // console.log(dateData)
+    const checkNewTodoDates = (newTodo) => {
+        const isDoDateSet = newTodo.do_date && new Date(newTodo.do_date).getTime() > 0
+        const hasTimeSet = isDoDateSet && new Date(newTodo.do_date).getHours() !== 0
 
+        const isDueDateSet = newTodo.due_date && new Date(newTodo.due_date).getTime() > 0
+
+        return {
+            isDoDateSet,
+            hasTimeSet,
+            isDueDateSet
+        }
+
+    }
+
+    const dateChecks = checkNewTodoDates(newTodo)
+    console.log(dateChecks)
+    console.log(checkNewTodoDates(newTodo))
 
     // DATE TIME PICKER 
     const [date, setDate] = useState(new Date());
-    date.setHours(0, 0, 0, 0)
+    // date.setHours(0, 0, 0, 0)
     const [dueDate, setDueDate] = useState(null);
     // const [mode, setMode] = useState('date');
     // const [show, setShow] = useState(false);
-    const [dateSelected, setDateSelected] = useState(null)
+    const [doDateSelected, setDoDateSelected] = useState(null)
     const [dueDateSelected, setDueDateSelected] = useState(null)
     const [timeSelected, setTimeSelected] = useState(null)
 
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [showTimePicker, setShowTimePicker] = useState(false)
     const [showDueDatePicker, setShowDueDatePicker] = useState(false)
+    const [dateSelected, setDateSelected] = useState<string | null>('today')
     
     const onChange = (event, selectedDate) => {
         console.log(event._dispatchInstances?.memoizedProps?.testID)
@@ -48,7 +64,7 @@ export default function Schedule () {
 
         if(id === 'datePicker') {
             setShowDatePicker(!showDatePicker)
-            setDateSelected(selectedDate)
+            setDoDateSelected(selectedDate)
             setDate(selectedDate)
         } else if(id === 'timePicker') {
             setShowTimePicker(!showTimePicker)
@@ -59,11 +75,21 @@ export default function Schedule () {
             setDueDateSelected(selectedDate)
             setDueDate(selectedDate)
         }
+        setDateSelected('customDate')
+        console.log(selectedDate.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'long', 
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false, 
+        }))
         // setShow(false)
         // setDate(currentDate)
         // console.log(date)
         // console.log(dueDate)
-        handleDate(selectedDate)
+        handleDoDate(selectedDate)
     };
 
     const handleDueDateCleared = () => {
@@ -76,6 +102,57 @@ export default function Schedule () {
         setDate(dateRemovedTime)
         setShowTimePicker(!showTimePicker)
         console.log(dateRemovedTime)
+    }
+
+    const renderPrefinedDates = (when : string) => {
+        const options = {
+            weekday: 'short',
+            day: '2-digit'
+        }
+        // if(when === t('newTask.schedule.today')) {
+        //     return new Date().toLocaleDateString(undefined, {day: '2-digit'})
+        // } else 
+        if(when === t('newTask.schedule.tomorrow')) {
+            const tomorrow = new Date()
+            tomorrow.setDate(tomorrow.getDate() + 1)
+            tomorrow.setHours(0, 0, 0, 0)
+
+            return {date : tomorrow, string : tomorrow.toLocaleDateString(undefined, options)}
+        } 
+        else if (when === t('newTask.schedule.later_this_week')) {
+            const laterThisWeek = new Date()
+            const daysUntilFriday = (5 - laterThisWeek.getDay() + 7) % 7
+
+            laterThisWeek.setDate(laterThisWeek.getDate() + daysUntilFriday)
+            laterThisWeek.setHours(0, 0, 0, 0)
+
+            return {date : laterThisWeek, string : laterThisWeek.toLocaleDateString(undefined, options)}
+        } 
+        else if (when === t('newTask.schedule.this_weekend')) {
+            const thisWeekend = new Date()
+            const daysUntiSaturday = (6 - thisWeekend.getDay() + 7) % 7
+
+            thisWeekend.setDate(thisWeekend.getDate() + daysUntiSaturday)
+            thisWeekend.setHours(0, 0, 0, 0)
+
+            return {date : thisWeekend, string :thisWeekend.toLocaleDateString(undefined, options)}
+        } 
+        else if (when === t('newTask.schedule.next_week')) {
+            const nextWeek = new Date()
+            let daysUntilNextMonday = (1 - nextWeek.getDay() + 7) % 7
+
+            if (daysUntilNextMonday === 0) {
+                daysUntilNextMonday = 7
+            }
+
+            nextWeek.setDate(nextWeek.getDate() + daysUntilNextMonday)
+            nextWeek.setHours(0, 0, 0, 0)
+
+            return {date : nextWeek, string : nextWeek.toLocaleDateString(undefined, options)}
+        }
+
+        // return { date: new Date(), string: new Date().toLocaleDateString(undefined, options) };
+
     }
     
     // const showMode = (currentMode) => {
@@ -108,58 +185,82 @@ export default function Schedule () {
                         
                         <View className="max-w-[360] rounded-[18px] mt-3.5 mb-5 p-3 bg-white shadow-sm border">
                             <Pressable 
-                                onPress={() => console.log('today')}
+                                onPress={() => {
+                                    handleDoDate(new Date())
+                                    setDateSelected('today')
+                                    setDate(new Date())
+                                    date.setHours(0, 0, 0, 0)
+                                }}
                                 className={`py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'today' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className=" flex-row items-center justify-center">
                                     <Ionicons name="sunny" size={24} color="black" />
                                     <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.today')}</Text>
                                 </View>
-                                <Text>Mon 9</Text>
+                                {/* <Text>{renderPrefinedDates(t('newTask.schedule.today'))}</Text> */}
                             </Pressable>
                             <Pressable 
-                                onPress={() => console.log('today')}
-                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full ${dateSelected === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                onPress={() => {
+                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.tomorrow'))?.date)
+                                    setDateSelected('tomorrow')
+                                    setDate(renderPrefinedDates(t('newTask.schedule.tomorrow'))?.date)
+                                }}
+                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'tomorrow' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className=" flex-row items-center">
                                     <MaterialCommunityIcons name="arrow-collapse-right" size={20} color="black" />
                                     <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.tomorrow')}</Text>
                                 </View>
-                                <Text>Tue 10</Text>
+                                <Text>{renderPrefinedDates(t('newTask.schedule.tomorrow'))?.string}</Text>
                             </Pressable>
                             <Pressable 
-                                onPress={() => console.log('today')}
-                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full ${dateSelected === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                onPress={() => {
+                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.later_this_week'))?.date)
+                                    setDateSelected('laterThisWeek')
+                                    setDate(renderPrefinedDates(t('newTask.schedule.later_this_week'))?.date)
+                                }}
+                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'laterThisWeek' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className=" flex-row items-center">
                                     <MaterialCommunityIcons name="chevron-double-right" size={24} color="black" />
                                     <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.later_this_week')}</Text>
                                 </View>
-                                <Text>Fri 13</Text>
+                                <Text>{renderPrefinedDates(t('newTask.schedule.later_this_week'))?.string}</Text>
                             </Pressable>
                             <Pressable 
-                                onPress={() => console.log('today')}
-                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full ${dateSelected === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                onPress={() => {
+                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.this_weekend'))?.date)
+                                    setDateSelected('thisWeekend')
+                                    setDate(renderPrefinedDates(t('newTask.schedule.this_weekend'))?.date)
+                                }}
+                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'thisWeekend' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className=" flex-row items-center">
                                     <FontAwesome5 name="couch" size={20} color="black" />
                                     <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.this_weekend')}</Text>
                                 </View>
-                                <Text>Sat 14</Text>
+                                <Text>{renderPrefinedDates(t('newTask.schedule.this_weekend'))?.string}</Text>
                             </Pressable>
                             <Pressable 
-                                onPress={() => console.log('today')}
-                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full ${dateSelected === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                onPress={() => {
+                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.next_week'))?.date)
+                                    setDateSelected('nextWeek')
+                                    setDate(renderPrefinedDates(t('newTask.schedule.next_week'))?.date)
+                                }}
+                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'nextWeek' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className=" flex-row items-center">
                                     <MaterialCommunityIcons name="calendar-end" size={24} color="black" />
                                     <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.next_week')}</Text>
                                 </View>
-                                <Text>Mon 16</Text>
+                                <Text>{renderPrefinedDates(t('newTask.schedule.next_week'))?.string}</Text>
                             </Pressable>
                             <Pressable 
-                                onPress={() => console.log('today')}
-                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full ${dateSelected === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                onPress={() => {
+                                    handleDoDate(null)
+                                    setDateSelected('someday')
+                                }}
+                                className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'someday' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className=" flex-row items-center">
                                     <MaterialCommunityIcons name="calendar-question" size={24} color="black" />
@@ -168,14 +269,14 @@ export default function Schedule () {
                             </Pressable>
                             <Pressable 
                                 onPress={() => setShowDatePicker(!showDatePicker)}
-                                className={` py-1 px-2.5 ${dateSelected === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                className={` py-1 px-2.5 w-full rounded-lg ${dateSelected === 'customDate' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
-                                <View className="flex-row justify-between items-center w-full">
-                                    <View className=" flex-row items-center">
+                                <View className="flex-row justify-between items-center ">
+                                    <View className="flex-row items-center">
                                         <MaterialCommunityIcons name="calendar-search" size={24} color="black" />                                        
                                         <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.pick_date')}</Text>
                                     </View>
-                                    <Text>{dateSelected ? dateSelected.toLocaleDateString() : ''}</Text>
+                                    <Text>{doDateSelected ? doDateSelected.toLocaleDateString(undefined, {day: '2-digit', weekday: 'short', month: 'short'}) : ''}</Text>
                                 </View>
                                 {showDatePicker && 
                                     <>
@@ -190,33 +291,6 @@ export default function Schedule () {
                                         </View>
                                     </>
                                 }
-                                {showDatePicker && (
-                                    <>
-                                        {/* <Button 
-                                            onPress={() => setShowTimePicker(!showTimePicker)}
-                                            title="Pick a time"  
-                                        />
-                                        <DateTimePicker 
-                                            mode='single'
-                                            date={newTodo?.do_date}
-                                            timePicker={showTimePicker}
-                                            onChange={(params) => handleDate(params)}
-                                        /> */}
-                                        {/* <Button onPress={showDatepicker} title="Show date picker!" />
-                                        <Button onPress={showTimepicker} title="Show time picker!" />
-                                        <Text>selected: {date.toLocaleString()}</Text>
-                                        {show && (
-
-                                        <DateTimePicker
-                                            testID="dateTimePicker"
-                                            value={date}
-                                            mode={mode}
-                                            is24Hour={true}
-                                            onChange={onChange}
-                                        />
-                                        )} */}
-                                    </>
-                                )}
                             </Pressable>
                         </View>
                         <Pressable 

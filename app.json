@@ -17,7 +17,8 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.id"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

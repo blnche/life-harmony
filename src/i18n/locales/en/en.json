@@ -56,7 +56,15 @@
             "someday" : "Someday",
             "pick_date" : "Pick a date"
         },
-        "reminder" : "Reminder",
+        "reminder" : {
+            "reminder" : "Reminder",
+            "on_time_day" : "On time/day",
+            "none" : "None",
+            "hours" : "hours before",
+            "minutes" : "minutes before",
+            "days" : "days before",
+            "weeks" : "weeks before"
+        },
         "priorities" : {
             "priority" :"Priority",
             "low" :"Low",

@@ -54,7 +54,15 @@
             "someday" : "Un jour",
             "pick_date" : "Choisir la date"
         },
-        "reminder": "Rappel",
+        "reminder" : {
+            "reminder" : "Rappel",
+            "on_time_day" : "À l'heure/le jour même",
+            "none" : "None",
+            "hours" : "heures avant",
+            "minutes" : "minutes avant",
+            "days" : "jours avant",
+            "weeks" : "semaines avant"
+        },
         "priorities": {
             "priority": "Priorité",
             "low": "Faible",

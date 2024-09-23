@@ -38,6 +38,7 @@ export default function NewTask ({ onClose }) {
     const navigation = useNavigation()
     const { newTodo, setNewTodo } = useNewTaskContext()
 
+    console.log('-------------')
     console.log(newTodo)
     // const [newTodo, setNewTodo] = useState<Partial<Todo>>({
     //     difficulty_level: 2,
@@ -185,34 +186,43 @@ export default function NewTask ({ onClose }) {
     const [difficutly, setDifficulty] = useState<number>(2)
     const [selectedTimeBlock, setSelectedTimeBlock] = useState<string>('08b61182-86a9-4141-8ae3-69c0c3bff440')
     const [priority, setPriority] = useState("medium")
+    const [reminder, setReminder] = useState({
+        when: null,
+        number: null,
+        date: null
+    })
 
-    const handlePriority = (level : string) => {
+    const handleReminder = (when: string, number: string | undefined ) => {
+        console.log(when, number)
+    }
+
+    const handlePriority = ( level : string ) => {
         setPriority(level)
         setNewTodo({...newTodo as Todo, priority : level})
 
     }
-    const handleDifficulty = (level : number) => {
+    const handleDifficulty = ( level : number ) => {
         setDifficulty(level)
         setNewTodo({...newTodo as Todo, difficulty_level : level})
     }
 
-    const handleDate = ( receivedDate : any ) => {
-        console.log(receivedDate)
-        setNewTodo({...newTodo as Todo, do_date : receivedDate})
-        console.log(`handleDate ${newTodo}`)
-        // if(receivedDate.date.length < 24) {
-        //     console.log('with time')
-        //     const [datePart, timePart] = receivedDate.date.split(" ")
-        //     console.log(datePart, timePart)
-        //     const localDate = new Date(`${datePart}T${timePart}:00`)
-        //     console.log(localDate.toISOString())
-        //     setNewTodo({...newTodo as Todo, do_date : localDate.toISOString()})
-        // } else {
-        //     console.log('no time')
-        //     console.log(receivedDate.date)
-        //     setNewTodo({...newTodo as Todo, do_date : receivedDate.date})
-        // }
-    }
+    // const handleDate = ( receivedDate : any ) => {
+    //     console.log(receivedDate)
+    //     setNewTodo({...newTodo as Todo, do_date : receivedDate})
+    //     console.log(`handleDate ${newTodo}`)
+    //     if(receivedDate.date.length < 24) {
+    //         console.log('with time')
+    //         const [datePart, timePart] = receivedDate.date.split(" ")
+    //         console.log(datePart, timePart)
+    //         const localDate = new Date(`${datePart}T${timePart}:00`)
+    //         console.log(localDate.toISOString())
+    //         setNewTodo({...newTodo as Todo, do_date : localDate.toISOString()})
+    //     } else {
+    //         console.log('no time')
+    //         console.log(receivedDate.date)
+    //         setNewTodo({...newTodo as Todo, do_date : receivedDate.date})
+    //     }
+    // }
 
     const handleTimeBlock = (blockId : string) => {
         setSelectedTimeBlock(blockId)
@@ -257,7 +267,10 @@ export default function NewTask ({ onClose }) {
                                 <Ionicons name="calendar" size={24} color="black" />
                                 <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.schedule')}</Text>
                             </View>
-                            <Entypo name='chevron-right' size={24} color="black" />
+                            <View className="flex-row items-center">
+                                <Text>{newTodo.do_date ? 'Set' : 'None'}</Text>
+                                <Entypo name={'chevron-right'} size={24} color="black" />
+                            </View>
                         </Pressable>
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
@@ -267,13 +280,123 @@ export default function NewTask ({ onClose }) {
                         >
                             <View className="flex-row">
                                 <Ionicons name="alarm" size={24} color="black" />
-                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.reminder')}</Text>
+                                <Text className='ml-3.5 text-base font-medium'>{t('newTask.reminder.reminder')}</Text>
                             </View>
-                            <Entypo name={reminderOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                            <View className="flex-row items-center">
+                                <Text>{reminder ? 'Set' : 'None'}</Text>
+                                <Entypo name={reminderOpen ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                            </View>
                         </Pressable>
                         {reminderOpen && 
-                        <View>
-                            <Text>I'm open</Text>
+                        <View className="space-y-3 mt-3">
+                            <Pressable
+                                onPress={() => setReminder(null)}
+                            >
+                                <Text>{t('newTask.reminder.none')}</Text>  
+                            </Pressable>
+                            <Pressable
+                                onPress={() => handleReminder('onTimeDay', '')}
+                            >
+                                <Text>{t('newTask.reminder.on_time_day')}</Text>  
+                            </Pressable>
+                            <View className="flex-row items-center">
+                                <View className="flex-row space-x-3">
+                                    <Pressable 
+                                        onPress={() => handleReminder('hours', '1')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>1</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('hours', '2')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>2</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('hours', '3')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>3</Text>
+                                    </Pressable>
+                                </View>
+                                <Text className="ml-3">{t('newTask.reminder.hours')}</Text>  
+                            </View>
+                            <View className="flex-row items-center">
+                                <View className="flex-row space-x-3">
+                                    <Pressable 
+                                        onPress={() => handleReminder('minutes', '5')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>5</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('minutes', '10')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>10</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('minutes', '15')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>15</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('minutes', '30')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>30</Text>
+                                    </Pressable>
+                                </View>
+                                <Text className="ml-3">{t('newTask.reminder.minutes')}</Text>  
+                            </View>
+                            <View className="flex-row items-center">
+                                <View className="flex-row space-x-3">
+                                    <Pressable 
+                                        onPress={() => handleReminder('days', '1')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>1</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('days', '2')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>2</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('days', '3')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>3</Text>
+                                    </Pressable>
+                                </View>
+                                <Text className="ml-3">{t('newTask.reminder.days')}</Text>  
+                            </View>
+                            <View className="flex-row items-center">
+                                <View className="flex-row space-x-3">
+                                    <Pressable 
+                                        onPress={() => handleReminder('weeks', '1')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${priority === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>1</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('weeks', '2')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${priority === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>2</Text>
+                                    </Pressable>
+                                    <Pressable 
+                                        onPress={() => handleReminder('weeks', '3')}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${priority === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                    >
+                                        <Text className='text-sm'>3</Text>
+                                    </Pressable>
+                                </View>
+                                <Text className="ml-3">{t('newTask.reminder.weeks')}</Text>  
+                            </View>
                         </View>
                     }
                     </View>
