@@ -35,9 +35,24 @@ export const NewTaskProvider = ({ children }) => {
             }))
         }
     }
+    const handleDueDate = (selectedDate : Date | null) => {
+        if(selectedDate !== null) {
+
+            setNewTodo(prevTodo => ({
+                ...prevTodo,
+                due_date: selectedDate.toISOString()
+            }))
+        } else {
+
+            setNewTodo(prevTodo => ({
+                ...prevTodo,
+                due_date: null
+            }))
+        }
+    }
 
     return (
-        <NewTaskContext.Provider value={{newTodo, setNewTodo, handleDoDate}}>
+        <NewTaskContext.Provider value={{newTodo, setNewTodo, handleDoDate, handleDueDate}}>
             {children}
         </NewTaskContext.Provider>
     )

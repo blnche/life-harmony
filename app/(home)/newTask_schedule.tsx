@@ -22,22 +22,24 @@ export default function Schedule () {
     const posthog = usePostHog()
     const {t} = useTranslation()
     const route = useRoute()
-    const { newTodo, handleDoDate } = useNewTaskContext()
+    const { newTodo, handleDoDate, handleDueDate } = useNewTaskContext()
 
     // DATE TIME PICKER 
     const [date, setDate] = useState(new Date())
     // date.setHours(0, 0, 0, 0)
-    const [dueDate, setDueDate] = useState(null)
+    const [dueDate, setDueDate] = useState<Date | null>()
     // const [mode, setMode] = useState('date');
     // const [show, setShow] = useState(false);
-    const [doDateSelected, setDoDateSelected] = useState(null)
-    const [dueDateSelected, setDueDateSelected] = useState(null)
-    const [timeSelected, setTimeSelected] = useState<Date | null>(null)
+    const [doDateSelected, setDoDateSelected] = useState<Date | null>(null)
+    const [dueDateSelected, setDueDateSelected] = useState<Date | null>(null)
+    const [doDateTimeSelected, setDoDateTimeSelected] = useState<Date | null>(null)
+    const [dueDateTimeSelected, setDueDateTimeSelected] = useState<Date | null>(null)
+    const [dateSelected, setDateSelected] = useState<string | null>(null)
     
     const [showDatePicker, setShowDatePicker] = useState(false)
-    const [showTimePicker, setShowTimePicker] = useState(false)
+    const [showDoDateTimePicker, setShowDoDateTimePicker] = useState(false)
     const [showDueDatePicker, setShowDueDatePicker] = useState(false)
-    const [dateSelected, setDateSelected] = useState<string | null>('today')
+    const [showDueDateTimePicker, setShowDueDateTimePicker] = useState(false)
     
     const checkNewTodoDates = (newTodo) => {
         const isDoDateSet = newTodo.do_date && new Date(newTodo.do_date).getTime() > 0
@@ -75,14 +77,30 @@ export default function Schedule () {
                             if(daysFromToday > 0) {
                                 setDateSelected('nextWeek')
                             }
+                        } else {
+                            setDoDateSelected(newDate)
+                            setDateSelected('custom')
                         }
                     }
                 }
 
                 if(doDateHasTimeSet) {
-                    setTimeSelected(newDate)
+                    setDoDateTimeSelected(newDate)
                 }
             }
+        } 
+        if(isDueDateSet) {
+            const newDate = new Date(newTodo.due_date)
+
+            if(!dueDate) {
+
+                setDueDateSelected(newDate)
+                setDueDate(newDate)
+
+                if(dueDateHasTimeSet) {
+                    setDueDateTimeSelected(newDate)
+                }
+            } 
         } 
     }
 
@@ -98,14 +116,22 @@ export default function Schedule () {
             setDoDateSelected(selectedDate)
             setDate(selectedDate)
             setDateSelected('customDate')
-        } else if(id === 'timePicker') {
-            setShowTimePicker(!showTimePicker)
-            setTimeSelected(selectedDate)
+            handleDoDate(selectedDate)
+        } else if(id === 'doDateTimePicker') {
+            setShowDoDateTimePicker(!showDoDateTimePicker)
+            setDoDateTimeSelected(selectedDate)
             setDate(selectedDate)
+            handleDoDate(selectedDate)
+        } else if(id === 'dueDateTimePicker') {
+            setShowDueDateTimePicker(!showDueDateTimePicker)
+            setDueDateTimeSelected(selectedDate)
+            setDueDate(selectedDate)
+            handleDueDate(selectedDate)
         } else if(id === 'dueDatePicker') {
             setShowDueDatePicker(!showDueDatePicker)
             setDueDateSelected(selectedDate)
             setDueDate(selectedDate)
+            handleDueDate(selectedDate)
         }
         console.log(selectedDate.toLocaleDateString(undefined, {
             year: 'numeric',
@@ -120,12 +146,12 @@ export default function Schedule () {
         // setDate(currentDate)
         // console.log(date)
         // console.log(dueDate)
-        handleDoDate(selectedDate)
     }
 
     const handleDueDateCleared = () => {
         setDueDate(null)
         setShowDueDatePicker(!showDueDatePicker)
+        handleDueDate(null)
     }
 
     const handleTimeCleared = () => {
@@ -133,8 +159,9 @@ export default function Schedule () {
         dateRemovedTime.setHours(0, 0, 0, 0)
         setDate(dateRemovedTime)
         setShowTimePicker(!showTimePicker)
-        setTimeSelected(null)
-        console.log(dateRemovedTime)
+        setdoDateTimeSelected(null)
+        handleDoDate(dateRemovedTime)
+        // console.log(dateRemovedTime)
     }
 
     const renderPrefinedDates = (when : string) => {
@@ -308,7 +335,7 @@ export default function Schedule () {
                             </Pressable>
                             <Pressable 
                                 onPress={() => setShowDatePicker(!showDatePicker)}
-                                className={` py-1 px-2.5 w-full rounded-lg ${dateSelected === 'customDate' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                className={` py-1 px-2.5 w-full rounded-lg ${dateSelected === 'custom' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className="flex-row justify-between items-center ">
                                     <View className="flex-row items-center">
@@ -333,21 +360,21 @@ export default function Schedule () {
                             </Pressable>
                         </View>
                         <Pressable 
-                            onPress={() => setShowTimePicker(!showTimePicker)}
+                            onPress={() => setShowDoDateTimePicker(!showDoDateTimePicker)}
                             className='w-[360] rounded-[18px] mt-3.5 mb-5 py-3 px-5 bg-white shadow-sm border'
                         >
                             <View className="flex-row justify-between">
                                 <Text className='text-base font-medium'>Time</Text>
                                 <View className="flex-row items-center">
-                                    <Text>{timeSelected ? timeSelected.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) : 'None'}</Text>
-                                    <Entypo name={showTimePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
+                                    <Text>{doDateTimeSelected ? doDateTimeSelected.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) : 'None'}</Text>
+                                    <Entypo name={showDoDateTimePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                                 </View>
                             </View>
-                            {showTimePicker && 
+                            {showDoDateTimePicker && 
                                 <View className="items-center space-y-4 mt-2 ">
                                     <View className=" mr-3">
                                         <DateTimePicker
-                                            testID="timePicker"
+                                            testID="doDateTimePicker"
                                             value={date}
                                             mode='time'
                                             is24Hour={true}
@@ -391,6 +418,23 @@ export default function Schedule () {
                                         <Pressable
                                             onPress={handleDueDateCleared}
                                             className="py-2 px-3 rounded-md"
+                                        >
+                                            <Entypo name='cross' size={24} color="red" />
+                                        </Pressable>
+                                    }
+                                    <View className=" mr-3">
+                                        <DateTimePicker
+                                            testID="dueDateTimePicker"
+                                            value={dueDate}
+                                            mode='time'
+                                            is24Hour={true}
+                                            onChange={onChange}
+                                        />
+                                    </View>
+                                    {Platform.OS === 'ios' && 
+                                        <Pressable
+                                            onPress={handleTimeCleared}
+                                            className=" py-2 px-3 rounded-md"
                                         >
                                             <Entypo name='cross' size={24} color="red" />
                                         </Pressable>
