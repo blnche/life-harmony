@@ -89,7 +89,8 @@
             "all": "All",
             "morning":"Morning",
             "work": "Work"
-        }
+        },
+        "validate": "Add"
     },
     "task": {
         "due_in_days": "{days, plural, =0 {Due today} =1 {Due tomorrow} other {Due in {days} days}}",

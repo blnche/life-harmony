@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePostHog } from "posthog-react-native";
 import { useTranslation } from "react-i18next";
 import { Stack } from "expo-router";
@@ -24,39 +24,70 @@ export default function Schedule () {
     const route = useRoute()
     const { newTodo, handleDoDate } = useNewTaskContext()
 
-    const checkNewTodoDates = (newTodo) => {
-        const isDoDateSet = newTodo.do_date && new Date(newTodo.do_date).getTime() > 0
-        const hasTimeSet = isDoDateSet && new Date(newTodo.do_date).getHours() !== 0
-
-        const isDueDateSet = newTodo.due_date && new Date(newTodo.due_date).getTime() > 0
-
-        return {
-            isDoDateSet,
-            hasTimeSet,
-            isDueDateSet
-        }
-
-    }
-
-    const dateChecks = checkNewTodoDates(newTodo)
-    console.log(dateChecks)
-    console.log(checkNewTodoDates(newTodo))
-
     // DATE TIME PICKER 
-    const [date, setDate] = useState(new Date());
+    const [date, setDate] = useState(new Date())
     // date.setHours(0, 0, 0, 0)
-    const [dueDate, setDueDate] = useState(null);
+    const [dueDate, setDueDate] = useState(null)
     // const [mode, setMode] = useState('date');
     // const [show, setShow] = useState(false);
     const [doDateSelected, setDoDateSelected] = useState(null)
     const [dueDateSelected, setDueDateSelected] = useState(null)
-    const [timeSelected, setTimeSelected] = useState(null)
-
+    const [timeSelected, setTimeSelected] = useState<Date | null>(null)
+    
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [showTimePicker, setShowTimePicker] = useState(false)
     const [showDueDatePicker, setShowDueDatePicker] = useState(false)
     const [dateSelected, setDateSelected] = useState<string | null>('today')
     
+    const checkNewTodoDates = (newTodo) => {
+        const isDoDateSet = newTodo.do_date && new Date(newTodo.do_date).getTime() > 0
+        const doDateHasTimeSet = isDoDateSet && new Date(newTodo.do_date).getHours() !== 0
+        
+        const isDueDateSet = newTodo.due_date && new Date(newTodo.due_date).getTime() > 0
+        const dueDateHasTimeSet = isDueDateSet && new Date(newTodo.due_date).getHours() !== 0
+
+        if(isDoDateSet) {
+            const newDate = new Date(newTodo.do_date)
+
+            if(newDate.getTime() !== date.getTime()){
+                setDate(newDate)
+
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+
+                if(newDate.toDateString() === today.toDateString()) {
+                    setDateSelected('today')
+                } else {
+                    const tomorrow = new Date(today)
+                    tomorrow.setDate(today.getDate() + 1)
+
+                    if(newDate.toDateString() === tomorrow.toDateString()) {
+                        setDateSelected('tomorrow')
+                    } else {
+                        const dayOfWeek = newDate.getDay()
+
+                        if(dayOfWeek === 5) {
+                            setDateSelected('laterThisWeek')
+                        } else if (dayOfWeek === 6) {
+                            setDateSelected('thisWeekend')
+                        } else if (dayOfWeek === 1) {
+                            const daysFromToday = (newDate - today) / (1000 * 60 * 60 * 24)
+                            if(daysFromToday > 0) {
+                                setDateSelected('nextWeek')
+                            }
+                        }
+                    }
+                }
+
+                if(doDateHasTimeSet) {
+                    setTimeSelected(newDate)
+                }
+            }
+        } 
+    }
+
+    checkNewTodoDates(newTodo) 
+ 
     const onChange = (event, selectedDate) => {
         console.log(event._dispatchInstances?.memoizedProps?.testID)
         const id = event._dispatchInstances?.memoizedProps?.testID
@@ -66,6 +97,7 @@ export default function Schedule () {
             setShowDatePicker(!showDatePicker)
             setDoDateSelected(selectedDate)
             setDate(selectedDate)
+            setDateSelected('customDate')
         } else if(id === 'timePicker') {
             setShowTimePicker(!showTimePicker)
             setTimeSelected(selectedDate)
@@ -75,7 +107,6 @@ export default function Schedule () {
             setDueDateSelected(selectedDate)
             setDueDate(selectedDate)
         }
-        setDateSelected('customDate')
         console.log(selectedDate.toLocaleDateString(undefined, {
             year: 'numeric',
             month: 'long', 
@@ -90,17 +121,19 @@ export default function Schedule () {
         // console.log(date)
         // console.log(dueDate)
         handleDoDate(selectedDate)
-    };
+    }
 
     const handleDueDateCleared = () => {
         setDueDate(null)
         setShowDueDatePicker(!showDueDatePicker)
     }
+
     const handleTimeCleared = () => {
         const dateRemovedTime = new Date(date)
         dateRemovedTime.setHours(0, 0, 0, 0)
         setDate(dateRemovedTime)
         setShowTimePicker(!showTimePicker)
+        setTimeSelected(null)
         console.log(dateRemovedTime)
     }
 
@@ -204,6 +237,7 @@ export default function Schedule () {
                                     handleDoDate(renderPrefinedDates(t('newTask.schedule.tomorrow'))?.date)
                                     setDateSelected('tomorrow')
                                     setDate(renderPrefinedDates(t('newTask.schedule.tomorrow'))?.date)
+                                    date.setHours(0, 0, 0, 0)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'tomorrow' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -218,6 +252,7 @@ export default function Schedule () {
                                     handleDoDate(renderPrefinedDates(t('newTask.schedule.later_this_week'))?.date)
                                     setDateSelected('laterThisWeek')
                                     setDate(renderPrefinedDates(t('newTask.schedule.later_this_week'))?.date)
+                                    date.setHours(0, 0, 0, 0)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'laterThisWeek' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -232,6 +267,7 @@ export default function Schedule () {
                                     handleDoDate(renderPrefinedDates(t('newTask.schedule.this_weekend'))?.date)
                                     setDateSelected('thisWeekend')
                                     setDate(renderPrefinedDates(t('newTask.schedule.this_weekend'))?.date)
+                                    date.setHours(0, 0, 0, 0)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'thisWeekend' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -246,6 +282,7 @@ export default function Schedule () {
                                     handleDoDate(renderPrefinedDates(t('newTask.schedule.next_week'))?.date)
                                     setDateSelected('nextWeek')
                                     setDate(renderPrefinedDates(t('newTask.schedule.next_week'))?.date)
+                                    date.setHours(0, 0, 0, 0)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'nextWeek' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -259,6 +296,8 @@ export default function Schedule () {
                                 onPress={() => {
                                     handleDoDate(null)
                                     setDateSelected('someday')
+                                    setDate(new Date())
+                                    date.setHours(0, 0, 0, 0)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'someday' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >

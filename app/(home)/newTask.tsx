@@ -162,7 +162,6 @@ export default function NewTask ({ onClose }) {
     // HANDLES PRESSED OPEN/CLOSE PROPERTIES
     const [reminderOpen, setReminderOpen] = useState(false)
     const [priorityOpen, setPriorityOpen] = useState(false)
-    const [prioritiesInfoOpen, setPrioritiesInfoOpen] = useState(false)
     const [difficultyOpen, setDifficultyOpen] = useState(false)
     const [timeBlockOpen, setTimeBlockOpen] = useState(false)
 
@@ -171,9 +170,6 @@ export default function NewTask ({ onClose }) {
     }
     const handlePriorityPressed = () => {
         setPriorityOpen(prevState => !prevState)
-    }
-    const handlePrioritiesInfoPressed = () => {
-        setPrioritiesInfoOpen(prevState => !prevState)
     }
     const handleDifficultyPressed = () => {
         setDifficultyOpen(prevState => !prevState)
@@ -199,30 +195,12 @@ export default function NewTask ({ onClose }) {
     const handlePriority = ( level : string ) => {
         setPriority(level)
         setNewTodo({...newTodo as Todo, priority : level})
-
     }
+    
     const handleDifficulty = ( level : number ) => {
         setDifficulty(level)
         setNewTodo({...newTodo as Todo, difficulty_level : level})
     }
-
-    // const handleDate = ( receivedDate : any ) => {
-    //     console.log(receivedDate)
-    //     setNewTodo({...newTodo as Todo, do_date : receivedDate})
-    //     console.log(`handleDate ${newTodo}`)
-    //     if(receivedDate.date.length < 24) {
-    //         console.log('with time')
-    //         const [datePart, timePart] = receivedDate.date.split(" ")
-    //         console.log(datePart, timePart)
-    //         const localDate = new Date(`${datePart}T${timePart}:00`)
-    //         console.log(localDate.toISOString())
-    //         setNewTodo({...newTodo as Todo, do_date : localDate.toISOString()})
-    //     } else {
-    //         console.log('no time')
-    //         console.log(receivedDate.date)
-    //         setNewTodo({...newTodo as Todo, do_date : receivedDate.date})
-    //     }
-    // }
 
     const handleTimeBlock = (blockId : string) => {
         setSelectedTimeBlock(blockId)
@@ -290,7 +268,11 @@ export default function NewTask ({ onClose }) {
                         {reminderOpen && 
                         <View className="space-y-3 mt-3">
                             <Pressable
-                                onPress={() => setReminder(null)}
+                                onPress={() => setReminder({
+                                    when: null,
+                                    number: null,
+                                    date: null
+                                })}
                             >
                                 <Text>{t('newTask.reminder.none')}</Text>  
                             </Pressable>
@@ -303,19 +285,19 @@ export default function NewTask ({ onClose }) {
                                 <View className="flex-row space-x-3">
                                     <Pressable 
                                         onPress={() => handleReminder('hours', '1')}
-                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'hours-1' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                                     >
                                         <Text className='text-sm'>1</Text>
                                     </Pressable>
                                     <Pressable 
                                         onPress={() => handleReminder('hours', '2')}
-                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'hours-2' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                                     >
                                         <Text className='text-sm'>2</Text>
                                     </Pressable>
                                     <Pressable 
                                         onPress={() => handleReminder('hours', '3')}
-                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'low' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                        className={`border px-3 py-3.5 rounded-xl items-center w-9 ${reminder === 'hours-3' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                                     >
                                         <Text className='text-sm'>3</Text>
                                     </Pressable>
@@ -439,20 +421,14 @@ export default function NewTask ({ onClose }) {
                                 </Pressable>
                             </View>
                         }
-                        <Pressable 
-                            onPress={handlePrioritiesInfoPressed}
-                            className=" items-start mt-6"
-                        >
+                        <View className=" items-start mt-6 flex-row">
                             <Ionicons name="information-circle-outline" size={24} color="black"/>
-                            {prioritiesInfoOpen && 
-                                <View className="mt-2.5 w-5/6 self-center">
-                                    <Text className="text-sm">{t('newTask.priorities.info.high')}</Text>
-                                    <Text className="text-sm">{t('newTask.priorities.info.medium')}</Text>
-                                    <Text className="text-sm">{t('newTask.priorities.info.low')}</Text>
-                                </View>
-                            }
-                            
-                        </Pressable>
+                            <View className="ml-2.5 w-5/6 self-center">
+                                <Text className="text-sm">{t('newTask.priorities.info.high')}</Text>
+                                <Text className="text-sm">{t('newTask.priorities.info.medium')}</Text>
+                                <Text className="text-sm">{t('newTask.priorities.info.low')}</Text>
+                            </View>
+                        </View>
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
                         <Pressable 
@@ -476,7 +452,7 @@ export default function NewTask ({ onClose }) {
                                     onPress={() => handleDifficulty(1)}
                                     className={`border py-5 px-3.5 rounded-[18px] items-center w-2/5 mr-5 ${difficutly === 1 ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                                     >
-                                    <Text className='text-sm	'>{t('newTask.difficulty_levels.easy')}</Text>
+                                    <Text className='text-sm'>{t('newTask.difficulty_levels.easy')}</Text>
                                 </Pressable>
                                 <Pressable 
                                     onPress={() => handleDifficulty(2)}
@@ -498,9 +474,9 @@ export default function NewTask ({ onClose }) {
                                 </Pressable>
                             </View>
                         }
-                        <View className=" flex-row items-center justify-start mt-6">
+                        <View className=" flex-row items-start justify-start mt-6">
                             <Ionicons name="information-circle-outline" size={24} color="black"  />
-                            <Text className="ml-2.5">{t("newTask.difficulty_levels.info")}</Text>
+                            <Text className="text-sm ml-2.5">{t("newTask.difficulty_levels.info")}</Text>
                         </View>
                     </View>
                     <View className=" border px-5 py-3.5 rounded-[18px] min-h-16">
@@ -538,34 +514,12 @@ export default function NewTask ({ onClose }) {
                         }
                     </View>
                 </View>
-            
-
-                    {/* <Button 
-                        onPress={() => setShowDatePicker(!showDatePicker)}
-                        title="Pick a date"
-                    />
-                         */}
-                    {/* {showDatePicker && (
-                        <>
-                            <Button 
-                                onPress={() => setShowTimePicker(!showTimePicker)}
-                                title="Pick a time"  
-                            />
-                            <DateTimePicker 
-                                mode='single'
-                                date={newTodo?.do_date}
-                                timePicker={showTimePicker}
-                                onChange={(params) => handleDate(params)}
-                            />
-                        </>
-                    )} */}
-                
-                
-                
-                <Button  
-                onPress={() => addTodo(newTodo!)} 
-                title="Validate"
-                />
+                <Pressable  
+                    onPress={() => addTodo(newTodo!)} 
+                    className='mt-6 border px-5 py-3.5 rounded-[18px] min-h-16'
+                >
+                    <Text className="text-base">{t('newTask.validate')}</Text>
+                </Pressable>
             </View>
         </ScrollView>
         </>

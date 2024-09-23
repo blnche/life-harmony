@@ -87,6 +87,7 @@
             "all": "Tous",
             "morning": "Matin",
             "work": "Travail"
-        }
+        },
+        "validate": "Ajouter"
     }
 }

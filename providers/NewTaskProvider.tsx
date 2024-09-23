@@ -21,11 +21,17 @@ export const NewTaskProvider = ({ children }) => {
     })
 
     const handleDoDate = (selectedDate : Date | null) => {
-        if( selectedDate !== null) {
+        if(selectedDate !== null) {
 
             setNewTodo(prevTodo => ({
                 ...prevTodo,
                 do_date: selectedDate.toISOString()
+            }))
+        } else {
+
+            setNewTodo(prevTodo => ({
+                ...prevTodo,
+                do_date: null
             }))
         }
     }
