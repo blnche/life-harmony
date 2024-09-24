@@ -115,16 +115,17 @@ export default function Schedule () {
         if(isDueDateSet) {
             const newDate = new Date(newTodo.due_date)
 
-            if(!dueDate) {
+            if(newDate.toDateString() !== dueDate?.toDateString()){
                 console.log('Setting Due Date Selected:', newDate);
-                setDueDateSelected(newDate)
                 setDueDate(newDate)
-
+                
+                setDueDateSelected(newDate)
+    
                 if(dueDateHasTimeSet) {                
                     console.log('Setting Due Date Time Selected:', newDate);
                     setDueDateTimeSelected(newDate)
                 }
-            } 
+            }
         } 
         console.log(`_________________`)
     }
@@ -145,7 +146,7 @@ export default function Schedule () {
             id = android
             
             if(event.type === 'neutralButtonPressed' && id === 'doDateTimePicker') {
-                handleTimeCleared()
+                handleTimeCleared() // not working
             }
         }
         console.log(id)
@@ -161,12 +162,14 @@ export default function Schedule () {
             setDoDateTimeSelected(selectedDate)
             setDate(selectedDate)
             handleDoDate(selectedDate)
-        } else if(id === 'dueDateTimePicker') {
-            setShowDueDatePicker(false)
-            setDueDateTimeSelected(selectedDate)
+            if(!dueDate) {
+                setDueDateSelected(selectedDate)
+            }
+        } else if(id === 'dueDatePicker') {
             setDueDate(selectedDate)
             handleDueDate(selectedDate)
-        } else if(id === 'dueDatePicker') {
+        } else if(id === 'dueDateTimePicker') {
+            setShowDueDatePicker(false)
             setDueDateSelected(selectedDate)
             setDueDate(selectedDate)
             handleDueDate(selectedDate)
@@ -475,7 +478,6 @@ export default function Schedule () {
                         <Pressable 
                             onPress={() => {
                                 setShowDueDatePicker(!showDueDatePicker)
-                                setAndroid('dueDatePicker')
                             }}
                             className='w-[360] rounded-[18px] mt-3.5 mb-5 py-3 px-5 bg-white shadow-sm border'
                         >
@@ -492,7 +494,7 @@ export default function Schedule () {
                                     <Entypo name={showDueDatePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                                 </View>
                             </View>
-                            {showDueDatePicker && 
+                            {Platform.OS === 'ios' && showDueDatePicker && 
                                 <View className="mt-2 justify-between">
                                     <View className="items-center flex-row justify-between">
                                         <View className="mr-3">
