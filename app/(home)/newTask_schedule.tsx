@@ -162,17 +162,21 @@ export default function Schedule () {
             setDoDateTimeSelected(selectedDate)
             setDate(selectedDate)
             handleDoDate(selectedDate)
-            if(!dueDate) {
-                setDueDateSelected(selectedDate)
-            }
         } else if(id === 'dueDatePicker') {
+            setShowDueDatePicker(false)
             setDueDate(selectedDate)
             handleDueDate(selectedDate)
+            // if(Platform.OS !== 'ios') {
+            //     setShowDueDateTimePicker(false)
+            // }
         } else if(id === 'dueDateTimePicker') {
-            setShowDueDatePicker(false)
+            setShowDueDateTimePicker(false)
             setDueDateSelected(selectedDate)
             setDueDate(selectedDate)
             handleDueDate(selectedDate)
+            if(Platform.OS !== 'ios') {
+                setShowDueDatePicker(false)
+            }
         }
 
         console.log(selectedDate.toLocaleDateString(undefined, {
@@ -189,28 +193,39 @@ export default function Schedule () {
         // console.log(date)
         // console.log(dueDate)
     }
-
-    const handleDueDateCleared = () => {
-        setDueDate(null)
-        setShowDueDatePicker(!showDueDatePicker)
-        handleDueDate(null)
-    }
-
+    
     const handleTimeCleared = () => {
+        setShowDoDateTimePicker(false)
+
         const dateRemovedTime = new Date(date)
         dateRemovedTime.setHours(0, 0, 0, 0)
+
         setDate(dateRemovedTime)
-        setShowDoDateTimePicker(!showDoDateTimePicker)
         setDoDateTimeSelected(null)
         handleDoDate(dateRemovedTime)
-        // console.log(dateRemovedTime)
     }
 
-    const handleDueDateTimeCleared = () => {
+    const handleDueDateCleared = () => {
+        setShowDueDatePicker(false)
+        setShowDueDateTimePicker(false)
+
         const dateRemovedTime = new Date(date)
         dateRemovedTime.setHours(0, 0, 0, 0)
+
         setDueDate(dateRemovedTime)
-        setShowDueDateTimePicker(!showTimePicker)
+        setDueDateSelected(null)
+        setDueDateTimeSelected(null)
+        handleDueDate(null)
+    }
+    
+    const handleDueDateTimeCleared = () => {
+        setShowDueDateTimePicker(false)
+        setShowDueDatePicker(false)
+
+        const dateRemovedTime = new Date(date)
+        dateRemovedTime.setHours(0, 0, 0, 0)
+        
+        setDueDate(dateRemovedTime)
         setDueDateTimeSelected(null)
         handleDueDate(dateRemovedTime)
         // console.log(dateRemovedTime)
@@ -484,7 +499,7 @@ export default function Schedule () {
                             <View className="flex-row justify-between">
                                 <Text className='text-base font-medium'>Due date</Text>
                                 <View className="flex-row items-center">
-                                    <Text>{dueDate ? dueDateSelected.toLocaleDateString(undefined, {
+                                    <Text>{dueDateSelected ? dueDateSelected.toLocaleDateString(undefined, {
                                     year: 'numeric',
                                     month: 'long', 
                                     day: '2-digit',
@@ -506,14 +521,12 @@ export default function Schedule () {
                                                 onChange={onChange}
                                             />
                                         </View>
-                                        {Platform.OS === 'ios' &&
-                                            <Pressable
-                                                onPress={handleDueDateCleared}
-                                                className="py-2 px-3 rounded-md"
-                                            >
-                                                <Entypo name='cross' size={24} color="#E63946" />
-                                            </Pressable>
-                                        }
+                                        <Pressable
+                                            onPress={handleDueDateCleared}
+                                            className="py-2 px-3 rounded-md"
+                                        >
+                                            <Entypo name='cross' size={24} color="#E63946" />
+                                        </Pressable>
                                     </View>
                                     <View className="items-center flex-row justify-between">
                                         <View className="mr-3">
@@ -525,17 +538,71 @@ export default function Schedule () {
                                                 onChange={onChange}
                                             />
                                         </View>
-                                        {Platform.OS === 'ios' && 
+                                        <Pressable
+                                            onPress={handleDueDateTimeCleared}
+                                            className="py-2 px-3 rounded-md"
+                                        >
+                                            <Entypo name='cross' size={24} color="#E63946" />
+                                        </Pressable>
+                                    </View>
+                                </View>
+                            }
+                            {Platform.OS !== 'ios' && (
+                                <View className="mt-2 justify-between">
+                                    <View className="items-center flex-row justify-between">
+                                        <Pressable 
+                                            onPress={() => {
+                                                setShowDueDatePicker(!showDueDatePicker)
+                                                setAndroid('dueDatePicker')
+                                            }}
+                                            className='py-1 px-2.5 rounded-lg bg-[#EFEFF0] items-center'
+                                        >
+                                            <Text className="text-lg">{dueDate ? dueDate.toLocaleDateString(undefined, {day: '2-digit', month: 'short', year: 'numeric'}) : date.toLocaleDateString(undefined, {day: '2-digit', month: 'short', year: 'numeric'}) }</Text>
+                                        </Pressable>
+                                        {showDueDatePicker && 
+                                            <DateTimePicker
+                                                testID="dueDatePicker"
+                                                value={dueDate ? dueDate : date}
+                                                mode='date'
+                                                is24Hour={true}
+                                                onChange={onChange}
+                                            />
+                                        }
+                                            <Pressable
+                                                onPress={handleDueDateCleared}
+                                                className="py-2 px-3 rounded-md"
+                                                >
+                                                <Entypo name='cross' size={24} color="#E63946" />
+                                            </Pressable>
+                                    </View>
+                                    <View className="items-center flex-row justify-between">
+                                        <Pressable 
+                                            onPress={() => {
+                                                setShowDueDateTimePicker(!showDueDateTimePicker)
+                                                setAndroid('dueDateTimePicker')
+                                            }}
+                                            className='py-1 px-2.5 rounded-lg bg-[#EFEFF0] items-center'
+                                        >
+                                            <Text className="text-lg">{dueDate ? dueDate.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) : date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) }</Text>
+                                        </Pressable>
+                                        {showDueDateTimePicker &&
+                                            <DateTimePicker
+                                                testID="dueDateTimePicker"
+                                                value={dueDate ? dueDate : date}
+                                                mode='time'
+                                                is24Hour={true}
+                                                onChange={onChange}
+                                            />
+                                        }
                                             <Pressable
                                                 onPress={handleDueDateTimeCleared}
                                                 className="py-2 px-3 rounded-md"
                                             >
                                                 <Entypo name='cross' size={24} color="#E63946" />
                                             </Pressable>
-                                        }
                                     </View>
                                 </View>
-                            }
+                            )}
                         </Pressable>
                     </ScrollView>
                 </View>
