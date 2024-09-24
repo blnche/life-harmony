@@ -43,6 +43,8 @@ export default function Schedule () {
     const [showDueDateTimePicker, setShowDueDateTimePicker] = useState(false)
     
     const checkNewTodoDates = (newTodo) => {
+        console.log(`_________________`)
+        console.log(`function called`)
         const isDoDateSet = newTodo.do_date && new Date(newTodo.do_date).getTime() > 0
         const doDateHasTimeSet = isDoDateSet && new Date(newTodo.do_date).getHours() !== 0
         
@@ -51,41 +53,61 @@ export default function Schedule () {
 
         if(isDoDateSet) {
             const newDate = new Date(newTodo.do_date)
+            console.log('New Do Date:', newDate);
 
-            if(newDate.getTime() !== date.getTime()){
+            if(newDate.getTime() !== date.getTime()) {
                 setDate(newDate)
 
                 const today = new Date()
                 today.setHours(0, 0, 0, 0)
+                console.log('Today:', today)
+
+                const startOfWeek = new Date(today)
+                startOfWeek.setDate(today.getDate() - today.getDay() + 1)
+                startOfWeek.setHours(0, 0, 0, 0)
+                console.log('Start of Week:', startOfWeek)
+                
+                const endOfWeek = new Date(startOfWeek)
+                endOfWeek.setDate(endOfWeek.getDate() + 6)
+                console.log('End of Week:', endOfWeek)
+
+                const nextMonday = new Date(startOfWeek)
+                nextMonday.setDate(startOfWeek.getDate() + 7)
+                nextMonday.setHours(0, 0, 0, 0)
+                console.log('Next Monday:', nextMonday)
 
                 if(newDate.toDateString() === today.toDateString()) {
                     setDateSelected('today')
-                } else {
-                    const tomorrow = new Date(today)
-                    tomorrow.setDate(today.getDate() + 1)
+                } else if (newDate.toDateString() === new Date(today.setDate(today.getDate() + 1)).toDateString()) {
+                    setDateSelected('tomorrow')
+                } else if (new Date >= startOfWeek && newDate <= endOfWeek) {
+                    const dayOfWeek = newDate.getDay()
+                    console.log('Day of Week:', dayOfWeek);
 
-                    if(newDate.toDateString() === tomorrow.toDateString()) {
-                        setDateSelected('tomorrow')
-                    } else {
-                        const dayOfWeek = newDate.getDay()
+                    if(dayOfWeek === 5) {
+                        console.log(`Setting dateSelected to 'laterThisWeek'`);
+                        setDateSelected('laterThisWeek')
+                    } else if (dayOfWeek === 6) {
+                        console.log(`Setting dateSelected to 'thisWeekend'`);
+                        setDateSelected('thisWeekend')
+                    } else if (dayOfWeek === 1) {
+                        const daysFromToday = (newDate - today) / (1000 * 60 * 60 * 24)
+                        console.log('Days from Today:', daysFromToday);
 
-                        if(dayOfWeek === 5) {
-                            setDateSelected('laterThisWeek')
-                        } else if (dayOfWeek === 6) {
-                            setDateSelected('thisWeekend')
-                        } else if (dayOfWeek === 1) {
-                            const daysFromToday = (newDate - today) / (1000 * 60 * 60 * 24)
-                            if(daysFromToday > 0) {
-                                setDateSelected('nextWeek')
-                            }
-                        } else {
-                            setDoDateSelected(newDate)
-                            setDateSelected('customDate')
+                        if(daysFromToday > 0) {
                         }
-                    }
+                    } 
+                } else if (newDate.toDateString() === nextMonday.toDateString()) {
+                    console.log(`Setting dateSelected to 'nextWeek'`);
+                    setDateSelected('nextWeek')
+                } else {
+                    console.log(`Setting dateSelected to 'customDate'`);
+                    setDoDateSelected(newDate)
+                    setDateSelected('customDate')
                 }
 
                 if(doDateHasTimeSet) {
+                    console.log('Setting Do Date Time Selected:', newDate);
                     setDoDateTimeSelected(newDate)
                 }
             }
@@ -94,34 +116,41 @@ export default function Schedule () {
             const newDate = new Date(newTodo.due_date)
 
             if(!dueDate) {
-
+                console.log('Setting Due Date Selected:', newDate);
                 setDueDateSelected(newDate)
                 setDueDate(newDate)
 
-                if(dueDateHasTimeSet) {
+                if(dueDateHasTimeSet) {                
+                    console.log('Setting Due Date Time Selected:', newDate);
                     setDueDateTimeSelected(newDate)
                 }
             } 
         } 
+        console.log(`_________________`)
     }
 
     checkNewTodoDates(newTodo) 
  
     const onChange = (event : DateTimePickerEvent, selectedDate : Date) => {
         let id = event._dispatchInstances?.memoizedProps?.testID
-        console.log(event.type)
+        // console.log(event.type)
         console.log(selectedDate)
-        console.log(id)
+        // console.log(id)
 
+        if(event.type === 'dismissed') {
+            console.log(`was dismissed`)
+        }
+        
         if(Platform.OS !== 'ios') {
             id = android
-
+            
             if(event.type === 'neutralButtonPressed' && id === 'doDateTimePicker') {
                 handleTimeCleared()
             }
         }
+        console.log(id)
 
-        if(id === 'datePicker') {
+        if(id === 'doDatePicker') {
             setShowDoDatePicker(false)
             setDoDateSelected(selectedDate)
             setDate(selectedDate)
@@ -381,7 +410,7 @@ export default function Schedule () {
                             <Pressable 
                                 onPress={() => {
                                     setShowDoDatePicker(!showDoDatePicker)
-                                    setAndroid('datePicker')
+                                    setAndroid('doDatePicker')
                                 }}
                                 className={` py-1 px-2.5 w-full rounded-lg ${dateSelected === 'customDate' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -396,7 +425,7 @@ export default function Schedule () {
                                     <>
                                         <View className="mt-3 flex-row justify-center items-center">
                                             <DateTimePicker
-                                                testID="datePicker"
+                                                testID="doDatePicker"
                                                 value={date}
                                                 mode='date'
                                                 onChange={onChange}
