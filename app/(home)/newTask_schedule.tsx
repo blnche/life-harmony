@@ -1,5 +1,5 @@
 import { Button, Pressable, View, Text, Platform, SafeAreaView } from "react-native";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -30,13 +30,14 @@ export default function Schedule () {
     const [dueDate, setDueDate] = useState<Date | null>()
     // const [mode, setMode] = useState('date');
     // const [show, setShow] = useState(false);
+    const [android, setAndroid] = useState<string | null>(null)
     const [doDateSelected, setDoDateSelected] = useState<Date | null>(null)
     const [dueDateSelected, setDueDateSelected] = useState<Date | null>(null)
     const [doDateTimeSelected, setDoDateTimeSelected] = useState<Date | null>(null)
     const [dueDateTimeSelected, setDueDateTimeSelected] = useState<Date | null>(null)
     const [dateSelected, setDateSelected] = useState<string | null>(null)
     
-    const [showDatePicker, setShowDatePicker] = useState(false)
+    const [showDoDatePicker, setShowDoDatePicker] = useState(false)
     const [showDoDateTimePicker, setShowDoDateTimePicker] = useState(false)
     const [showDueDatePicker, setShowDueDatePicker] = useState(false)
     const [showDueDateTimePicker, setShowDueDateTimePicker] = useState(false)
@@ -79,7 +80,7 @@ export default function Schedule () {
                             }
                         } else {
                             setDoDateSelected(newDate)
-                            setDateSelected('custom')
+                            setDateSelected('customDate')
                         }
                     }
                 }
@@ -106,33 +107,42 @@ export default function Schedule () {
 
     checkNewTodoDates(newTodo) 
  
-    const onChange = (event, selectedDate) => {
-        console.log(event._dispatchInstances?.memoizedProps?.testID)
-        const id = event._dispatchInstances?.memoizedProps?.testID
+    const onChange = (event : DateTimePickerEvent, selectedDate : Date) => {
+        let id = event._dispatchInstances?.memoizedProps?.testID
+        console.log(event.type)
         console.log(selectedDate)
+        console.log(id)
+
+        if(Platform.OS !== 'ios') {
+            id = android
+
+            if(event.type === 'neutralButtonPressed' && id === 'doDateTimePicker') {
+                handleTimeCleared()
+            }
+        }
 
         if(id === 'datePicker') {
-            setShowDatePicker(!showDatePicker)
+            setShowDoDatePicker(false)
             setDoDateSelected(selectedDate)
             setDate(selectedDate)
             setDateSelected('customDate')
             handleDoDate(selectedDate)
         } else if(id === 'doDateTimePicker') {
-            setShowDoDateTimePicker(!showDoDateTimePicker)
+            setShowDoDateTimePicker(false)
             setDoDateTimeSelected(selectedDate)
             setDate(selectedDate)
             handleDoDate(selectedDate)
         } else if(id === 'dueDateTimePicker') {
-            setShowDueDateTimePicker(!showDueDateTimePicker)
+            setShowDueDatePicker(false)
             setDueDateTimeSelected(selectedDate)
             setDueDate(selectedDate)
             handleDueDate(selectedDate)
         } else if(id === 'dueDatePicker') {
-            setShowDueDatePicker(!showDueDatePicker)
             setDueDateSelected(selectedDate)
             setDueDate(selectedDate)
             handleDueDate(selectedDate)
         }
+
         console.log(selectedDate.toLocaleDateString(undefined, {
             year: 'numeric',
             month: 'long', 
@@ -158,9 +168,19 @@ export default function Schedule () {
         const dateRemovedTime = new Date(date)
         dateRemovedTime.setHours(0, 0, 0, 0)
         setDate(dateRemovedTime)
-        setShowTimePicker(!showTimePicker)
-        setdoDateTimeSelected(null)
+        setShowDoDateTimePicker(!showDoDateTimePicker)
+        setDoDateTimeSelected(null)
         handleDoDate(dateRemovedTime)
+        // console.log(dateRemovedTime)
+    }
+
+    const handleDueDateTimeCleared = () => {
+        const dateRemovedTime = new Date(date)
+        dateRemovedTime.setHours(0, 0, 0, 0)
+        setDueDate(dateRemovedTime)
+        setShowDueDateTimePicker(!showTimePicker)
+        setDueDateTimeSelected(null)
+        handleDueDate(dateRemovedTime)
         // console.log(dateRemovedTime)
     }
 
@@ -246,10 +266,15 @@ export default function Schedule () {
                         <View className="max-w-[360] rounded-[18px] mt-3.5 mb-5 p-3 bg-white shadow-sm border">
                             <Pressable 
                                 onPress={() => {
-                                    handleDoDate(new Date())
+                                    const currentDate = new Date()
+                                    if(doDateTimeSelected) {
+                                        currentDate.setHours(doDateTimeSelected.getHours(), doDateTimeSelected.getMinutes())
+                                    } else {
+                                        currentDate.setHours(0, 0, 0, 0)
+                                    }
+                                    handleDoDate(currentDate)
                                     setDateSelected('today')
-                                    setDate(new Date())
-                                    date.setHours(0, 0, 0, 0)
+                                    setDate(currentDate)
                                 }}
                                 className={`py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'today' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -261,10 +286,15 @@ export default function Schedule () {
                             </Pressable>
                             <Pressable 
                                 onPress={() => {
-                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.tomorrow'))?.date)
+                                    const predefinedDate = renderPrefinedDates(t('newTask.schedule.tomorrow'))?.date
+                                    if(doDateTimeSelected) {
+                                        predefinedDate?.setHours(doDateTimeSelected.getHours(), doDateTimeSelected.getMinutes())
+                                    } else {
+                                        predefinedDate?.setHours(0, 0, 0, 0)
+                                    }
+                                    handleDoDate(predefinedDate)
                                     setDateSelected('tomorrow')
-                                    setDate(renderPrefinedDates(t('newTask.schedule.tomorrow'))?.date)
-                                    date.setHours(0, 0, 0, 0)
+                                    setDate(predefinedDate)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'tomorrow' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -276,10 +306,15 @@ export default function Schedule () {
                             </Pressable>
                             <Pressable 
                                 onPress={() => {
-                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.later_this_week'))?.date)
+                                    const predefinedDate = renderPrefinedDates(t('newTask.schedule.later_this_week'))?.date
+                                    if(doDateTimeSelected) {
+                                        predefinedDate?.setHours(doDateTimeSelected.getHours(), doDateTimeSelected.getMinutes())
+                                    } else {
+                                        predefinedDate?.setHours(0, 0, 0, 0)
+                                    }
+                                    handleDoDate(predefinedDate)
                                     setDateSelected('laterThisWeek')
-                                    setDate(renderPrefinedDates(t('newTask.schedule.later_this_week'))?.date)
-                                    date.setHours(0, 0, 0, 0)
+                                    setDate(predefinedDate)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'laterThisWeek' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -291,10 +326,15 @@ export default function Schedule () {
                             </Pressable>
                             <Pressable 
                                 onPress={() => {
-                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.this_weekend'))?.date)
+                                    const predefinedDate = renderPrefinedDates(t('newTask.schedule.this_weekend'))?.date
+                                    if(doDateTimeSelected) {
+                                        predefinedDate?.setHours(doDateTimeSelected.getHours(), doDateTimeSelected.getMinutes())
+                                    } else {
+                                        predefinedDate?.setHours(0, 0, 0, 0)
+                                    }
+                                    handleDoDate(predefinedDate)
                                     setDateSelected('thisWeekend')
-                                    setDate(renderPrefinedDates(t('newTask.schedule.this_weekend'))?.date)
-                                    date.setHours(0, 0, 0, 0)
+                                    setDate(predefinedDate)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'thisWeekend' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -306,10 +346,15 @@ export default function Schedule () {
                             </Pressable>
                             <Pressable 
                                 onPress={() => {
-                                    handleDoDate(renderPrefinedDates(t('newTask.schedule.next_week'))?.date)
+                                    const predefinedDate = renderPrefinedDates(t('newTask.schedule.next_week'))?.date
+                                    if(doDateTimeSelected) {
+                                        predefinedDate?.setHours(doDateTimeSelected.getHours(), doDateTimeSelected.getMinutes())
+                                    } else {
+                                        predefinedDate?.setHours(0, 0, 0, 0)
+                                    }
+                                    handleDoDate(predefinedDate)
                                     setDateSelected('nextWeek')
-                                    setDate(renderPrefinedDates(t('newTask.schedule.next_week'))?.date)
-                                    date.setHours(0, 0, 0, 0)
+                                    setDate(predefinedDate)
                                 }}
                                 className={` py-1 px-2.5 mb-1.5 flex-row justify-between items-center w-full rounded-lg ${dateSelected === 'nextWeek' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
@@ -334,24 +379,26 @@ export default function Schedule () {
                                 </View>
                             </Pressable>
                             <Pressable 
-                                onPress={() => setShowDatePicker(!showDatePicker)}
-                                className={` py-1 px-2.5 w-full rounded-lg ${dateSelected === 'custom' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
+                                onPress={() => {
+                                    setShowDoDatePicker(!showDoDatePicker)
+                                    setAndroid('datePicker')
+                                }}
+                                className={` py-1 px-2.5 w-full rounded-lg ${dateSelected === 'customDate' ? 'border-[#548164] bg-[#EEF3ED]' : ''}`}
                             >
                                 <View className="flex-row justify-between items-center ">
                                     <View className="flex-row items-center">
                                         <MaterialCommunityIcons name="calendar-search" size={24} color="black" />                                        
                                         <Text className='ml-3.5 text-base font-medium'>{t('newTask.schedule.pick_date')}</Text>
                                     </View>
-                                    <Text>{doDateSelected ? doDateSelected.toLocaleDateString(undefined, {day: '2-digit', weekday: 'short', month: 'short'}) : ''}</Text>
+                                    <Text>{doDateSelected && dateSelected === 'customDate' ? doDateSelected.toLocaleDateString(undefined, {day: '2-digit', weekday: 'short', month: 'short'}) : ''}</Text>
                                 </View>
-                                {showDatePicker && 
+                                {showDoDatePicker && 
                                     <>
                                         <View className="mt-3 flex-row justify-center items-center">
                                             <DateTimePicker
                                                 testID="datePicker"
                                                 value={date}
                                                 mode='date'
-                                                is24Hour={true}
                                                 onChange={onChange}
                                             />
                                         </View>
@@ -360,18 +407,21 @@ export default function Schedule () {
                             </Pressable>
                         </View>
                         <Pressable 
-                            onPress={() => setShowDoDateTimePicker(!showDoDateTimePicker)}
+                            onPress={() => {
+                                setShowDoDateTimePicker(!showDoDateTimePicker)
+                                setAndroid('doDateTimePicker')
+                            }}
                             className='w-[360] rounded-[18px] mt-3.5 mb-5 py-3 px-5 bg-white shadow-sm border'
                         >
                             <View className="flex-row justify-between">
                                 <Text className='text-base font-medium'>Time</Text>
                                 <View className="flex-row items-center">
-                                    <Text>{doDateTimeSelected ? doDateTimeSelected.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) : 'None'}</Text>
+                                    <Text>{doDateTimeSelected ? doDateTimeSelected.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) : t('newTask.none')}</Text>
                                     <Entypo name={showDoDateTimePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                                 </View>
                             </View>
                             {showDoDateTimePicker && 
-                                <View className="items-center space-y-4 mt-2 ">
+                                <View className="justify-between flex-row mt-2 ">
                                     <View className=" mr-3">
                                         <DateTimePicker
                                             testID="doDateTimePicker"
@@ -379,6 +429,7 @@ export default function Schedule () {
                                             mode='time'
                                             is24Hour={true}
                                             onChange={onChange}
+                                            neutralButton={{label: 'Clear'}}
                                         />
                                     </View>
                                     {Platform.OS === 'ios' && 
@@ -386,63 +437,75 @@ export default function Schedule () {
                                             onPress={handleTimeCleared}
                                             className=" py-2 px-3 rounded-md"
                                         >
-                                            <Entypo name='cross' size={24} color="red" />
+                                            <Entypo name='cross' size={24} color="#E63946" />
                                         </Pressable>
                                     }
                                 </View>
                             }
                         </Pressable>
                         <Pressable 
-                            onPress={() => setShowDueDatePicker(!showDueDatePicker)}
+                            onPress={() => {
+                                setShowDueDatePicker(!showDueDatePicker)
+                                setAndroid('dueDatePicker')
+                            }}
                             className='w-[360] rounded-[18px] mt-3.5 mb-5 py-3 px-5 bg-white shadow-sm border'
                         >
                             <View className="flex-row justify-between">
                                 <Text className='text-base font-medium'>Due date</Text>
                                 <View className="flex-row items-center">
-                                    <Text>{dueDate ? dueDateSelected.toLocaleDateString() : 'None'}</Text>
+                                    <Text>{dueDate ? dueDateSelected.toLocaleDateString(undefined, {
+                                    year: 'numeric',
+                                    month: 'long', 
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) : t('newTask.none')}</Text>
                                     <Entypo name={showDueDatePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                                 </View>
                             </View>
                             {showDueDatePicker && 
-                                <View className="items-center space-y-4 mt-2">
-                                    <View className="mr-3">
-                                        <DateTimePicker
-                                            testID="dueDatePicker"
-                                            value={dueDate ? dueDate : date}
-                                            mode='date'
-                                            is24Hour={true}
-                                            onChange={onChange}
-                                        />
+                                <View className="mt-2 justify-between">
+                                    <View className="items-center flex-row justify-between">
+                                        <View className="mr-3">
+                                            <DateTimePicker
+                                                testID="dueDatePicker"
+                                                value={dueDate ? dueDate : date}
+                                                mode='date'
+                                                is24Hour={true}
+                                                onChange={onChange}
+                                            />
+                                        </View>
+                                        {Platform.OS === 'ios' &&
+                                            <Pressable
+                                                onPress={handleDueDateCleared}
+                                                className="py-2 px-3 rounded-md"
+                                            >
+                                                <Entypo name='cross' size={24} color="#E63946" />
+                                            </Pressable>
+                                        }
                                     </View>
-                                    {Platform.OS === 'ios' &&
-                                        <Pressable
-                                            onPress={handleDueDateCleared}
-                                            className="py-2 px-3 rounded-md"
-                                        >
-                                            <Entypo name='cross' size={24} color="red" />
-                                        </Pressable>
-                                    }
-                                    <View className=" mr-3">
-                                        <DateTimePicker
-                                            testID="dueDateTimePicker"
-                                            value={dueDate}
-                                            mode='time'
-                                            is24Hour={true}
-                                            onChange={onChange}
-                                        />
+                                    <View className="items-center flex-row justify-between">
+                                        <View className="mr-3">
+                                            <DateTimePicker
+                                                testID="dueDateTimePicker"
+                                                value={dueDate ? dueDate : date}
+                                                mode='time'
+                                                is24Hour={true}
+                                                onChange={onChange}
+                                            />
+                                        </View>
+                                        {Platform.OS === 'ios' && 
+                                            <Pressable
+                                                onPress={handleDueDateTimeCleared}
+                                                className="py-2 px-3 rounded-md"
+                                            >
+                                                <Entypo name='cross' size={24} color="#E63946" />
+                                            </Pressable>
+                                        }
                                     </View>
-                                    {Platform.OS === 'ios' && 
-                                        <Pressable
-                                            onPress={handleTimeCleared}
-                                            className=" py-2 px-3 rounded-md"
-                                        >
-                                            <Entypo name='cross' size={24} color="red" />
-                                        </Pressable>
-                                    }
                                 </View>
                             }
                         </Pressable>
-                        
                     </ScrollView>
                 </View>
             </SafeAreaView>

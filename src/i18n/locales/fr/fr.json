@@ -42,8 +42,9 @@
     },
     "newTask": {
         "cancel" : "Cancel",
-        "done": "Fait",
-        "title_placeholder": "Titre...",
+        "done" : "Fait",
+        "none" : " Aucun",
+        "title_placeholder" : "Titre...",
         "schedule": {
             "schedule" : "Planifier",
             "today" : "Aujourd'hui",

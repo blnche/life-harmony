@@ -45,6 +45,7 @@
     "newTask" : {
         "cancel" : "Cancel",
         "done" : "Done",
+        "none" : "None",
         "title_placeholder" : "Title...",
         "schedule": {
             "schedule" : "Schedule",
