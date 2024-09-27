@@ -24,7 +24,6 @@ export default function Schedule () {
     const route = useRoute()
     const { newTodo, handleDoDate, handleDueDate } = useNewTaskContext()
 
-    // DATE TIME PICKER 
     const [date, setDate] = useState(new Date())
     // date.setHours(0, 0, 0, 0)
     const [dueDate, setDueDate] = useState<Date | null>()
@@ -37,6 +36,7 @@ export default function Schedule () {
     const [dueDateTimeSelected, setDueDateTimeSelected] = useState<Date | null>(null)
     const [dateSelected, setDateSelected] = useState<string | null>(null)
     
+    // DATE TIME PICKER 
     const [showDoDatePicker, setShowDoDatePicker] = useState(false)
     const [showDoDateTimePicker, setShowDoDateTimePicker] = useState(false)
     const [showDueDatePicker, setShowDueDatePicker] = useState(false)
@@ -141,42 +141,47 @@ export default function Schedule () {
         if(event.type === 'dismissed') {
             console.log(`was dismissed`)
         }
+        if(event.type === 'set') {
+            console.log(`was set`)
+        }
         
         if(Platform.OS !== 'ios') {
             id = android
-            
-            if(event.type === 'neutralButtonPressed' && id === 'doDateTimePicker') {
-                handleTimeCleared() // not working
-            }
         }
-        console.log(id)
+        // console.log(id)
 
         if(id === 'doDatePicker') {
             setShowDoDatePicker(false)
+            setDateSelected('customDate')
+
             setDoDateSelected(selectedDate)
             setDate(selectedDate)
-            setDateSelected('customDate')
+
             handleDoDate(selectedDate)
         } else if(id === 'doDateTimePicker') {
             setShowDoDateTimePicker(false)
+
             setDoDateTimeSelected(selectedDate)
             setDate(selectedDate)
+
             handleDoDate(selectedDate)
         } else if(id === 'dueDatePicker') {
             setShowDueDatePicker(false)
-            setDueDate(selectedDate)
-            handleDueDate(selectedDate)
-            // if(Platform.OS !== 'ios') {
-            //     setShowDueDateTimePicker(false)
-            // }
-        } else if(id === 'dueDateTimePicker') {
-            setShowDueDateTimePicker(false)
+
             setDueDateSelected(selectedDate)
             setDueDate(selectedDate)
+
             handleDueDate(selectedDate)
-            if(Platform.OS !== 'ios') {
-                setShowDueDatePicker(false)
-            }
+        } else if(id === 'dueDateTimePicker') {
+            setShowDueDateTimePicker(false)
+
+            setDueDateTimeSelected(selectedDate)
+            setDueDate(selectedDate)
+
+            handleDueDate(selectedDate)
+            // if(Platform.OS !== 'ios') {
+            //     setShowDueDatePicker(false)
+            // }
         }
 
         console.log(selectedDate.toLocaleDateString(undefined, {
@@ -209,10 +214,7 @@ export default function Schedule () {
         setShowDueDatePicker(false)
         setShowDueDateTimePicker(false)
 
-        const dateRemovedTime = new Date(date)
-        dateRemovedTime.setHours(0, 0, 0, 0)
-
-        setDueDate(dateRemovedTime)
+        setDueDate(null)
         setDueDateSelected(null)
         setDueDateTimeSelected(null)
         handleDueDate(null)
@@ -222,12 +224,20 @@ export default function Schedule () {
         setShowDueDateTimePicker(false)
         setShowDueDatePicker(false)
 
-        const dateRemovedTime = new Date(date)
-        dateRemovedTime.setHours(0, 0, 0, 0)
+        let dueDateRemovedTime 
+
+        if(dueDate) {
+            dueDateRemovedTime = new Date(dueDate)
+        } else {
+            dueDateRemovedTime = new Date(date)
+        }
+
+        dueDateRemovedTime.setHours(0, 0, 0, 0)
         
-        setDueDate(dateRemovedTime)
+        setDueDate(dueDateRemovedTime)
         setDueDateTimeSelected(null)
-        handleDueDate(dateRemovedTime)
+
+        handleDueDate(dueDateRemovedTime)
         // console.log(dateRemovedTime)
     }
 
@@ -313,6 +323,7 @@ export default function Schedule () {
                         <View className="max-w-[360] rounded-[18px] mt-3.5 mb-5 p-3 bg-white shadow-sm border">
                             <Pressable 
                                 onPress={() => {
+                                    setShowDoDatePicker(false)
                                     const currentDate = new Date()
                                     if(doDateTimeSelected) {
                                         currentDate.setHours(doDateTimeSelected.getHours(), doDateTimeSelected.getMinutes())
@@ -492,20 +503,36 @@ export default function Schedule () {
                         </Pressable>
                         <Pressable 
                             onPress={() => {
-                                setShowDueDatePicker(!showDueDatePicker)
+                                if(Platform.OS === 'ios') {
+
+                                    setShowDueDatePicker(!showDueDatePicker)
+                                }
                             }}
                             className='w-[360] rounded-[18px] mt-3.5 mb-5 py-3 px-5 bg-white shadow-sm border'
                         >
                             <View className="flex-row justify-between">
                                 <Text className='text-base font-medium'>Due date</Text>
                                 <View className="flex-row items-center">
-                                    <Text>{dueDateSelected ? dueDateSelected.toLocaleDateString(undefined, {
-                                    year: 'numeric',
-                                    month: 'long', 
-                                    day: '2-digit',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                }) : t('newTask.none')}</Text>
+                                    <Text>
+                                        {dueDateTimeSelected ? (
+                                            dueDateTimeSelected.toLocaleDateString(undefined, {
+                                                year: 'numeric',
+                                                month: 'long', 
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })
+                                        ) : (
+                                            dueDateSelected ? (
+                                                dueDateSelected.toLocaleDateString(undefined, {
+                                                    year: 'numeric',
+                                                    month: 'long', 
+                                                    day: '2-digit'
+                                                })
+                                        ) : 
+                                            t('newTask.none')
+                                        )}
+                                </Text>
                                     <Entypo name={showDueDatePicker ? 'chevron-down' : 'chevron-right'} size={24} color="black" />
                                 </View>
                             </View>
